@@ -5,15 +5,13 @@ from wtforms.validators import Email, Length, DataRequired, NumberRange, InputRe
 
 app = Flask(__name__)
 
-import db
 
+import db
 
 
 @app.route('/')
 def feed():
-    return render_template("feed.html")
-
-
+    return render_template("index.html")
 
 
 class postForm(FlaskForm):
