@@ -13,3 +13,14 @@ def open_db_connection():
 def close_db_connection():
     g.cursor.close()
     g.connection.close()
+
+
+#def create_member(destination, year, semester):
+ #   """Create a new member."""
+ #   query = '''
+#INSERT INTO trip (destination, year, semester)
+#VALUES (%(destination)s, %(year)s, %(semester)s)
+ #   '''
+  #  g.cursor.execute(query, {'destination': destination, 'year': year, 'semester': semester})
+   # g.connection.commit()
+    #return g.cursor.rowcount

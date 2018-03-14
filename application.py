@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, flash, redirect, url_for
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField, FloatField, PasswordField, BooleanField, ValidationError
+from wtforms import StringField, SubmitField, SelectField, FloatField, PasswordField, BooleanField, ValidationError, IntegerField
 from wtforms.validators import Email, Length, DataRequired, NumberRange, InputRequired, EqualTo, Regexp
 
 app = Flask(__name__)
@@ -17,7 +17,13 @@ def feed():
 
 
 class postForm(FlaskForm):
-    destination= StringField('Destination', validators=[Length(min=1, max=40, message='Destination has to be min of 1 and max of 40')])
+    #Variables for a post are:  price, picture, time, info, quantitiy, name, pickup location
+    price = FloatField('Price (i.e. 6.25', validators=[NumberRange(min=1, max=100, message='Price has to be between 1 and 100 dollars')])
+    quantity = IntegerField('Quantity', validators=[NumberRange(min=1, max=50, message='The Quantity has to be between 1 and 50')])
+    name = StringField('Name', validators=[Length(min=1, max=40, message='Name has to be min of 1 and max of 40')])
+
+
+
     year = StringField('Year', validators=[Regexp(r'^\d{4}$', message='Year has to be 4 digits'), Length(min=1, max=40, message="Year has to be min of 1 and max of 40")])
     semester = SelectField('Semester', choices=[('fall', 'Fall'), ('interterm', 'Interterm'), ('spring', 'Spring'), ('spring break', 'Spring Break')])
     #email = StringField('Email', validators=[Email()])
