@@ -2,7 +2,7 @@ from flask import g
 import psycopg2
 import psycopg2.extras
 
-data_source_name = 'host=faraday.cse.taylor.edu dbname=joeyferg user=joeyferg password=kavibeda'
+data_source_name = 'host=faraday.cse.taylor.edu dbname=joeschuette user=joeschuette password=kahilewo'
 
 
 def open_db_connection():
