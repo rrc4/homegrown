@@ -4,12 +4,10 @@ from wtforms import StringField, SubmitField, SelectField, FloatField, PasswordF
 from wtforms.validators import Email, Length, DataRequired, NumberRange, InputRequired, EqualTo, Regexp
 
 app = Flask(__name__)
-
-
-import db
 app.config['SECRET_KEY'] = 'Super Secret Unguessable Key'
 
 
+import db
 
 
 @app.before_request
@@ -22,11 +20,9 @@ def teardown_request(exception):
     db.close_db_connection()
 
 
-
-
 @app.route('/')
 def feed():
-    return render_template("feed.html")
+    return render_template("index.html")
 
 
 class PostForm(FlaskForm):
