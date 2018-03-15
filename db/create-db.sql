@@ -13,8 +13,10 @@ COMMENT ON TABLE member IS 'Member';
 CREATE TABLE post
 (
   id SERIAL PRIMARY KEY,
-  product VARCHAR(40) NOT NULL
-
+  price FLOAT NOT NULL,
+  quantity INTEGER NOT NULL,
+  product VARCHAR(40) NOT NULL,
+  loc VARCHAR(40) NOT NULL
 );
 CREATE UNIQUE INDEX trip_id_index ON post (id);
 COMMENT ON TABLE post IS 'Post';
