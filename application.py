@@ -7,8 +7,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'Super Secret Unguessable Key'
 
 
-import db
 
+import db
 
 @app.before_request
 def before_request():
@@ -23,13 +23,14 @@ def teardown_request(exception):
 @app.route('/')
 def feed():
     return render_template("index.html")
-
-
+  
+  
 class PostForm(FlaskForm):
     price = FloatField('Price', validators=[NumberRange(min=1, max=100, message='Price has to be between 1 and 100 dollars')])
     quantity = IntegerField('Quantity', validators=[NumberRange(min=1, max=1000, message='The Quantity has to be between 1 and 1000')])
     product = StringField('Product', validators=[Length(min=1, max=40, message='Product has to be min of 1 and max of 40')])
     loc = StringField('Location', validators=[Length(min=1, max=40, message='Location has to be between 1 and 40')])
+
 
     submit = SubmitField('Save Post')
 
