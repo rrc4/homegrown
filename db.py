@@ -2,8 +2,9 @@ from flask import g
 import psycopg2
 import psycopg2.extras
 
-data_source_name = 'host=faraday.cse.taylor.edu dbname=rrc4 user=rrc4 password=decisage'
+# Database Utilities ########################################
 
+data_source_name = 'host=faraday.cse.taylor.edu dbname=rrc4 user=rrc4 password=decisage'
 
 def open_db_connection():
     g.connection = psycopg2.connect(data_source_name)
@@ -15,12 +16,11 @@ def close_db_connection():
     g.connection.close()
 
 
-#def create_member(destination, year, semester):
- #   """Create a new member."""
- #   query = '''
-#INSERT INTO trip (destination, year, semester)
-#VALUES (%(destination)s, %(year)s, %(semester)s)
- #   '''
-  #  g.cursor.execute(query, {'destination': destination, 'year': year, 'semester': semester})
-   # g.connection.commit()
-    #return g.cursor.rowcount
+def create_post(price, quantity, product, loc):
+    query = '''
+        INSERT INTO post (price, quantity, product, loc)
+        VALUES (%(price)s, %(quantity)s, %(product)s, %(loc)s)
+    '''
+    g.cursor.execute(query, {'price': price, 'quantity': quantity, 'product': product, 'loc': loc})
+    g.connection.commit()
+    return g.cursor.rowcount
