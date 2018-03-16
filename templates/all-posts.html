@@ -26,7 +26,7 @@
         {% endfor %}
     </table>
 
-    <a href='/post/create'>Go To Create Post</a>
+    <a href="{{ url_for('create_post') }}">Go To Create Post</a>
     <br>
-    <br>
+    <a href="{{ url_for('feed') }}">Home</a>
 {% endblock %}
