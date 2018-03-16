@@ -36,3 +36,11 @@ def all_members():
     '''
     g.cursor.execute(query)
     return g.cursor.fetchall()
+
+
+def all_posts():
+    query = '''
+        SELECT * FROM post p
+    '''
+    g.cursor.execute(query)
+    return g.cursor.fetchall()
