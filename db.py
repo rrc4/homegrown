@@ -2,7 +2,8 @@ from flask import g
 import psycopg2
 import psycopg2.extras
 
-data_source_name = 'host=faraday.cse.taylor.edu dbname=joeyferg user=joeyferg password=kavibeda'
+#data_source_name = 'host=faraday.cse.taylor.edu dbname=joeyferg user=joeyferg password=kavibeda'
+data_source_name = 'host=faraday.cse.taylor.edu dbname=rrc4 user=rrc4 password=decisage'
 
 
 def open_db_connection():
@@ -28,6 +29,14 @@ def create_post(price, quantity, product, loc):
 def all_members():
     query = '''
         SELECT * FROM member m
+    '''
+    g.cursor.execute(query)
+    return g.cursor.fetchall()
+
+
+def all_posts():
+    query = '''
+        SELECT * FROM post p
     '''
     g.cursor.execute(query)
     return g.cursor.fetchall()
