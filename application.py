@@ -1,14 +1,14 @@
-from flask import Flask, render_template, request, flash, redirect, url_for
+from flask import Flask, render_template, flash, redirect, url_for
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField, FloatField, PasswordField, BooleanField, ValidationError, IntegerField
-from wtforms.validators import Email, Length, DataRequired, NumberRange, InputRequired, EqualTo, Regexp
+from wtforms import StringField, SubmitField, FloatField, IntegerField
+from wtforms.validators import Length, NumberRange
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'Super Secret Unguessable Key'
 
 
-
 import db
+
 
 @app.before_request
 def before_request():
@@ -26,16 +26,15 @@ def feed():
   
   
 class PostForm(FlaskForm):
-    price = FloatField('Price', validators=[NumberRange(min=1, max=100, message='Price has to be between 1 and 100 dollars')])
-    quantity = IntegerField('Quantity', validators=[NumberRange(min=1, max=1000, message='The Quantity has to be between 1 and 1000')])
-    product = StringField('Product', validators=[Length(min=1, max=40, message='Product has to be min of 1 and max of 40')])
+    price = FloatField('Price', validators=[NumberRange(min=1, max=100, message='Price must be between $1 and $100')])
+    quantity = IntegerField('Quantity', validators=[NumberRange(min=1, max=1000, message='Quantity must be between 1 and 1000')])
+    product = StringField('Product', validators=[Length(min=1, max=40, message='Product must be min of 1 and max of 40 characters')])
     loc = StringField('Location', validators=[Length(min=1, max=40, message='Location has to be between 1 and 40')])
-
 
     submit = SubmitField('Save Post')
 
 
-# Create a member
+# Create a post
 @app.route('/post/create', methods=['GET', 'POST'])
 def create_post():
     post_form = PostForm()
@@ -47,15 +46,21 @@ def create_post():
                                       post_form.loc.data)
 
             if rowcount == 1:
-                flash("Trip added successfully")
+                flash("Post added successfully")
                 return redirect(url_for('feed'))
             else:
-                flash("New trip not created")
+                flash("New post not created")
 
     for error in post_form.errors:
         for field_error in post_form.errors[error]:
             flash(field_error)
-    return render_template('post_form.html', form=post_form, mode='create')
+    return render_template('post-form.html', form=post_form, mode='create')
+
+
+# Gets a list of all the members in the database
+@app.route('/members')
+def all_members():
+    return render_template('all-members.html', members=db.all_members())
 
 
 if __name__ == '__main__':
