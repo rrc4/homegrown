@@ -47,7 +47,7 @@ def create_post():
 
             if rowcount == 1:
                 flash("Post added successfully")
-                return redirect(url_for('feed'))
+                return redirect(url_for('all_posts'))
             else:
                 flash("New post not created")
 
@@ -61,6 +61,11 @@ def create_post():
 @app.route('/members')
 def all_members():
     return render_template('all-members.html', members=db.all_members())
+
+
+@app.route('/posts')
+def all_posts():
+    return render_template('all-posts.html', posts=db.all_posts())
 
 
 if __name__ == '__main__':
