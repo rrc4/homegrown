@@ -8,7 +8,7 @@ CREATE TABLE member
   last_name VARCHAR(40) NOT NULL,
   email VARCHAR(40) NOT NULL,
   password VARCHAR(40) NOT NULL,
-  phone BIGINT NOT NULL,
+  phone VARCHAR(10) NOT NULL,
   rating FLOAT NOT NULL,
   active BOOLEAN NOT NULL
 );
