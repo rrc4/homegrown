@@ -26,6 +26,38 @@
         {% endfor %}
     </table>
 
+
+    {% for aPost in posts %}
+
+
+        <div class="card" style="width: 18rem;">
+          <img class="card-img-top" src="..." alt="Card image cap">
+          <div class="card-body">
+            <h5 class="card-title">{{ aPost.product }}</h5>
+            <p class="card-text">We should allow for description stuff.</p>
+          </div>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item"><b>Price: </b>{{'${:,.2f}'.format(aPost.price) }}</li>
+            <li class="list-group-item"><b>Quantity: </b>{{ aPost.quantity }}</li>
+            <li class="list-group-item"><b>Pickup Location: </b>{{ aPost.loc }}</li>
+          </ul>
+          <div class="card-body">
+            <a href="#" class="card-link"><b>Buy</b></a>
+            <a href="#" class="card-link">Open Modal!</a>
+          </div>
+        </div>
+
+    {% endfor %}
+
+
+
+
+
+
+
+
+
+
     <a href="{{ url_for('create_post') }}">Go To Create Post</a>
     <br>
     <a href="{{ url_for('feed') }}">Home</a>
