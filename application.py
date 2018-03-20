@@ -21,16 +21,16 @@ def teardown_request(exception):
 
 
 @app.route('/')
-def feed():
+def index():
     return render_template("index.html")
   
   
 class PostForm(FlaskForm):
-    price = FloatField('Price', validators=[NumberRange(min=1, max=100, message='Price must be between $1 and $100')])
-    quantity = IntegerField('Quantity', validators=[NumberRange(min=1, max=1000, message='Quantity must be between 1 and 1000')])
-    product = StringField('Product', validators=[Length(min=1, max=40, message='Product must be min of 1 and max of 40 characters')])
-    loc = StringField('Location', validators=[Length(min=1, max=40, message='Location has to be between 1 and 40')])
-    description = StringField('Description', validators=[Length(min=0, max=150)])
+    product = StringField('Product (ex. Strawberries)', validators=[Length(min=1, max=40, message='Product must be between 1 and 40 characters')])
+    description = StringField('Description (<150 characters)', validators=[Length(min=1, max=150, message='Description must be between 1 and 150 characters')])
+    price = FloatField('Price (ex. 5.99)', validators=[NumberRange(min=0.01, max=1000, message='Price must be between $0.01 and $1000')])
+    quantity = IntegerField('Quantity (ex. 100)', validators=[NumberRange(min=1, max=1000, message='Quantity must be between 1 and 1000')])
+    loc = StringField('Location (ex. Indianapolis)', validators=[Length(min=1, max=40, message='Location must be between 1 and 40 characters')])
 
     submit = SubmitField('Save Post')
 
@@ -64,9 +64,9 @@ class UserForm(FlaskForm):
     first_name = StringField('First Name', validators=[Length(min=1, max=40)])
     last_name = StringField('Last Name', validators=[Length(min=1, max=40)])
     email = StringField('Email', validators=[Email()])
-    phone = StringField('Phone', validators=[Length(min=10, max=10)])
     password = PasswordField('New Password', [InputRequired(), EqualTo('confirm', message='Passwords must match')])
     confirm = PasswordField('Repeat Password')
+    phone = StringField('Phone', validators=[Length(min=10, max=10)])
     submit = SubmitField('Save User')
 
 
@@ -83,8 +83,8 @@ def create_user():
             rowcount = db.create_user(user_form.first_name.data,
                                       user_form.last_name.data,
                                       user_form.email.data,
-                                      user_form.phone.data,
                                       user_form.password.data,
+                                      user_form.phone.data,
                                       5.0,
                                       True)
 
