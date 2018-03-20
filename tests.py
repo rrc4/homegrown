@@ -24,9 +24,9 @@ class ApplicationTestCase(FlaskTestCase):
         resp = self.client.get('/')
         self.assertTrue(b'Feed' in resp.data, "Didn't find welcome message on home page")
 
-    def test_member_page(self):
-        resp = self.client.get(url_for('all_members'))
-        self.assertTrue(b'All Members' in resp.data)
+    def test_user_page(self):
+        resp = self.client.get(url_for('all_users'))
+        self.assertTrue(b'All Users' in resp.data)
 
 
 class DatabaseTestCase(FlaskTestCase):

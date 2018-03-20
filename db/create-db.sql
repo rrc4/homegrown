@@ -1,7 +1,7 @@
-DROP TABLE IF EXISTS member;
+DROP TABLE IF EXISTS "user";
 DROP TABLE IF EXISTS post;
 
-CREATE TABLE member
+CREATE TABLE "user"
 (
   id SERIAL PRIMARY KEY,
   first_name VARCHAR(40) NOT NULL,
@@ -12,8 +12,8 @@ CREATE TABLE member
   rating FLOAT NOT NULL,
   active BOOLEAN NOT NULL
 );
-CREATE UNIQUE INDEX member_id_index ON member (id);
-COMMENT ON TABLE member IS 'Member';
+CREATE UNIQUE INDEX user_id_index ON "user" (id);
+COMMENT ON TABLE "user" IS 'User';
 
 CREATE TABLE post
 (

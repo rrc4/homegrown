@@ -57,48 +57,48 @@ def create_post():
     return render_template('post-form.html', form=post_form, mode='create')
 
 
-# Create a form member
-class MemberForm(FlaskForm):
+# Create a form user
+class UserForm(FlaskForm):
     first_name = StringField('First Name', validators=[Length(min=1, max=40)])
     last_name = StringField('Last Name', validators=[Length(min=1, max=40)])
     email = StringField('Email', validators=[Email()])
     phone = StringField('Phone', validators=[Length(min=10, max=10)])
     password = PasswordField('New Password', [InputRequired(), EqualTo('confirm', message='Passwords must match')])
     confirm = PasswordField('Repeat Password')
-    submit = SubmitField('Save Member')
+    submit = SubmitField('Save User')
 
 
-@app.route('/members/create', methods=['GET', 'POST'])
-def create_member():
-    member_form = MemberForm()
+@app.route('/users/create', methods=['GET', 'POST'])
+def create_user():
+    user_form = UserForm()
 
-    if member_form.validate_on_submit():
-        member = db.find_member(member_form.email.data)
+    if user_form.validate_on_submit():
+        user = db.find_user(user_form.email.data)
 
-        if member is not None:
-            flash("Member {} already exists".format(member_form.email.data));
+        if user is not None:
+            flash("User {} already exists".format(user_form.email.data));
         else:
-            rowcount = db.create_member(member_form.first_name.data,
-                                        member_form.last_name.data,
-                                        member_form.email.data,
-                                        member_form.phone.data,
-                                        member_form.password.data,
-                                        5.0,
-                                        True)
+            rowcount = db.create_user(user_form.first_name.data,
+                                      user_form.last_name.data,
+                                      user_form.email.data,
+                                      user_form.phone.data,
+                                      user_form.password.data,
+                                      5.0,
+                                      True)
 
             if rowcount == 1:
-                flash("Member {} created".format(member_form.email.data))
-                return redirect(url_for('all_members'))
+                flash("User {} created".format(user_form.email.data))
+                return redirect(url_for('all_users'))
             else:
-                flash("New member not created")
+                flash("New user not created")
 
-    return render_template('member-form.html', form=member_form, mode='create')
+    return render_template('user-form.html', form=user_form, mode='create')
 
 
-# Gets a list of all the members in the database
-@app.route('/members')
-def all_members():
-    return render_template('all-members.html', members=db.all_members())
+# Gets a list of all the users in the database
+@app.route('/users')
+def all_users():
+    return render_template('all-users.html', users=db.all_users())
 
 
 @app.route('/posts')

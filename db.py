@@ -20,9 +20,9 @@ def close_db_connection():
     g.connection.close()
 
 
-def create_member(first_name, last_name, email, password, phone, rating, active):
+def create_user(first_name, last_name, email, password, phone, rating, active):
     query = '''
-        INSERT INTO member (first_name, last_name, email, phone, password, rating, active)
+        INSERT INTO "user" (first_name, last_name, email, phone, password, rating, active)
         VALUES (%(first_name)s, %(last_name)s, %(email)s, %(phone)s, %(password)s, %(rating)s, %(active)s)
     '''
     g.cursor.execute(query, {'first_name': first_name, 'last_name': last_name, 'email': email,
@@ -31,14 +31,14 @@ def create_member(first_name, last_name, email, password, phone, rating, active)
     return g.cursor.rowcount
 
 
-def find_member(email):
-    g.cursor.execute('SELECT * FROM member WHERE email = %(email)s', {'email': email})
+def find_user(email):
+    g.cursor.execute('SELECT * FROM "user" WHERE email = %(email)s', {'email': email})
     return g.cursor.fetchone()
 
 
-def all_members():
+def all_users():
     query = '''
-        SELECT * FROM member m
+        SELECT * FROM "user" u
     '''
     g.cursor.execute(query)
     return g.cursor.fetchall()
