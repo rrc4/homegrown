@@ -5,56 +5,43 @@
 {% block content %}
 
     <h1>Posts</h1>
-    <table class="table table-striped table-hover table-sm">
-      <tr>
-          <th>Price</th>
-          <th>Quantity</th>
-          <th>Product</th>
-          <th>Location</th>
-      </tr>
-        {% for aPost in posts %}
-            <tr>
-                <td>{{ aPost.price }}</td>
-                <td>{{ aPost.quantity }}</td>
-                <td>{{ aPost.product }}</td>
-                <td>{{ aPost.loc }}</td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="4">No Posts</td>
-            </tr>
-        {% endfor %}
-    </table>
+
 
 
     {% for aPost in posts %}
 
+        <div class="container">
+            <div class="card">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card-block">
+                            <img class="card-img-top" src="https://ae01.alicdn.com/kf/HTB1b4FILVXXXXaCXVXXq6xXFXXXS/2016-new-Home-Decor-Heart-shaped-Fruit-and-vegetable-diy-diamond-painting-square-drill-diamond-full.jpg" alt="Card image cap">
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-block">
+                            <br>
+                            <h4 class="card-title">{{ aPost.product }}</h4>
+                            <p class="card-text">We should allow for description stuff.</p>
+                            <br>
 
-        <div class="card" style="width: 18rem;">
-          <img class="card-img-top" src="..." alt="Card image cap">
-          <div class="card-body">
-            <h5 class="card-title">{{ aPost.product }}</h5>
-            <p class="card-text">We should allow for description stuff.</p>
-          </div>
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item"><b>Price: </b>{{'${:,.2f}'.format(aPost.price) }}</li>
-            <li class="list-group-item"><b>Quantity: </b>{{ aPost.quantity }}</li>
-            <li class="list-group-item"><b>Pickup Location: </b>{{ aPost.loc }}</li>
-          </ul>
-          <div class="card-body">
-            <a href="#" class="card-link"><b>Buy</b></a>
-            <a href="#" class="card-link">Open Modal!</a>
-          </div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><b>Price: </b>{{'${:,.2f}'.format(aPost.price) }}</li>
+                                <li class="list-group-item"><b>Quantity: </b>{{ aPost.quantity }}</li>
+                                <li class="list-group-item"><b>Pickup Location: </b>{{ aPost.loc }}</li>
+                            </ul>
+
+                            <div class="card-body">
+                                <a href="#" class="card-link"><b>Buy</b></a>
+                                <a href="#" class="card-link">Post Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
     {% endfor %}
-
-
-
-
-
-
-
 
 
 
