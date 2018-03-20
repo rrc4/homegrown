@@ -23,6 +23,26 @@ def teardown_request(exception):
 @app.route('/')
 def index():
     return render_template("index.html")
+
+
+@app.route('/profile')
+def profile():
+    return render_template("profile.html")
+
+
+@app.route('/posts/user')
+def my_posts():
+    return render_template("my-posts.html")
+
+
+@app.route('/favorites')
+def favorites():
+    return render_template("favorites.html")
+
+
+@app.route('/settings')
+def settings():
+    return render_template("settings.html")
   
   
 class PostForm(FlaskForm):
