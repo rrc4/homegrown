@@ -65,3 +65,4 @@ def all_posts():
     '''
     g.cursor.execute(query)
     return g.cursor.fetchall()
+
