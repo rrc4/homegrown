@@ -30,6 +30,7 @@ class PostForm(FlaskForm):
     quantity = IntegerField('Quantity', validators=[NumberRange(min=1, max=1000, message='Quantity must be between 1 and 1000')])
     product = StringField('Product', validators=[Length(min=1, max=40, message='Product must be min of 1 and max of 40 characters')])
     loc = StringField('Location', validators=[Length(min=1, max=40, message='Location has to be between 1 and 40')])
+    description = StringField('Description', validators=[Length(min=0, max=150)])
 
     submit = SubmitField('Save Post')
 
@@ -43,7 +44,8 @@ def create_post():
             rowcount = db.create_post(post_form.price.data,
                                       post_form.quantity.data,
                                       post_form.product.data,
-                                      post_form.loc.data)
+                                      post_form.loc.data,
+                                      post_form.description.data)
 
             if rowcount == 1:
                 flash("Post added successfully")
