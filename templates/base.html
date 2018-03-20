@@ -23,16 +23,19 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('all_posts') }}">All Posts</a>
+                        <a class="nav-link" href="{{ url_for('create_post') }}">New Post</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('create_post') }}">Create Post</a>
+                        <a class="nav-link" href="{{ url_for('profile') }}">Profile</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('all_users') }}">All Users</a>
+                        <a class="nav-link" href="{{ url_for('my_posts') }}">My Posts</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('create_user') }}">Create Users</a>
+                        <a class="nav-link" href="{{ url_for('favorites') }}">Favorites</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('settings') }}">Settings</a>
                     </li>
                 </ul>
             </div>
