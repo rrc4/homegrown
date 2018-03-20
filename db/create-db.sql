@@ -21,7 +21,8 @@ CREATE TABLE post
   price FLOAT NOT NULL,
   quantity INTEGER NOT NULL,
   product VARCHAR(40) NOT NULL,
-  loc VARCHAR(40) NOT NULL
+  loc VARCHAR(40) NOT NULL,
+  description VARCHAR(150) NOT NULL
 );
 CREATE UNIQUE INDEX post_id_index ON post (id);
 COMMENT ON TABLE post IS 'Post';

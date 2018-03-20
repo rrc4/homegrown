@@ -49,12 +49,12 @@ def find_post(id):
     return g.cursor.fetchone()
 
 
-def create_post(price, quantity, product, loc):
+def create_post(price, quantity, product, loc, description):
     query = '''
-        INSERT INTO post (price, quantity, product, loc)
-        VALUES (%(price)s, %(quantity)s, %(product)s, %(loc)s)
+        INSERT INTO post (price, quantity, product, loc, description)
+        VALUES (%(price)s, %(quantity)s, %(product)s, %(loc)s, %(description)s)
     '''
-    g.cursor.execute(query, {'price': price, 'quantity': quantity, 'product': product, 'loc': loc})
+    g.cursor.execute(query, {'price': price, 'quantity': quantity, 'product': product, 'loc': loc, 'description': description})
     g.connection.commit()
     return g.cursor.rowcount
 
