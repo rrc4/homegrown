@@ -79,6 +79,42 @@ def create_post():
     return render_template('post-form.html', form=post_form, mode='create')
 
 
+@app.route('/post/update/<id>', methods=['GET', 'POST'])
+def update_post(id):
+    # Retrieve member data.
+    row = db.find_post(id)
+
+    if row is None:
+        flash("Post doesn't exist")
+        return redirect(url_for('my_posts'));
+
+    post_form = PostForm(price=row['price'],
+                         quantity=row['quantity'],
+                         product=row['product'],
+                         loc=row['loc'],
+                         description=row['description'])
+
+    if post_form.validate_on_submit():
+        # If we get here, we're handling a POST request and the form validated successfully.
+        rowcount = db.update_post(
+                                  post_form.price.data,
+                                    post_form.quantity.data,
+                                    post_form.product.data,
+                                    post_form.loc.data,
+                                  post_form.description.data,
+                                    id)
+
+        # We're updating a single row, so we're successful if the row count is one.
+        if rowcount == 1:
+            # Everything worked. Flash a success message and redirect to the home page.
+            flash("Post '{}' updated".format(post_form.product.data))
+            return redirect(url_for('my_posts'))
+
+        else:  # The update operation failed for some reason. Flash a message.
+            flash('Member not updated')
+
+    return render_template('post-form.html', form=post_form, mode='update')
+
 # Create a form user
 class UserForm(FlaskForm):
     first_name = StringField('First Name', validators=[Length(min=1, max=40)])

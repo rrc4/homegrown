@@ -66,3 +66,18 @@ def all_posts():
     g.cursor.execute(query)
     return g.cursor.fetchall()
 
+
+def update_post(price, quantity, product, loc, description, post_id):
+    """Update a member's profile."""
+    query = '''
+UPDATE post SET price = %(price)s, product = %(product)s, quantity = %(quantity)s, loc = %(loc)s, description = %(description)s
+WHERE id = %(id)s
+    '''
+    g.cursor.execute(query, {'id': post_id, 'price': price, 'quantity': quantity, 'product': product, 'loc': loc, 'description': description})
+    g.connection.commit()
+    return g.cursor.rowcount
+
+
+
+
+
