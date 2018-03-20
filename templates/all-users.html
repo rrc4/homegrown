@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}All Users{% endblock %}
+
+{% block content %}
+    <h1>All Users</h1>
+    <table class="table table-striped table-hover table-sm">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Password</th>
+                <th>Rating</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.first_name }}</td>
+                    <td>{{ user.last_name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.phone }}</td>
+                    <td>{{ user.password }}</td>
+                    <td>{{ user.rating }}</td>
+                    <td>{{ user.active }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6">No users to show</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <a href="{{ url_for('feed') }}">Home</a>
+{% endblock %}
