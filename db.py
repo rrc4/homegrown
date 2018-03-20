@@ -22,11 +22,11 @@ def close_db_connection():
 
 def create_user(first_name, last_name, email, password, phone, rating, active):
     query = '''
-        INSERT INTO "user" (first_name, last_name, email, phone, password, rating, active)
-        VALUES (%(first_name)s, %(last_name)s, %(email)s, %(phone)s, %(password)s, %(rating)s, %(active)s)
+        INSERT INTO "user" (first_name, last_name, email, password, phone, rating, active)
+        VALUES (%(first_name)s, %(last_name)s, %(email)s, %(password)s, %(phone)s, %(rating)s, %(active)s)
     '''
     g.cursor.execute(query, {'first_name': first_name, 'last_name': last_name, 'email': email,
-                             'phone': phone, 'password': password, 'rating': rating, 'active': active})
+                             'password': password, 'phone': phone, 'rating': rating, 'active': active})
     g.connection.commit()
     return g.cursor.rowcount
 

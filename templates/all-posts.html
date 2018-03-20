@@ -3,10 +3,7 @@
 {% block title %}All Posts{% endblock %}
 
 {% block content %}
-
     <h1>Posts</h1>
-
-
 
     {% for aPost in posts %}
 
@@ -42,10 +39,4 @@
         </div>
 
     {% endfor %}
-
-
-
-    <a href="{{ url_for('create_post') }}">Go To Create Post</a>
-    <br>
-    <a href="{{ url_for('feed') }}">Home</a>
 {% endblock %}

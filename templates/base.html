@@ -14,11 +14,37 @@
     </head>
 
     <body>
-        {% for message in get_flashed_messages() %}
-            <div class="alert alert-primary"><strong>Flash Message</strong>: {{ message }}</div>
-        {% endfor %}
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="{{ url_for('index') }}">HomeGrown</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-        {% block content %}
-        {% endblock %}
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('all_posts') }}">All Posts</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('create_post') }}">Create Post</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('all_users') }}">All Users</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('create_user') }}">Create Users</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <div style="padding: 50px">
+            {% for message in get_flashed_messages() %}
+                <div class="alert alert-primary"><strong>Flash Message</strong>: {{ message }}</div>
+            {% endfor %}
+
+            {% block content %}
+            {% endblock %}
+        </div>
     </body>
 </html>
