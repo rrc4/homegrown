@@ -68,7 +68,7 @@ def delete_user_by_id(user_id):
     return g.cursor.rowcount
 
 
-def find_post(id):
+def find_post_by_id(id):
     g.cursor.execute('SELECT * FROM post WHERE id = %(id)s', {'id': id})
     return g.cursor.fetchone()
 

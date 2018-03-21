@@ -94,7 +94,7 @@ def create_post():
 # Edit a post
 @app.route('/posts/edit/<id>', methods=['GET', 'POST'])
 def edit_post(id):
-    row = db.find_post(id)
+    row = db.find_post_by_id(id)
 
     if row is None:
         flash("Post doesn't exist")
@@ -122,9 +122,17 @@ def edit_post(id):
 
     return render_template('post-form.html', form=post_form, mode='update')
 
-def delete_post(id):
-    rowcount=db.delete_post_by_id(id)
-    return render_template('all-posts.html')
+
+@app.route('/posts/delete/<id>')
+def delete_post_by_id(id):
+    post = db.find_post_by_id(id)
+    if post is None:
+        flash("Post doesn't exist")
+    else:
+        db.delete_post_by_id(id)
+        flash("Post deleted")
+        return redirect(url_for('all_posts'))
+
 
 # The form to create or update a user
 class UserForm(FlaskForm):
@@ -199,13 +207,13 @@ def edit_user(id):
 
 @app.route('/users/delete/<id>')
 def delete_user_by_id(id):
-    user = db.find_user(id)
+    user = db.find_user_by_id(id)
     if user is None:
         flash("User doesn't exist")
     else:
-        deleted = db.delete_user_by_id(id)
+        db.delete_user_by_id(id)
         flash("User deleted")
-        return render_template('all-users.html', user=deleted)
+        return redirect(url_for('all_users'))
 
 
 # Gets a list of all the users in the database

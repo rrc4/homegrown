@@ -49,7 +49,7 @@ class DatabaseTestCase(FlaskTestCase):
         row_count = db.create_post(6.99, 100, 'Bananas', 'Upland')
         self.assertEqual(row_count, 1)
 
-        test_post = db.find_post(1)
+        test_post = db.find_post_by_id(1)
         self.assertIsNotNone(test_post)
 
         self.assertEqual(test_post['price'], 6.99)
