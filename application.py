@@ -194,6 +194,12 @@ def edit_user(id):
     return render_template('user-form.html', form=user_form, mode='update')
 
 
+@app.route('/users')
+def delete_user_by_id(user_id):
+    rowcount = db.delete_user_by_id(user_id)
+    return render_template('all-users.html')
+
+
 # Gets a list of all the users in the database
 @app.route('/users')
 def all_users():
