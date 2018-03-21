@@ -18,6 +18,7 @@ COMMENT ON TABLE "user" IS 'User';
 CREATE TABLE post
 (
   id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES "user",
   price FLOAT NOT NULL,
   quantity INTEGER NOT NULL,
   product VARCHAR(40) NOT NULL,
