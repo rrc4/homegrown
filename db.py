@@ -3,7 +3,7 @@ import psycopg2
 import psycopg2.extras
 
 ''' Uncomment your database before working on your code, and comment it out again when pushing '''
-data_source_name = 'host=faraday.cse.taylor.edu dbname=joeyferg user=joeyferg password=kavibeda'
+# data_source_name = 'host=faraday.cse.taylor.edu dbname=joeyferg user=joeyferg password=kavibeda'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=joeschuette user=joeschuette password=kahilewo'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=rrc4 user=rrc4 password=decisage'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=esmarrel user=esmarrel password=mowozate'
@@ -53,6 +53,12 @@ def update_user(first_name, last_name, email, password, phone, user_id):
     '''
     g.cursor.execute(query, {'id': user_id, 'first_name': first_name, 'last_name': last_name,
                              'email': email, 'password': password, 'phone': phone})
+    g.connection.commit()
+    return g.cursor.rowcount
+
+
+def delete_user_by_id(user_id):
+    g.cursor.execute('DELETE FROM "user" WHERE id = %(user_id)s', {'user_id': user_id})
     g.connection.commit()
     return g.cursor.rowcount
 
