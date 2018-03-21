@@ -98,7 +98,7 @@ def edit_post(id):
 
     if row is None:
         flash("Post doesn't exist")
-        return redirect(url_for('user_posts'))
+        return redirect(url_for('index'))
 
     post_form = PostForm(price=row['price'],
                          quantity=row['quantity'],
@@ -116,7 +116,7 @@ def edit_post(id):
 
         if rowcount == 1:
             flash("Post '{}' updated".format(post_form.product.data))
-            return redirect(url_for('user_posts'))
+            return redirect(url_for('index'))
         else:
             flash('Post not updated')
 
@@ -140,7 +140,7 @@ def create_user():
     user_form = UserForm()
 
     if user_form.validate_on_submit():
-        user = db.find_user(user_form.email.data)
+        user = db.find_user(user_form.id.data)
 
         if user is not None:
             flash("User {} already exists".format(user_form.email.data))
