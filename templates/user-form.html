@@ -7,10 +7,10 @@
     {% if mode == 'create' %}
         <h2 class="display-4">Create a New User</h2>
     {% else %}
-        <h2 class="display-4">Update Post</h2>
+        <h2 class="display-4">Edit User</h2>
     {% endif %}
 
-    <form method="POST">
+    <form method="POST" class="col-md-4">
         {{ form.csrf_token }}
         <div class="form-group">
             {{ form.first_name.label }}{{ form.first_name(class_="form-control") }}

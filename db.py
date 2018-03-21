@@ -31,8 +31,8 @@ def create_user(first_name, last_name, email, password, phone, rating, active):
     return g.cursor.rowcount
 
 
-def find_user(email):
-    g.cursor.execute('SELECT * FROM "user" WHERE email = %(email)s', {'email': email})
+def find_user(id):
+    g.cursor.execute('SELECT * FROM "user" WHERE id = %(id)s', {'id': id})
     return g.cursor.fetchone()
 
 
@@ -42,6 +42,19 @@ def all_users():
     '''
     g.cursor.execute(query)
     return g.cursor.fetchall()
+
+
+def update_user(first_name, last_name, email, password, phone, user_id):
+    query = '''
+        UPDATE "user"
+        SET first_name = %(first_name)s, last_name = %(last_name)s, 
+            email = %(email)s, password = %(password)s, phone = %(phone)s
+        WHERE id = %(id)s
+    '''
+    g.cursor.execute(query, {'id': user_id, 'first_name': first_name, 'last_name': last_name,
+                             'email': email, 'password': password, 'phone': phone})
+    g.connection.commit()
+    return g.cursor.rowcount
 
 
 def find_post(id):

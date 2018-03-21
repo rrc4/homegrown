@@ -50,7 +50,7 @@ def settings():
     return render_template("settings.html")
   
 
-# The form to create or update a post
+# The form to create or edit a post
 class PostForm(FlaskForm):
     product = StringField('Product (ex. Strawberries)', validators=[Length(min=1, max=40, message='Product must be between 1 and 40 characters')])
     description = StringField('Description (<150 characters)', validators=[Length(min=1, max=150, message='Description must be between 1 and 150 characters')])
@@ -85,9 +85,9 @@ def create_post():
     return render_template('post-form.html', form=post_form, mode='create')
 
 
-# Update a post
-@app.route('/post/update/<id>', methods=['GET', 'POST'])
-def update_post(id):
+# Edit a post
+@app.route('/posts/edit/<id>', methods=['GET', 'POST'])
+def edit_post(id):
     row = db.find_post(id)
 
     if row is None:
@@ -154,6 +154,38 @@ def create_user():
                 flash("New user not created")
 
     return render_template('user-form.html', form=user_form, mode='create')
+
+
+# Edit a post
+@app.route('/users/edit/<id>', methods=['GET', 'POST'])
+def edit_user(id):
+    row = db.find_user(id)
+
+    if row is None:
+        flash("User doesn't exist")
+        return redirect(url_for('all_users'))
+
+    user_form = UserForm(first_name=row['first_name'],
+                         last_name=row['last_name'],
+                         email=row['email'],
+                         password=row['password'],
+                         phone=row['phone'])
+
+    if user_form.validate_on_submit():
+        rowcount = db.update_user(user_form.first_name.data,
+                                  user_form.last_name.data,
+                                  user_form.email.data,
+                                  user_form.password.data,
+                                  user_form.phone.data,
+                                  id)
+
+        if rowcount == 1:
+            flash("User '{}' updated".format(user_form.email.data))
+            return redirect(url_for('all_users'))
+        else:
+            flash('User not updated')
+
+    return render_template('user-form.html', form=user_form, mode='update')
 
 
 # Gets a list of all the users in the database
