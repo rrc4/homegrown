@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Post{% endblock %}
+
+{% block content %}
+
+    {% if mode == 'create' %}
+        <h2 class="display-4">Create a New Post</h2>
+    {% else %}
+        <h2 class="display-4">Edit Post</h2>
+    {% endif %}
+
+    <form method="POST" class="col-md-4">
+        {{ form.csrf_token }}
+        <div class="form-group">
+            {{ form.product.label }}{{ form.product(class_="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.description.label }}{{ form.description(class_="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.price.label }}{{ form.price(class_="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.quantity.label }}{{ form.quantity(class_="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.loc.label }}{{ form.loc(class_="form-control") }}
+        </div>
+
+        {{ form.submit(class_="btn btn-primary") }}
+    </form>
+{% endblock %}

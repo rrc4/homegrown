@@ -14,11 +14,40 @@
     </head>
 
     <body>
-        {% for message in get_flashed_messages() %}
-            <div class="alert alert-primary"><strong>Flash Message</strong>: {{ message }}</div>
-        {% endfor %}
+        <nav class="navbar navbar-default fixed-top navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="{{ url_for('index') }}">HomeGrown</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-        {% block content %}
-        {% endblock %}
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('create_post') }}">New Post</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('profile') }}">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('my_posts') }}">My Posts</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('favorites') }}">Favorites</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('settings') }}">Settings</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <div style="padding: 75px 50px 50px 50px">
+            {% for message in get_flashed_messages() %}
+                <div class="alert alert-primary"><strong>Flash Message</strong>: {{ message }}</div>
+            {% endfor %}
+
+            {% block content %}
+            {% endblock %}
+        </div>
     </body>
 </html>
