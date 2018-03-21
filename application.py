@@ -35,7 +35,7 @@ def profile():
 # A list of the user's posts
 @app.route('/posts/<user_id>')
 def user_posts(user_id):
-    user = db.find_user(user_id)
+    user = db.find_user_by_id(user_id)
     if user is None:
         flash('No user with id {}'.format(user_id))
         posts = []
@@ -122,6 +122,9 @@ def edit_post(id):
 
     return render_template('post-form.html', form=post_form, mode='update')
 
+def delete_post(id):
+    rowcount=db.delete_post_by_id(id)
+    return render_template('all-posts.html')
 
 # The form to create or update a user
 class UserForm(FlaskForm):
@@ -140,7 +143,7 @@ def create_user():
     user_form = UserForm()
 
     if user_form.validate_on_submit():
-        user = db.find_user(user_form.id.data)
+        user = db.find_user_by_email(user_form.email.data)
 
         if user is not None:
             flash("User {} already exists".format(user_form.email.data))
@@ -165,7 +168,7 @@ def create_user():
 # Edit a post
 @app.route('/users/edit/<id>', methods=['GET', 'POST'])
 def edit_user(id):
-    row = db.find_user(id)
+    row = db.find_user_by_id(id)
 
     if row is None:
         flash("User doesn't exist")
