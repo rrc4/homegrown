@@ -197,6 +197,17 @@ def edit_user(id):
     return render_template('user-form.html', form=user_form, mode='update')
 
 
+@app.route('/users/delete/<id>')
+def delete_user_by_id(id):
+    user = db.find_user(id)
+    if user is None:
+        flash("User doesn't exist")
+    else:
+        deleted = db.delete_user_by_id(id)
+        flash("User deleted")
+        return render_template('all-users.html', user=deleted)
+
+
 # Gets a list of all the users in the database
 @app.route('/users')
 def all_users():

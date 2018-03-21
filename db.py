@@ -62,6 +62,12 @@ def update_user(first_name, last_name, email, password, phone, user_id):
     return g.cursor.rowcount
 
 
+def delete_user_by_id(user_id):
+    g.cursor.execute('DELETE FROM "user" WHERE id = %(user_id)s', {'user_id': user_id})
+    g.connection.commit()
+    return g.cursor.rowcount
+
+
 def find_post(id):
     g.cursor.execute('SELECT * FROM post WHERE id = %(id)s', {'id': id})
     return g.cursor.fetchone()
