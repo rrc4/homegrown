@@ -89,3 +89,10 @@ def update_post(price, quantity, product, loc, description, post_id):
     g.cursor.execute(query, {'id': post_id, 'price': price, 'quantity': quantity, 'product': product, 'loc': loc, 'description': description})
     g.connection.commit()
     return g.cursor.rowcount
+
+
+def posts_by_user(user_id):
+    g.cursor.execute('SELECT * FROM post WHERE "user" = %(user_id)s', {'user_id': user_id})
+    g.connection.commit()
+    return g.cursor.fetchall()
+

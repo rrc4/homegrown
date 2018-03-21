@@ -33,9 +33,15 @@ def profile():
 
 
 # A list of the user's posts
-@app.route('/posts/user')
-def my_posts():
-    return render_template("my-posts.html")
+@app.route('/posts/<user_id>')
+def user_posts(user_id):
+    user = db.find_user(user_id)
+    if user is None:
+        flash('No user with id {}'.format(user_id))
+        posts = []
+    else:
+        posts = db.posts_by_user(user_id)
+    return render_template('user-posts.html', user=user, posts=posts)
 
 
 # A user's favorited posts
@@ -92,7 +98,7 @@ def edit_post(id):
 
     if row is None:
         flash("Post doesn't exist")
-        return redirect(url_for('my_posts'))
+        return redirect(url_for('user_posts'))
 
     post_form = PostForm(price=row['price'],
                          quantity=row['quantity'],
@@ -110,7 +116,7 @@ def edit_post(id):
 
         if rowcount == 1:
             flash("Post '{}' updated".format(post_form.product.data))
-            return redirect(url_for('my_posts'))
+            return redirect(url_for('user_posts'))
         else:
             flash('Post not updated')
 
