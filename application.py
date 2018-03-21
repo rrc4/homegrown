@@ -20,31 +20,37 @@ def teardown_request(exception):
     db.close_db_connection()
 
 
+# Home page
 @app.route('/')
 def index():
     return render_template("index.html")
 
 
+# A user's profile
 @app.route('/profile')
 def profile():
     return render_template("profile.html")
 
 
+# A list of the user's posts
 @app.route('/posts/user')
 def my_posts():
     return render_template("my-posts.html")
 
 
+# A user's favorited posts
 @app.route('/favorites')
 def favorites():
     return render_template("favorites.html")
 
 
+# A user's settings
 @app.route('/settings')
 def settings():
     return render_template("settings.html")
   
-  
+
+# The form to create or edit a post
 class PostForm(FlaskForm):
     product = StringField('Product (ex. Strawberries)', validators=[Length(min=1, max=40, message='Product must be between 1 and 40 characters')])
     description = StringField('Description (<150 characters)', validators=[Length(min=1, max=150, message='Description must be between 1 and 150 characters')])
@@ -79,14 +85,14 @@ def create_post():
     return render_template('post-form.html', form=post_form, mode='create')
 
 
-@app.route('/post/update/<id>', methods=['GET', 'POST'])
-def update_post(id):
-    # Retrieve member data.
+# Edit a post
+@app.route('/posts/edit/<id>', methods=['GET', 'POST'])
+def edit_post(id):
     row = db.find_post(id)
 
     if row is None:
         flash("Post doesn't exist")
-        return redirect(url_for('my_posts'));
+        return redirect(url_for('my_posts'))
 
     post_form = PostForm(price=row['price'],
                          quantity=row['quantity'],
@@ -95,27 +101,23 @@ def update_post(id):
                          description=row['description'])
 
     if post_form.validate_on_submit():
-        # If we get here, we're handling a POST request and the form validated successfully.
-        rowcount = db.update_post(
-                                  post_form.price.data,
-                                    post_form.quantity.data,
-                                    post_form.product.data,
-                                    post_form.loc.data,
+        rowcount = db.update_post(post_form.price.data,
+                                  post_form.quantity.data,
+                                  post_form.product.data,
+                                  post_form.loc.data,
                                   post_form.description.data,
-                                    id)
+                                  id)
 
-        # We're updating a single row, so we're successful if the row count is one.
         if rowcount == 1:
-            # Everything worked. Flash a success message and redirect to the home page.
             flash("Post '{}' updated".format(post_form.product.data))
             return redirect(url_for('my_posts'))
-
-        else:  # The update operation failed for some reason. Flash a message.
-            flash('Member not updated')
+        else:
+            flash('Post not updated')
 
     return render_template('post-form.html', form=post_form, mode='update')
 
-# Create a form user
+
+# The form to create or update a user
 class UserForm(FlaskForm):
     first_name = StringField('First Name', validators=[Length(min=1, max=40)])
     last_name = StringField('Last Name', validators=[Length(min=1, max=40)])
@@ -126,6 +128,7 @@ class UserForm(FlaskForm):
     submit = SubmitField('Save User')
 
 
+# Create a user
 @app.route('/users/create', methods=['GET', 'POST'])
 def create_user():
     user_form = UserForm()
@@ -134,7 +137,7 @@ def create_user():
         user = db.find_user(user_form.email.data)
 
         if user is not None:
-            flash("User {} already exists".format(user_form.email.data));
+            flash("User {} already exists".format(user_form.email.data))
         else:
             rowcount = db.create_user(user_form.first_name.data,
                                       user_form.last_name.data,
@@ -153,12 +156,45 @@ def create_user():
     return render_template('user-form.html', form=user_form, mode='create')
 
 
+# Edit a post
+@app.route('/users/edit/<id>', methods=['GET', 'POST'])
+def edit_user(id):
+    row = db.find_user(id)
+
+    if row is None:
+        flash("User doesn't exist")
+        return redirect(url_for('all_users'))
+
+    user_form = UserForm(first_name=row['first_name'],
+                         last_name=row['last_name'],
+                         email=row['email'],
+                         password=row['password'],
+                         phone=row['phone'])
+
+    if user_form.validate_on_submit():
+        rowcount = db.update_user(user_form.first_name.data,
+                                  user_form.last_name.data,
+                                  user_form.email.data,
+                                  user_form.password.data,
+                                  user_form.phone.data,
+                                  id)
+
+        if rowcount == 1:
+            flash("User '{}' updated".format(user_form.email.data))
+            return redirect(url_for('all_users'))
+        else:
+            flash('User not updated')
+
+    return render_template('user-form.html', form=user_form, mode='update')
+
+
 # Gets a list of all the users in the database
 @app.route('/users')
 def all_users():
     return render_template('all-users.html', users=db.all_users())
 
 
+# All the posts in the database
 @app.route('/posts')
 def all_posts():
     return render_template('all-posts.html', posts=db.all_posts())
