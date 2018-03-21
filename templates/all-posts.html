@@ -3,7 +3,7 @@
 {% block title %}All Posts{% endblock %}
 
 {% block content %}
-    <h1>Posts</h1>
+    <h1>Feed</h1>
 
     {% for aPost in posts %}
 
@@ -18,8 +18,8 @@
                     <div class="col-md-8">
                         <div class="card-block">
                             <br>
-                            <h4 class="card-title">{{ aPost.product }}</h4>
-                            <p class="card-text">{{ aPost.description }}</p>
+                            <h3 class="card-title" style="padding-left: 20px">{{ aPost.product }}</h3>
+                            <p class="card-text" style="padding-left: 20px">{{ aPost.description }}</p>
                             <br>
 
                             <ul class="list-group list-group-flush">
