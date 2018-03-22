@@ -173,7 +173,7 @@ def create_user():
     return render_template('user-form.html', form=user_form, mode='create')
 
 
-# Edit a post
+# Edit a post by a user's ID (primary key)
 @app.route('/users/edit/<id>', methods=['GET', 'POST'])
 def edit_user(id):
     row = db.find_user_by_id(id)
@@ -205,15 +205,21 @@ def edit_user(id):
     return render_template('user-form.html', form=user_form, mode='update')
 
 
+# Delete a user by their ID (primary key)
 @app.route('/users/delete/<id>')
 def delete_user_by_id(id):
     user = db.find_user_by_id(id)
+    posts = db.posts_by_user(id)
+
     if user is None:
         flash("User doesn't exist")
-    else:
-        db.delete_user_by_id(id)
-        flash("User deleted")
-        return redirect(url_for('all_users'))
+
+    if posts is not None:
+        db.delete_post_by_user_id(id)
+
+    db.delete_user_by_id(id)
+    flash("User {} deleted".format(id))
+    return redirect(url_for('all_users'))
 
 
 # Gets a list of all the users in the database
