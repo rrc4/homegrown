@@ -3,7 +3,7 @@ import psycopg2
 import psycopg2.extras
 
 ''' Uncomment your database before working on your code, and comment it out again when pushing '''
-# data_source_name = 'host=faraday.cse.taylor.edu dbname=joeyferg user=joeyferg password=kavibeda'
+data_source_name = 'host=faraday.cse.taylor.edu dbname=joeyferg user=joeyferg password=kavibeda'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=joeschuette user=joeschuette password=kahilewo'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=rrc4 user=rrc4 password=decisage'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=esmarrel user=esmarrel password=mowozate'
@@ -82,6 +82,37 @@ def find_post_by_id(id):
 # Finds all posts by a user
 def posts_by_user(user_id):
     g.cursor.execute('SELECT * FROM post WHERE user_id = %(user_id)s', {'user_id': user_id})
+    g.connection.commit()
+    return g.cursor.fetchall()
+
+
+# Finds all favorites by a user
+def favorites_by_user(user_id):
+    query = '''
+      SELECT * FROM favorite f
+      INNER JOIN post p ON p.id = f.post_id
+      INNER JOIN "user" u ON u.id = f.user_id 
+      WHERE u.id = %(user_id)s
+    '''
+    g.cursor.execute(query, {'user_id': user_id})
+    g.connection.commit()
+    return g.cursor.fetchall()
+
+
+# Adds a post to favorites
+# TODO: this will need to be updated when we get actual authentication (currently it just adds everything to user 1's favorites)
+def add_to_favorites(post_id):
+    query = '''
+        INSERT INTO favorite (user_id, post_id) VALUES (1, %(post_id)s);
+    '''
+    g.cursor.execute(query, {'post_id': post_id})
+    g.connection.commit()
+    return g.cursor.rowcount
+
+
+# Remove a post from favorites
+def remove_from_favorites(post_id):
+    g.cursor.execute('DELETE FROM favorite WHERE post_id = %(post_id)s', {'post_id': post_id})
     g.connection.commit()
     return g.cursor.fetchall()
 

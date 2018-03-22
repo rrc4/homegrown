@@ -1,5 +1,6 @@
-DROP TABLE IF EXISTS "user";
+DROP TABLE IF EXISTS favorite;
 DROP TABLE IF EXISTS post;
+DROP TABLE IF EXISTS "user";
 
 CREATE TABLE "user"
 (
@@ -27,3 +28,11 @@ CREATE TABLE post
 );
 CREATE UNIQUE INDEX post_id_index ON post (id);
 COMMENT ON TABLE post IS 'Post';
+
+CREATE TABLE favorite
+(
+    post_id INTEGER NOT NULL REFERENCES post (id),
+    user_id INTEGER NOT NULL REFERENCES "user" (id)
+);
+CREATE UNIQUE INDEX favorite_id_index on post (id);
+COMMENT ON TABLE favorite IS 'Favorite';
