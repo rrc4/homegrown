@@ -44,10 +44,32 @@ def user_posts(user_id):
     return render_template('user-posts.html', user=user, posts=posts)
 
 
-# A user's favorited posts
-@app.route('/favorites')
-def favorites():
-    return render_template("favorites.html")
+# A list of the user's posts
+@app.route('/favorites/<user_id>')
+def user_favorites(user_id):
+    user = db.find_user_by_id(user_id)
+    if user is None:
+        flash('No user with id {}'.format(user_id))
+        favs = []
+    else:
+        favs = db.favorites_by_user(user_id)
+    return render_template('favorites.html', user=user, favorites=favs)
+
+
+# Adds a post to favorites
+# TODO: Should we route this to favorites when it gets added? I tried to do this and it broke
+# TODO: Update to use current user when authentication gets added
+# TODO: Check for duplicate favorites before adding
+@app.route('/favorites/add/<post_id>')
+def add_to_favorites(post_id):
+    post = db.find_post_by_id(post_id)
+
+    if post is not None:
+        db.add_to_favorites(post_id)
+        flash("Post {} added to favorites".format(post_id))
+    else:
+        flash("Post {} doesn't exist".format(post_id))
+    return redirect(url_for('all_posts'))
 
 
 # A user's settings

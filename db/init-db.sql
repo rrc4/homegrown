@@ -9,3 +9,9 @@ INSERT INTO post (user_id, price, quantity, product, loc, description) VALUES (2
 INSERT INTO post (user_id, price, quantity, product, loc, description) VALUES (3, 99.00, 50, 'Pears', 'Gas City', 'Sample Description');
 INSERT INTO post (user_id, price, quantity, product, loc, description) VALUES (3, 99.00, 50, 'Grapes', 'Gas City', 'Sample Description');
 INSERT INTO post (user_id, price, quantity, product, loc, description) VALUES (4, 1.25, 1, 'Apples', 'Marion', 'Sample Description');
+
+INSERT INTO favorite (user_id, post_id) VALUES (1, 1);
+INSERT INTO favorite (user_id, post_id) VALUES (1, 2);
+INSERT INTO favorite (user_id, post_id) VALUES (1, 3);
+INSERT INTO favorite (user_id, post_id) VALUES (2, 1);
+INSERT INTO favorite (user_id, post_id) VALUES (3, 2);
