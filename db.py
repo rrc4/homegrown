@@ -99,8 +99,22 @@ def favorites_by_user(user_id):
     return g.cursor.fetchall()
 
 
+# Deletes all favorites by a user's ID
+def delete_favorite_by_user_id(user_id):
+    g.cursor.execute('DELETE FROM favorite WHERE user_id = %(user_id)s', {'user_id': user_id})
+    g.connection.commit()
+    return g.cursor.rowcount
+
+
+# Deletes all favorited posts with a certain post_id
+def delete_favorite_by_post_id(post_id):
+    g.cursor.execute('DELETE FROM favorite WHERE post_id = %(post_id)s', {'post_id': post_id})
+    g.connection.commit()
+    return g.cursor.rowcount
+
+
 # Adds a post to favorites
-# TODO: this will need to be updated when we get actual authentication (currently it just adds everything to user 1's favorites)
+# TODO: This will need to be updated when we get actual authentication (currently it just adds everything to user 1's favorites)
 def add_to_favorites(post_id):
     query = '''
         INSERT INTO favorite (user_id, post_id) VALUES (1, %(post_id)s);
@@ -118,12 +132,13 @@ def remove_from_favorites(post_id):
 
 
 # Creates a post
-def create_post(price, quantity, product, loc, description):
+# TODO: This will need to be changed to create a post for the user signed in, not just user_id 1
+def create_post(price, quantity, product, category, loc, description):
     query = '''
-        INSERT INTO post (price, quantity, product, loc, description)
-        VALUES (%(price)s, %(quantity)s, %(product)s, %(loc)s, %(description)s)
+        INSERT INTO post (user_id, price, quantity, product, "category", loc, description)
+        VALUES (1, %(price)s, %(quantity)s, %(product)s, %(category)s, %(loc)s, %(description)s)
     '''
-    g.cursor.execute(query, {'price': price, 'quantity': quantity, 'product': product, 'loc': loc, 'description': description})
+    g.cursor.execute(query, {'price': price, 'quantity': quantity, 'product': product, 'category': category, 'loc': loc, 'description': description})
     g.connection.commit()
     return g.cursor.rowcount
 

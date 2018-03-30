@@ -1,6 +1,6 @@
 from flask import Flask, render_template, flash, redirect, url_for
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField
+from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField
 from wtforms.validators import Length, NumberRange, Email, InputRequired, EqualTo
 
 app = Flask(__name__)
@@ -57,7 +57,6 @@ def user_favorites(user_id):
 
 
 # Adds a post to favorites
-# TODO: Should we route this to favorites when it gets added? I tried to do this and it broke
 # TODO: Update to use current user when authentication gets added
 # TODO: Check for duplicate favorites before adding
 @app.route('/favorites/add/<post_id>')
@@ -84,6 +83,11 @@ class PostForm(FlaskForm):
     description = StringField('Description (<150 characters)', validators=[Length(min=1, max=150, message='Description must be between 1 and 150 characters')])
     price = FloatField('Price (ex. 5.99)', validators=[NumberRange(min=0.01, max=1000, message='Price must be between $0.01 and $1000')])
     quantity = IntegerField('Quantity (ex. 100)', validators=[NumberRange(min=1, max=1000, message='Quantity must be between 1 and 1000')])
+    category = SelectField('Category', choices=[('Vegetables', 'Vegetables'),
+                                                ('Fruits', 'Fruits'),
+                                                ('Meat', 'Meat'),
+                                                ('Dairy', 'Dairy'),
+                                                ('Grains', 'Grains')])
     loc = StringField('Location (ex. Indianapolis)', validators=[Length(min=1, max=40, message='Location must be between 1 and 40 characters')])
 
     submit = SubmitField('Save Post')
@@ -98,6 +102,7 @@ def create_post():
             rowcount = db.create_post(post_form.price.data,
                                       post_form.quantity.data,
                                       post_form.product.data,
+                                      post_form.category.data,
                                       post_form.loc.data,
                                       post_form.description.data)
 
@@ -235,8 +240,12 @@ def delete_user_by_id(id):
 
     if user is None:
         flash("User doesn't exist")
+        return redirect(url_for('all_users'))
 
-    if posts is not None:
+    db.delete_favorite_by_user_id(id)
+
+    for post in posts:
+        db.delete_favorite_by_post_id(post[0])
         db.delete_post_by_user_id(id)
 
     db.delete_user_by_id(id)

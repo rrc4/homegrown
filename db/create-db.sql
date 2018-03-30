@@ -23,6 +23,12 @@ CREATE TABLE post
     price FLOAT NOT NULL,
     quantity INTEGER NOT NULL,
     product VARCHAR(40) NOT NULL,
+    category VARCHAR(10) NOT NULL,
+    CHECK (category = 'Vegetables' OR
+           category = 'Fruits' OR
+           category = 'Meat' OR
+           category = 'Dairy' OR
+           category = 'Grains'),
     loc VARCHAR(40) NOT NULL,
     description VARCHAR(150) NOT NULL
 );
