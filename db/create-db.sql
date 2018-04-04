@@ -5,11 +5,9 @@ DROP TABLE IF EXISTS "user";
 CREATE TABLE "user"
 (
     id SERIAL PRIMARY KEY,
-    first_name VARCHAR(40) NOT NULL,
-    last_name VARCHAR(40) NOT NULL,
+    name VARCHAR(50) NOT NULL,
     email VARCHAR(40) NOT NULL,
     password VARCHAR(40) NOT NULL,
-    phone VARCHAR(10) NOT NULL,
     rating FLOAT NOT NULL,
     active BOOLEAN NOT NULL
 );

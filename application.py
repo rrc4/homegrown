@@ -26,6 +26,12 @@ def index():
     return render_template("index.html")
 
 
+# Testing page
+@app.route('/test')
+def test():
+    return render_template("test.html")
+
+
 # A user's profile
 @app.route('/profile')
 def profile():
@@ -169,12 +175,10 @@ def delete_post_by_id(id):
 
 # The form to create or update a user
 class UserForm(FlaskForm):
-    first_name = StringField('First Name', validators=[Length(min=1, max=40)])
-    last_name = StringField('Last Name', validators=[Length(min=1, max=40)])
+    name = StringField('Name', validators=[Length(min=1, max=50)])
     email = StringField('Email', validators=[Email()])
     password = PasswordField('New Password', [InputRequired(), EqualTo('confirm', message='Passwords must match')])
     confirm = PasswordField('Repeat Password')
-    phone = StringField('Phone', validators=[Length(min=10, max=10)])
     submit = SubmitField('Save User')
 
 
@@ -189,11 +193,9 @@ def create_user():
         if user is not None:
             flash("User {} already exists".format(user_form.email.data))
         else:
-            rowcount = db.create_user(user_form.first_name.data,
-                                      user_form.last_name.data,
+            rowcount = db.create_user(user_form.name.data,
                                       user_form.email.data,
                                       user_form.password.data,
-                                      user_form.phone.data,
                                       5.0,
                                       True)
 
@@ -215,18 +217,14 @@ def edit_user(id):
         flash("User doesn't exist")
         return redirect(url_for('all_users'))
 
-    user_form = UserForm(first_name=row['first_name'],
-                         last_name=row['last_name'],
+    user_form = UserForm(name=row['name'],
                          email=row['email'],
-                         password=row['password'],
-                         phone=row['phone'])
+                         password=row['password'])
 
     if user_form.validate_on_submit():
-        rowcount = db.update_user(user_form.first_name.data,
-                                  user_form.last_name.data,
+        rowcount = db.update_user(user_form.name.data,
                                   user_form.email.data,
                                   user_form.password.data,
-                                  user_form.phone.data,
                                   id)
 
         if rowcount == 1:
