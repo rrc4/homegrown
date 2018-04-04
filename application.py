@@ -44,16 +44,22 @@ def user_posts(user_id):
     return render_template('user-posts.html', user=user, posts=posts)
 
 
+@app.route('/favorites/1')
+def temp_user_favorites():
+    favs = db.favorites_by_user(1)
+    return render_template('favorites.html', user=1, favorites=favs)
+
+
 # A list of the user's posts
-@app.route('/favorites/<user_id>')
-def user_favorites(user_id):
-    user = db.find_user_by_id(user_id)
-    if user is None:
-        flash('No user with id {}'.format(user_id))
-        favs = []
-    else:
-        favs = db.favorites_by_user(user_id)
-    return render_template('favorites.html', user=user, favorites=favs)
+# @app.route('/favorites/<user_id>')
+# def user_favorites(user_id):
+#     user = db.find_user_by_id(user_id)
+#     if user is None:
+#         flash('No user with id {}'.format(user_id))
+#         favs = []
+#     else:
+#         favs = db.favorites_by_user(user_id)
+#     return render_template('favorites.html', user=user, favorites=favs)
 
 
 # Adds a post to favorites
