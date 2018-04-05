@@ -98,25 +98,36 @@ def favorites_by_user(user_id):
       SELECT * FROM favorite f
       INNER JOIN post p ON p.id = f.post_id
       INNER JOIN "user" u ON u.id = f.user_id 
-      WHERE u.id = %(user_id)s
+      WHERE u.id = %(user_id)s AND u.active = TRUE
     '''
     g.cursor.execute(query, {'user_id': user_id})
     g.connection.commit()
     return g.cursor.fetchall()
 
 
-# Deletes all favorites by a user's ID
-def hide_favorite_by_user_id(user_id):
-    g.cursor.execute('DELETE FROM favorite WHERE user_id = %(user_id)s', {'user_id': user_id})
-    g.connection.commit()
-    return g.cursor.rowcount
+# # Deletes all favorites by a user's ID
+# def hide_favorite_by_user_id(user_id):
+#     g.cursor.execute('DELETE FROM favorite WHERE user_id = %(user_id)s', {'user_id': user_id})
+#     g.connection.commit()
+#     return g.cursor.rowcount
+#
+#
+# # Deletes all favorited posts with a certain post_id
+# def delete_favorite_by_post_id(post_id):
+#     g.cursor.execute('DELETE FROM favorite WHERE post_id = %(post_id)s', {'post_id': post_id})
+#     g.connection.commit()
+#     return g.cursor.rowcount
 
 
-# Deletes all favorited posts with a certain post_id
-def delete_favorite_by_post_id(post_id):
-    g.cursor.execute('DELETE FROM favorite WHERE post_id = %(post_id)s', {'post_id': post_id})
+# Checks to see if the user has already added a post to favorites
+def find_duplicate_in_favorites(user_id, post_id):
+    query = '''
+        SELECT * FROM favorite f
+        WHERE post_id = %(post_id)s
+    '''
+    g.cursor.execute(query, {'user_id': user_id, 'post_id': post_id})
     g.connection.commit()
-    return g.cursor.rowcount
+    return g.cursor.fetchall()
 
 
 # Adds a post to favorites
@@ -130,11 +141,11 @@ def add_to_favorites(post_id):
     return g.cursor.rowcount
 
 
-# Remove a post from favorites
-def remove_from_favorites(post_id):
-    g.cursor.execute('DELETE FROM favorite WHERE post_id = %(post_id)s', {'post_id': post_id})
-    g.connection.commit()
-    return g.cursor.fetchall()
+# # Remove a post from favorites
+# def remove_from_favorites(post_id):
+#     g.cursor.execute('DELETE FROM favorite WHERE post_id = %(post_id)s', {'post_id': post_id})
+#     g.connection.commit()
+#     return g.cursor.fetchall()
 
 
 # Creates a post
@@ -151,7 +162,13 @@ def create_post(price, quantity, product, category, loc, description):
 
 # Returns the entire post table
 def all_posts():
-    g.cursor.execute('SELECT * FROM post ORDER BY id')
+    query = '''
+         SELECT * FROM post p
+         INNER JOIN "user" u ON u.id = p.user_id
+         WHERE u.active = TRUE
+         ORDER BY p.id
+    '''
+    g.cursor.execute(query)
     return g.cursor.fetchall()
 
 
@@ -167,15 +184,15 @@ def update_post(price, quantity, product, loc, description, post_id):
     return g.cursor.rowcount
 
 
-# Deletes a single post by post ID
-def delete_post_by_id(post_id):
-    g.cursor.execute('DELETE FROM post WHERE id = %(post_id)s', {'post_id': post_id})
-    g.connection.commit()
-    return g.cursor.rowcount
-
-
-# Deletes all posts by a user's ID
-def delete_post_by_user_id(user_id):
-    g.cursor.execute('DELETE FROM post WHERE user_id = %(user_id)s', {'user_id': user_id})
-    g.connection.commit()
-    return g.cursor.rowcount
+# # Deletes a single post by post ID
+# def delete_post_by_id(post_id):
+#     g.cursor.execute('DELETE FROM post WHERE id = %(post_id)s', {'post_id': post_id})
+#     g.connection.commit()
+#     return g.cursor.rowcount
+#
+#
+# # Deletes all posts by a user's ID
+# def delete_post_by_user_id(user_id):
+#     g.cursor.execute('DELETE FROM post WHERE user_id = %(user_id)s', {'user_id': user_id})
+#     g.connection.commit()
+#     return g.cursor.rowcount
