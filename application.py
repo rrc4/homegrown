@@ -1,6 +1,6 @@
-from flask import Flask, render_template, flash, redirect, url_for
+from flask import Flask, session, request, render_template, flash, redirect, url_for
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField
+from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField, BooleanField
 from wtforms.validators import Length, NumberRange, Email, InputRequired, EqualTo
 
 app = Flask(__name__)
@@ -24,6 +24,118 @@ def teardown_request(exception):
 @app.route('/')
 def index():
     return render_template("index.html")
+
+
+# The form to create or update a user
+class UserForm(FlaskForm):
+    name = StringField('Name', validators=[Length(min=1, max=50)])
+    email = StringField('Email', validators=[Email()])
+    password = PasswordField('New Password', [InputRequired(), EqualTo('confirm', message='Passwords must match')])
+    confirm = PasswordField('Repeat Password')
+    submit = SubmitField('Save User')
+
+
+# Allows an administrator to create a user
+@app.route('/users/create', methods=['GET', 'POST'])
+def create_user():
+    user_form = UserForm()
+
+    if user_form.validate_on_submit():
+        user = db.find_user_by_email(user_form.email.data)
+
+        if user is not None:
+            flash("User {} already exists".format(user_form.email.data))
+        else:
+            rowcount = db.create_user(user_form.name.data,
+                                      user_form.email.data,
+                                      user_form.password.data,
+                                      5.0,
+                                      True)
+
+            if rowcount == 1:
+                flash("User {} created".format(user_form.email.data))
+                return redirect(url_for('all_users'))
+            else:
+                flash("New user not created")
+
+    return render_template('user-form.html', form=user_form, mode='create')
+
+
+# Edit a post by a user's ID (primary key)
+@app.route('/users/edit/<id>', methods=['GET', 'POST'])
+def edit_user(id):
+    row = db.find_user_by_id(id)
+
+    if row is None:
+        flash("User doesn't exist")
+        return redirect(url_for('all_users'))
+
+    user_form = UserForm(name=row['name'],
+                         email=row['email'],
+                         password=row['password'])
+
+    if user_form.validate_on_submit():
+        rowcount = db.update_user(user_form.name.data,
+                                  user_form.email.data,
+                                  user_form.password.data,
+                                  id)
+
+        if rowcount == 1:
+            flash("User '{}' updated".format(user_form.email.data))
+            return redirect(url_for('all_users'))
+        else:
+            flash('User not updated')
+
+    return render_template('user-form.html', form=user_form, mode='update')
+
+
+# Disable a user by their ID (primary key)
+@app.route('/users/disable/<id>')
+def disable_user_by_id(id):
+    # posts = db.posts_by_user(id)
+    #
+    # db.hide_favorite_by_user_id(id)
+    #
+    # for post in posts:
+    #     db.hide_favorite_by_post_id(post[0])
+    #     db.hide_post_by_user_id(id)
+
+    db.disable_user_by_id(id)
+    flash("User {} disabled".format(id))
+    return redirect(url_for('all_users'))
+
+
+# Disable a user by their ID (primary key)
+@app.route('/users/enable/<id>')
+def enable_user_by_id(id):
+    user = db.find_user_by_id(id)
+    posts = db.posts_by_user(id)
+
+    # if user is None:
+    #     flash("User doesn't exist")
+    #     return redirect(url_for('all_users'))
+    #
+    # db.delete_favorite_by_user_id(id)
+    #
+    # for post in posts:
+    #     db.delete_favorite_by_post_id(post[0])
+    #     db.delete_post_by_user_id(id)
+
+    db.enable_user_by_id(id)
+    flash("User {} enabled".format(id))
+    return redirect(url_for('all_users'))
+
+
+# Gets a list of all the users in the database
+@app.route('/users')
+def all_users():
+    return render_template('all-users.html', users=db.all_users())
+
+
+# Testing page
+@app.route('/test')
+def test():
+    return render_template("test.html")
 
 
 # A user's profile
@@ -64,16 +176,14 @@ def temp_user_favorites():
 
 # Adds a post to favorites
 # TODO: Update to use current user when authentication gets added
-# TODO: Check for duplicate favorites before adding
+# TODO: Change if True to check for duplicates once users are working
 @app.route('/favorites/add/<post_id>')
 def add_to_favorites(post_id):
-    post = db.find_post_by_id(post_id)
-
-    if post is not None:
+    if True:
         db.add_to_favorites(post_id)
         flash("Post {} added to favorites".format(post_id))
-    else:
-        flash("Post {} doesn't exist".format(post_id))
+    # else:
+    #     flash("Post {} already added to favorites".format(post_id))
     return redirect(url_for('all_posts'))
 
 
@@ -156,119 +266,21 @@ def edit_post(id):
     return render_template('post-form.html', form=post_form, mode='update')
 
 
-@app.route('/posts/delete/<id>')
-def delete_post_by_id(id):
-    post = db.find_post_by_id(id)
-    if post is None:
-        flash("Post doesn't exist")
-    else:
-        db.delete_post_by_id(id)
-        flash("Post deleted")
-        return redirect(url_for('all_posts'))
-
-
-# The form to create or update a user
-class UserForm(FlaskForm):
-    first_name = StringField('First Name', validators=[Length(min=1, max=40)])
-    last_name = StringField('Last Name', validators=[Length(min=1, max=40)])
-    email = StringField('Email', validators=[Email()])
-    password = PasswordField('New Password', [InputRequired(), EqualTo('confirm', message='Passwords must match')])
-    confirm = PasswordField('Repeat Password')
-    phone = StringField('Phone', validators=[Length(min=10, max=10)])
-    submit = SubmitField('Save User')
-
-
-# Create a user
-@app.route('/users/create', methods=['GET', 'POST'])
-def create_user():
-    user_form = UserForm()
-
-    if user_form.validate_on_submit():
-        user = db.find_user_by_email(user_form.email.data)
-
-        if user is not None:
-            flash("User {} already exists".format(user_form.email.data))
-        else:
-            rowcount = db.create_user(user_form.first_name.data,
-                                      user_form.last_name.data,
-                                      user_form.email.data,
-                                      user_form.password.data,
-                                      user_form.phone.data,
-                                      5.0,
-                                      True)
-
-            if rowcount == 1:
-                flash("User {} created".format(user_form.email.data))
-                return redirect(url_for('all_users'))
-            else:
-                flash("New user not created")
-
-    return render_template('user-form.html', form=user_form, mode='create')
-
-
-# Edit a post by a user's ID (primary key)
-@app.route('/users/edit/<id>', methods=['GET', 'POST'])
-def edit_user(id):
-    row = db.find_user_by_id(id)
-
-    if row is None:
-        flash("User doesn't exist")
-        return redirect(url_for('all_users'))
-
-    user_form = UserForm(first_name=row['first_name'],
-                         last_name=row['last_name'],
-                         email=row['email'],
-                         password=row['password'],
-                         phone=row['phone'])
-
-    if user_form.validate_on_submit():
-        rowcount = db.update_user(user_form.first_name.data,
-                                  user_form.last_name.data,
-                                  user_form.email.data,
-                                  user_form.password.data,
-                                  user_form.phone.data,
-                                  id)
-
-        if rowcount == 1:
-            flash("User '{}' updated".format(user_form.email.data))
-            return redirect(url_for('all_users'))
-        else:
-            flash('User not updated')
-
-    return render_template('user-form.html', form=user_form, mode='update')
-
-
-# Delete a user by their ID (primary key)
-@app.route('/users/delete/<id>')
-def delete_user_by_id(id):
-    user = db.find_user_by_id(id)
-    posts = db.posts_by_user(id)
-
-    if user is None:
-        flash("User doesn't exist")
-        return redirect(url_for('all_users'))
-
-    db.delete_favorite_by_user_id(id)
-
-    for post in posts:
-        db.delete_favorite_by_post_id(post[0])
-        db.delete_post_by_user_id(id)
-
-    db.delete_user_by_id(id)
-    flash("User {} deleted".format(id))
-    return redirect(url_for('all_users'))
-
-
-# Gets a list of all the users in the database
-@app.route('/users')
-def all_users():
-    return render_template('all-users.html', users=db.all_users())
-
-
 # All the posts in the database
 @app.route('/posts')
 def all_posts():
     return render_template('all-posts.html', posts=db.all_posts())
+
+
+# @app.route('/posts/delete/<id>')
+# def delete_post_by_id(id):
+#     post = db.find_post_by_id(id)
+#     if post is None:
+#         flash("Post doesn't exist")
+#     else:
+#         db.delete_post_by_id(id)
+#         flash("Post deleted")
+#         return redirect(url_for('all_posts'))
 
 
 if __name__ == '__main__':

@@ -23,13 +23,13 @@ def close_db_connection():
 
 
 # Create a user
-def create_user(first_name, last_name, email, password, phone, rating, active):
+def create_user(name, email, password, rating, active):
     query = '''
-        INSERT INTO "user" (first_name, last_name, email, password, phone, rating, active)
-        VALUES (%(first_name)s, %(last_name)s, %(email)s, %(password)s, %(phone)s, %(rating)s, %(active)s)
+        INSERT INTO "user" (name, email, password, rating, active)
+        VALUES (%(name)s, %(email)s, %(password)s, %(rating)s, %(active)s)
     '''
-    g.cursor.execute(query, {'first_name': first_name, 'last_name': last_name, 'email': email,
-                             'password': password, 'phone': phone, 'rating': rating, 'active': active})
+    g.cursor.execute(query, {'name': name, 'email': email, 'password': password,
+                             'rating': rating, 'active': active})
     g.connection.commit()
     return g.cursor.rowcount
 
@@ -48,27 +48,33 @@ def find_user_by_id(id):
 
 # Returns a list of all users
 def all_users():
-    g.cursor.execute('SELECT * FROM "user"')
+    g.cursor.execute('SELECT * FROM "user" ORDER BY id')
     return g.cursor.fetchall()
 
 
 # Update a user
-def update_user(first_name, last_name, email, password, phone, user_id):
+def update_user(name, email, password, user_id):
     query = '''
         UPDATE "user"
-        SET first_name = %(first_name)s, last_name = %(last_name)s, 
-            email = %(email)s, password = %(password)s, phone = %(phone)s
+        SET name = %(name)s, email = %(email)s, password = %(password)s
         WHERE id = %(id)s
     '''
-    g.cursor.execute(query, {'id': user_id, 'first_name': first_name, 'last_name': last_name,
-                             'email': email, 'password': password, 'phone': phone})
+    g.cursor.execute(query, {'id': user_id, 'name': name,
+                             'email': email, 'password': password})
     g.connection.commit()
     return g.cursor.rowcount
 
 
-# Delete a user by their ID
-def delete_user_by_id(user_id):
-    g.cursor.execute('DELETE FROM "user" WHERE id = %(user_id)s', {'user_id': user_id})
+# Disable a user by their ID
+def disable_user_by_id(user_id):
+    g.cursor.execute('UPDATE "user" SET active = FALSE WHERE id = %(user_id)s', {'user_id': user_id})
+    g.connection.commit()
+    return g.cursor.rowcount
+
+
+# Enable a user by their ID
+def enable_user_by_id(user_id):
+    g.cursor.execute('UPDATE "user" SET active = TRUE WHERE id = %(user_id)s', {'user_id': user_id})
     g.connection.commit()
     return g.cursor.rowcount
 
@@ -92,25 +98,36 @@ def favorites_by_user(user_id):
       SELECT * FROM favorite f
       INNER JOIN post p ON p.id = f.post_id
       INNER JOIN "user" u ON u.id = f.user_id 
-      WHERE u.id = %(user_id)s
+      WHERE u.id = %(user_id)s AND u.active = TRUE
     '''
     g.cursor.execute(query, {'user_id': user_id})
     g.connection.commit()
     return g.cursor.fetchall()
 
 
-# Deletes all favorites by a user's ID
-def delete_favorite_by_user_id(user_id):
-    g.cursor.execute('DELETE FROM favorite WHERE user_id = %(user_id)s', {'user_id': user_id})
-    g.connection.commit()
-    return g.cursor.rowcount
+# # Deletes all favorites by a user's ID
+# def hide_favorite_by_user_id(user_id):
+#     g.cursor.execute('DELETE FROM favorite WHERE user_id = %(user_id)s', {'user_id': user_id})
+#     g.connection.commit()
+#     return g.cursor.rowcount
+#
+#
+# # Deletes all favorited posts with a certain post_id
+# def delete_favorite_by_post_id(post_id):
+#     g.cursor.execute('DELETE FROM favorite WHERE post_id = %(post_id)s', {'post_id': post_id})
+#     g.connection.commit()
+#     return g.cursor.rowcount
 
 
-# Deletes all favorited posts with a certain post_id
-def delete_favorite_by_post_id(post_id):
-    g.cursor.execute('DELETE FROM favorite WHERE post_id = %(post_id)s', {'post_id': post_id})
+# Checks to see if the user has already added a post to favorites
+def find_duplicate_in_favorites(user_id, post_id):
+    query = '''
+        SELECT * FROM favorite f
+        WHERE post_id = %(post_id)s
+    '''
+    g.cursor.execute(query, {'user_id': user_id, 'post_id': post_id})
     g.connection.commit()
-    return g.cursor.rowcount
+    return g.cursor.fetchall()
 
 
 # Adds a post to favorites
@@ -124,11 +141,11 @@ def add_to_favorites(post_id):
     return g.cursor.rowcount
 
 
-# Remove a post from favorites
-def remove_from_favorites(post_id):
-    g.cursor.execute('DELETE FROM favorite WHERE post_id = %(post_id)s', {'post_id': post_id})
-    g.connection.commit()
-    return g.cursor.fetchall()
+# # Remove a post from favorites
+# def remove_from_favorites(post_id):
+#     g.cursor.execute('DELETE FROM favorite WHERE post_id = %(post_id)s', {'post_id': post_id})
+#     g.connection.commit()
+#     return g.cursor.fetchall()
 
 
 # Creates a post
@@ -145,7 +162,13 @@ def create_post(price, quantity, product, category, loc, description):
 
 # Returns the entire post table
 def all_posts():
-    g.cursor.execute('SELECT * FROM post')
+    query = '''
+         SELECT * FROM post p
+         INNER JOIN "user" u ON u.id = p.user_id
+         WHERE u.active = TRUE
+         ORDER BY p.id
+    '''
+    g.cursor.execute(query)
     return g.cursor.fetchall()
 
 
@@ -161,15 +184,15 @@ def update_post(price, quantity, product, loc, description, post_id):
     return g.cursor.rowcount
 
 
-# Deletes a single post by post ID
-def delete_post_by_id(post_id):
-    g.cursor.execute('DELETE FROM post WHERE id = %(post_id)s', {'post_id': post_id})
-    g.connection.commit()
-    return g.cursor.rowcount
-
-
-# Deletes all posts by a user's ID
-def delete_post_by_user_id(user_id):
-    g.cursor.execute('DELETE FROM post WHERE user_id = %(user_id)s', {'user_id': user_id})
-    g.connection.commit()
-    return g.cursor.rowcount
+# # Deletes a single post by post ID
+# def delete_post_by_id(post_id):
+#     g.cursor.execute('DELETE FROM post WHERE id = %(post_id)s', {'post_id': post_id})
+#     g.connection.commit()
+#     return g.cursor.rowcount
+#
+#
+# # Deletes all posts by a user's ID
+# def delete_post_by_user_id(user_id):
+#     g.cursor.execute('DELETE FROM post WHERE user_id = %(user_id)s', {'user_id': user_id})
+#     g.connection.commit()
+#     return g.cursor.rowcount

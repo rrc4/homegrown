@@ -1,14 +1,69 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+        <title>
+            HomeGrown - Sign Up
+        </title>
+    </head>
 
-{% block title %}HomeGrown{% endblock %}
+    <body>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 
-{% block content %}
-    <h1 class="display-4">Home</h1>
-    <p><a href="{{ url_for('create_post') }}">Create a Post</a></p>
-    <p><a href="{{ url_for('all_posts') }}">All Posts</a></p>
-    <p><a href="{{ url_for('create_user') }}">Create a User</a></p>
-    <p><a href="{{ url_for('all_users') }}">All Users</a></p>
-    <br>
-    <p>Note: This page is just used to test all the functionality of the app.<br>
-        It will eventually be the login/authentication page.</p>
-{% endblock %}
+    <div id="login-overlay" class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">Welcome to HomeGrown!</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 style="text-align: center">Sign In</h4>
+                            <div class="well">
+                                <form id="loginForm" method="POST" action="{{ url_for('all_posts') }}" novalidate="novalidate">
+                                    <div class="form-group">
+                                        <label for="email" class="control-label">Email</label>
+                                        <input type="text" class="form-control" id="email" name="email" value="" required="" placeholder="Email">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="password" class="control-label">Password</label>
+                                        <input type="password" class="form-control" id="password" name="password" value="" required="" placeholder="Password">
+                                    </div>
+                                <div id="loginErrorMsg" class="alert alert-error hide">Wrong username og password</div>
+                                <button type="submit" class="btn btn-success btn-block">Sign In</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-xs-6">
+                            <h4 style="text-align: center">Sign Up</h4>
+                            <div class="well">
+                                <form id="loginForm" method="POST" action="{{ url_for('all_posts') }}" novalidate="novalidate">
+                                    <div class="form-group">
+                                        <label for="name" class="control-label">Name</label>
+                                        <input type="text" class="form-control" id="name" name="name" value="" required="" placeholder="Name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="email" class="control-label">Email</label>
+                                        <input type="text" class="form-control" id="email" name="email" value="" required="" placeholder="Email">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="password" class="control-label">Password</label>
+                                        <input type="password" class="form-control" id="password" name="password" value="" required="" placeholder="Password">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="confirm" class="control-label">Confirm Password</label>
+                                        <input type="password" class="form-control" id="confirm" name="confirm" value="" required="" placeholder="Confirm">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
