@@ -48,7 +48,7 @@ def find_user_by_id(id):
 
 # Returns a list of all users
 def all_users():
-    g.cursor.execute('SELECT * FROM "user"')
+    g.cursor.execute('SELECT * FROM "user" ORDER BY id')
     return g.cursor.fetchall()
 
 
@@ -65,9 +65,16 @@ def update_user(name, email, password, user_id):
     return g.cursor.rowcount
 
 
-# Delete a user by their ID
-def delete_user_by_id(user_id):
-    g.cursor.execute('DELETE FROM "user" WHERE id = %(user_id)s', {'user_id': user_id})
+# Disable a user by their ID
+def disable_user_by_id(user_id):
+    g.cursor.execute('UPDATE "user" SET active = FALSE WHERE id = %(user_id)s', {'user_id': user_id})
+    g.connection.commit()
+    return g.cursor.rowcount
+
+
+# Enable a user by their ID
+def enable_user_by_id(user_id):
+    g.cursor.execute('UPDATE "user" SET active = TRUE WHERE id = %(user_id)s', {'user_id': user_id})
     g.connection.commit()
     return g.cursor.rowcount
 
@@ -99,7 +106,7 @@ def favorites_by_user(user_id):
 
 
 # Deletes all favorites by a user's ID
-def delete_favorite_by_user_id(user_id):
+def hide_favorite_by_user_id(user_id):
     g.cursor.execute('DELETE FROM favorite WHERE user_id = %(user_id)s', {'user_id': user_id})
     g.connection.commit()
     return g.cursor.rowcount
@@ -144,7 +151,7 @@ def create_post(price, quantity, product, category, loc, description):
 
 # Returns the entire post table
 def all_posts():
-    g.cursor.execute('SELECT * FROM post')
+    g.cursor.execute('SELECT * FROM post ORDER BY id')
     return g.cursor.fetchall()
 
 

@@ -236,24 +236,40 @@ def edit_user(id):
     return render_template('user-form.html', form=user_form, mode='update')
 
 
-# Delete a user by their ID (primary key)
-@app.route('/users/delete/<id>')
-def delete_user_by_id(id):
+# Disable a user by their ID (primary key)
+@app.route('/users/disable/<id>')
+def disable_user_by_id(id):
+    # posts = db.posts_by_user(id)
+    #
+    # db.hide_favorite_by_user_id(id)
+    #
+    # for post in posts:
+    #     db.hide_favorite_by_post_id(post[0])
+    #     db.hide_post_by_user_id(id)
+
+    db.disable_user_by_id(id)
+    flash("User {} disabled".format(id))
+    return redirect(url_for('all_users'))
+
+
+# Disable a user by their ID (primary key)
+@app.route('/users/enable/<id>')
+def enable_user_by_id(id):
     user = db.find_user_by_id(id)
     posts = db.posts_by_user(id)
 
-    if user is None:
-        flash("User doesn't exist")
-        return redirect(url_for('all_users'))
+    # if user is None:
+    #     flash("User doesn't exist")
+    #     return redirect(url_for('all_users'))
+    #
+    # db.delete_favorite_by_user_id(id)
+    #
+    # for post in posts:
+    #     db.delete_favorite_by_post_id(post[0])
+    #     db.delete_post_by_user_id(id)
 
-    db.delete_favorite_by_user_id(id)
-
-    for post in posts:
-        db.delete_favorite_by_post_id(post[0])
-        db.delete_post_by_user_id(id)
-
-    db.delete_user_by_id(id)
-    flash("User {} deleted".format(id))
+    db.enable_user_by_id(id)
+    flash("User {} enabled".format(id))
     return redirect(url_for('all_users'))
 
 
