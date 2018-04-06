@@ -3,7 +3,7 @@
 {% block title %}My Posts{% endblock %}
 
 {% block content %}
-    {% if user %}
+    {% if user.active == True %}
         <h1>Posts from User {{ user.id }}</h1>
 
         {% for aPost in posts %}
@@ -26,6 +26,7 @@
                                 <ul class="list-group list-group-flush">
                                     <li class="list-group-item"><b>Price: </b>{{'${:,.2f}'.format(aPost.price) }}</li>
                                     <li class="list-group-item"><b>Quantity: </b>{{ aPost.quantity }}</li>
+                                    <li class="list-group-item"><b>Category: </b>{{ aPost.category }}</li>
                                     <li class="list-group-item"><b>Pickup Location: </b>{{ aPost.loc }}</li>
                                 </ul>
 
@@ -33,14 +34,18 @@
                                     <a href="#" class="card-link"><b>Buy</b></a>
                                     <a href="#" class="card-link">Post Details</a>
                                     <a href="{{ url_for('edit_post', id=aPost.id) }}" class="card-link">Edit</a>
+{#                                    <a href="{{ url_for('delete_post_by_id', id=aPost.id) }}" class="card-link">Delete</a>#}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
         {% else %}
             <h3>No Posts</h3>
         {% endfor %}
+    {% else %}
+        <h3>User {{ user.id }} has been disabled</h3>
     {% endif %}
 {% endblock %}

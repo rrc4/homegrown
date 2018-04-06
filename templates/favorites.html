@@ -3,5 +3,46 @@
 {% block title %}Favorites{% endblock %}
 
 {% block content %}
-    <h1 class="display-4">Favorites</h1>
+    {% if user %}
+        <h1>Favorites from User {{ user.id }}</h1>
+
+        {% for favorite in favorites %}
+
+            <div class="container">
+                <div class="card">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card-block">
+                                <img class="card-img-top" src="https://ae01.alicdn.com/kf/HTB1b4FILVXXXXaCXVXXq6xXFXXXS/2016-new-Home-Decor-Heart-shaped-Fruit-and-vegetable-diy-diamond-painting-square-drill-diamond-full.jpg" alt="Card image cap">
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-block">
+                                <br>
+                                <h3 class="card-title" style="padding-left: 20px">{{ favorite.product }}</h3>
+                                <p class="card-text" style="padding-left: 20px">{{ favorite.description }}</p>
+                                <br>
+
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item"><b>Price: </b>{{'${:,.2f}'.format(favorite.price) }}</li>
+                                    <li class="list-group-item"><b>Quantity: </b>{{ favorite.quantity }}</li>
+                                    <li class="list-group-item"><b>Pickup Location: </b>{{ favorite.loc }}</li>
+                                </ul>
+
+                                <div class="card-body">
+                                    <a href="#" class="card-link"><b>Buy</b></a>
+                                    <a href="#" class="card-link">Post Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% else %}
+
+            <h3>No Favorites</h3>
+
+        {% endfor %}
+    {% endif %}
 {% endblock %}
