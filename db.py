@@ -184,6 +184,16 @@ def update_post(price, quantity, product, loc, description, post_id):
     return g.cursor.rowcount
 
 
+# This finds products that match the search query
+def search_products(search_query):
+    query = '''
+        SELECT * FROM post
+        WHERE product = %(search_query)s
+    '''
+    g.cursor.execute(query, {'search_query': search_query.search.data})
+    g.connection.commit()
+    return g.cursor.fetchall()
+
 # # Deletes a single post by post ID
 # def delete_post_by_id(post_id):
 #     g.cursor.execute('DELETE FROM post WHERE id = %(post_id)s', {'post_id': post_id})
