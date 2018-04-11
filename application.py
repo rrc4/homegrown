@@ -1,7 +1,7 @@
 from flask import Flask, session, request, render_template, flash, redirect, url_for
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField, BooleanField
-from wtforms.validators import Length, NumberRange, Email, InputRequired, EqualTo
+from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField, BooleanField, Form
+from wtforms.validators import Length, NumberRange, Email, InputRequired, EqualTo, DataRequired
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'Super Secret Unguessable Key'
@@ -266,10 +266,31 @@ def edit_post(id):
     return render_template('post-form.html', form=post_form, mode='update')
 
 
+
+
 # All the posts in the database
-@app.route('/posts')
+@app.route('/posts', methods=['GET', 'POST'])
 def all_posts():
-    return render_template('all-posts.html', posts=db.all_posts())
+    query = ProductSearchForm(request.form)
+    if request.method == 'POST':
+        return search_results(query)
+    return render_template('all-posts.html', form=query, posts=db.all_posts())
+
+
+class ProductSearchForm(Form):
+    search = StringField('Search', [DataRequired()])
+    submit = SubmitField('Search')
+
+
+@app.route('/posts')
+def search_results(query):
+    results = db.search_products(query)
+    if not results:
+        flash('No Results Found')
+        return redirect(url_for('all_posts'))
+    else:
+        return render_template('results.html', results=results, query=query)
+
 
 
 # @app.route('/posts/delete/<id>')

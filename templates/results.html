@@ -1,20 +1,11 @@
 {% extends 'base.html' %}
 
-{% block title %}All Posts{% endblock %}
+{% block title %}Search Results{% endblock %}
 
 {% block content %}
+    <h1>Search Results from {{ query }}</h1>
 
-    {% from "_formhelpers.html" import render_field %}
-    <form method="POST" class="col-md-4">
-        {{ render_field(form.search) }}
-        <input type=submit value=Search>
-    </form>
-{#        <input class="form-control mr-sm-2" type="search" placeholder="Search Products" aria-label="Search">#}
-{#        <button class="btn btn-primary my-2 my-sm-0" type="submit">Go</button>#}
-
-    <h1>Feed</h1>
-
-    {% for aPost in posts %}
+    {% for aPost in results %}
 
         <div class="container">
             <div class="card">
@@ -41,7 +32,6 @@
                             <div class="card-body">
                                 <a href="#" class="card-link"><b>Buy</b></a>
                                 <a href="#" class="card-link">Post Details</a>
-                                <a href="{{ url_for('add_to_favorites', post_id=aPost.id) }}" class="card-link">Favorite</a>
                             </div>
                         </div>
                     </div>

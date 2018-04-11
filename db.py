@@ -4,7 +4,7 @@ import psycopg2.extras
 
 ''' Uncomment your database before working on your code, and comment it out again when pushing '''
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=joeyferg user=joeyferg password=kavibeda'
-# data_source_name = 'host=faraday.cse.taylor.edu dbname=joeschuette user=joeschuette password=kahilewo'
+data_source_name = 'host=faraday.cse.taylor.edu dbname=joeschuette user=joeschuette password=kahilewo'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=rrc4 user=rrc4 password=decisage'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=esmarrel user=esmarrel password=mowozate'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=harrisonvdn user=harrisonvdn password=mudojose'
@@ -183,6 +183,16 @@ def update_post(price, quantity, product, loc, description, post_id):
     g.connection.commit()
     return g.cursor.rowcount
 
+
+# This finds products that match the search query
+def search_products(search_query):
+    query = '''
+        SELECT * FROM post
+        WHERE product = %(search_query)s
+    '''
+    g.cursor.execute(query, {'search_query': search_query})
+    g.connection.commit()
+    return g.cursor.fetchall()
 
 # # Deletes a single post by post ID
 # def delete_post_by_id(post_id):
