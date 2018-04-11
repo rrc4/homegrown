@@ -277,12 +277,11 @@ def all_posts():
     return render_template('all-posts.html', form=query, posts=db.all_posts())
 
 
-class ProductSearchForm(Form):
+class ProductSearchForm(FlaskForm):
     search = StringField('Search', [DataRequired()])
     submit = SubmitField('Search')
 
 
-@app.route('/posts')
 def search_results(query):
     results = db.search_products(query)
     if not results:
