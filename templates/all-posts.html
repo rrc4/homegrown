@@ -3,16 +3,18 @@
 {% block title %}All Posts{% endblock %}
 
 {% block content %}
+    <div class="container">
+        <div class="row">
+            <h1 class="col-lg-9">Feed</h1>
 
-    {% from "_formhelpers.html" import render_field %}
-    <form method="POST" class="col-md-4">
-        {{ render_field(form.search) }}
-        <input type=submit value=Search>
-    </form>
-{#        <input class="form-control mr-sm-2" type="search" placeholder="Search Products" aria-label="Search">#}
-{#        <button class="btn btn-primary my-2 my-sm-0" type="submit">Go</button>#}
-
-    <h1>Feed</h1>
+            <form method="POST" class="col-lg-3 form-inline my-2 my-lg-0">
+                <div class="form-group">
+                    {{ form.search(class_='form-control', placeholder='Search Products') }}
+                    <button class="btn btn-primary my-2 my-sm-0" style="margin-left: 8px" type=submit value="Search">Go</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     {% for aPost in posts %}
 

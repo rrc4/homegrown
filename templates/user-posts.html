@@ -4,7 +4,7 @@
 
 {% block content %}
     {% if user.active == True %}
-        <h1>Posts from User {{ user.id }}</h1>
+        <h1>Posts from {{ user.name }}</h1>
 
         {% for aPost in posts %}
 

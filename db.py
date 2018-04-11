@@ -184,7 +184,9 @@ def update_post(price, quantity, product, loc, description, post_id):
     return g.cursor.rowcount
 
 
-# This finds products that match the search query
+# Finds products that match the search query
+# TODO: Fix this so that it doesn't have to match exactly
+# TODO: Split the words in the query and put them in a list, and use LIKE in SQL
 def search_products(search_query):
     query = '''
         SELECT * FROM post
@@ -194,13 +196,14 @@ def search_products(search_query):
     g.connection.commit()
     return g.cursor.fetchall()
 
+
 # # Deletes a single post by post ID
 # def delete_post_by_id(post_id):
 #     g.cursor.execute('DELETE FROM post WHERE id = %(post_id)s', {'post_id': post_id})
 #     g.connection.commit()
 #     return g.cursor.rowcount
-#
-#
+
+
 # # Deletes all posts by a user's ID
 # def delete_post_by_user_id(user_id):
 #     g.cursor.execute('DELETE FROM post WHERE user_id = %(user_id)s', {'user_id': user_id})

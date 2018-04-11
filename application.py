@@ -108,8 +108,8 @@ def disable_user_by_id(id):
 # Disable a user by their ID (primary key)
 @app.route('/users/enable/<id>')
 def enable_user_by_id(id):
-    user = db.find_user_by_id(id)
-    posts = db.posts_by_user(id)
+    # user = db.find_user_by_id(id)
+    # posts = db.posts_by_user(id)
 
     # if user is None:
     #     flash("User doesn't exist")
@@ -266,8 +266,6 @@ def edit_post(id):
     return render_template('post-form.html', form=post_form, mode='update')
 
 
-
-
 # All the posts in the database
 @app.route('/posts', methods=['GET', 'POST'])
 def all_posts():
@@ -282,6 +280,7 @@ class ProductSearchForm(FlaskForm):
     submit = SubmitField('Search')
 
 
+# A helper function that
 def search_results(query):
     results = db.search_products(query)
     if not results:
@@ -289,7 +288,6 @@ def search_results(query):
         return redirect(url_for('all_posts'))
     else:
         return render_template('results.html', results=results, query=query)
-
 
 
 # @app.route('/posts/delete/<id>')
