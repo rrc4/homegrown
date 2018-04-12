@@ -1,13 +1,19 @@
 from flask import Flask, session, request, render_template, flash, redirect, url_for
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField, BooleanField, Form
+from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField
 from wtforms.validators import Length, NumberRange, Email, InputRequired, EqualTo, DataRequired
 
+from flask_bcrypt import Bcrypt
+
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'Super Secret Unguessable Key'
+app.config['SECRET_KEY'] = 'Team Bryson Key'
 
 
 import db
+
+bcrypt = Bcrypt(app)
+login_manager = LoginManager(app)
 
 
 @app.before_request
@@ -20,10 +26,73 @@ def teardown_request(exception):
     db.close_db_connection()
 
 
-# Home page
-@app.route('/')
-def index():
-    return render_template("index.html")
+class LoginForm(FlaskForm):
+    email = StringField('Email Address', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Log In')
+
+
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    login_form = LoginForm()
+
+    if login_form.validate_on_submit() and login_form.validate():
+        user = db.find_user_by_email(login_form.email.data)
+
+        if user:
+            is_active = True
+        else:
+            is_active = False
+
+        if authenticate(login_form.email.data, login_form.password.data) and is_active:
+            current = User(login_form.email.data)
+            login_user(current)
+            session['username'] = current.email
+
+            print(current)
+            print(session['username'])
+
+            return redirect(url_for('all_posts'))
+        else:
+            flash('Invalid email address or password', category="danger")
+            return redirect(url_for('login'))
+
+    return render_template('index.html', login_form=login_form)
+
+
+def authenticate(email, password):
+    valid_users = db.all_users()
+
+    for user in valid_users:
+        if email == user['email'] and user['password'] == password:
+            return email
+    return None
+
+
+@login_manager.user_loader
+def load_user(id):
+    return User(id)
+
+
+class User(object):
+
+    def __init__(self, email):
+        self.email = email
+        user = db.find_user_by_email(self.email)
+        if user is not None:
+            # self.name = db.find_member_info(self.email)['first_name']
+            self.user_id = user['id']
+        else:
+            self.name = 'no name'
+
+        self.is_active = True
+        self.is_authenticated = True
+
+    def get_id(self):
+        return self.email
+
+    def __repr__(self):
+        return "<User '{}' {} {}".format(self.email, self.is_authenticated, self.is_active)
 
 
 # The form to create or update a user
@@ -273,7 +342,6 @@ def all_posts():
 
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
-        print(query_list)
         results = db.search_products(query_list)
 
         if not results:
