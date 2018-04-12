@@ -29,13 +29,16 @@
                         <a class="nav-link" href="{{ url_for('profile') }}">Profile</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('temp_user_favorites') }}">Favorites</a>
+                        <a class="nav-link" href="{{ url_for('user_favorites') }}">Favorites</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('settings') }}">Settings</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('test') }}">Test</a>
+                    </li>
+                    <li>
+                        <a class="nav-link" href="{{ url_for('sign_out') }}">Sign Out</a>
                     </li>
                 </ul>
             </div>

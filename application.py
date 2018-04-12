@@ -26,38 +26,67 @@ def teardown_request(exception):
     db.close_db_connection()
 
 
-class LoginForm(FlaskForm):
+# A form to sign in to an existing account
+class SignInForm(FlaskForm):
     email = StringField('Email Address', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Log In')
+    submit = SubmitField('Sign In')
+
+
+# A form to sign up for a new account
+class SignUpForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    email = StringField('Email Address', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm = PasswordField('Confirm Password', validators=[DataRequired()])
+    submit = SubmitField('Sign Up')
 
 
 @app.route('/', methods=['GET', 'POST'])
-def login():
-    login_form = LoginForm()
+def sign_in_or_sign_up():
+    sign_in_form = SignInForm()
+    sign_up_form = SignUpForm()
 
-    if login_form.validate_on_submit() and login_form.validate():
-        user = db.find_user_by_email(login_form.email.data)
+    if sign_in_form.validate_on_submit() and sign_in_form.validate():
+        user = db.find_user_by_email(sign_in_form.email.data)
 
         if user:
             is_active = True
         else:
             is_active = False
 
-        if authenticate(login_form.email.data, login_form.password.data) and is_active:
-            current = User(login_form.email.data)
+        if authenticate(sign_in_form.email.data, sign_in_form.password.data) and is_active:
+            current = User(sign_in_form.email.data)
             login_user(current)
             session['username'] = current.email
+            session['id'] = current.id
 
-            print(current)
-            print(session['username'])
-
+            flash('Sign in successful!')
             return redirect(url_for('all_posts'))
         else:
             flash('Invalid email address or password', category="danger")
-            return redirect(url_for('login'))
+            return redirect(url_for('sign_in_or_sign_up'))
 
-    return render_template('index.html', login_form=login_form)
+    if sign_up_form.validate_on_submit() and sign_up_form.validate():
+        user = db.create_user(sign_up_form.name.data, sign_up_form.email.data, sign_up_form.password.data, 5.0, True)
+
+        if user:
+            is_active = True
+        else:
+            is_active = False
+
+        if authenticate(sign_up_form.email.data, sign_up_form.password.data) and is_active:
+            current = User(sign_up_form.email.data)
+            login_user(current)
+            session['username'] = current.email
+
+            flash('Sign up successful!')
+            return redirect(url_for('all_posts'))
+        else:
+            flash('Invalid email address or password', category="danger")
+            return redirect(url_for('sign_in_or_sign_up'))
+
+    return render_template('index.html', sign_in_form=sign_in_form, sign_up_form=sign_up_form)
 
 
 def authenticate(email, password):
@@ -81,7 +110,7 @@ class User(object):
         user = db.find_user_by_email(self.email)
         if user is not None:
             # self.name = db.find_member_info(self.email)['first_name']
-            self.user_id = user['id']
+            self.id = user['id']
         else:
             self.name = 'no name'
 
@@ -93,6 +122,12 @@ class User(object):
 
     def __repr__(self):
         return "<User '{}' {} {}".format(self.email, self.is_authenticated, self.is_active)
+
+
+@app.route('/signout')
+def sign_out():
+    session.pop('user', None)
+    return redirect(url_for('sign_in_or_sign_up'))
 
 
 # The form to create or update a user
@@ -225,10 +260,12 @@ def user_posts(user_id):
     return render_template('user-posts.html', user=user, posts=posts)
 
 
-@app.route('/favorites/1')
-def temp_user_favorites():
-    favs = db.favorites_by_user(1)
-    return render_template('favorites.html', user=1, favorites=favs)
+@app.route('/favorites')
+def user_favorites():
+    if session:
+        user_id = session['id']
+        favorites = db.favorites_by_user(user_id)
+        return render_template('favorites.html', user_id=user_id, favorites=favorites)
 
 
 # A list of the user's posts
@@ -244,15 +281,17 @@ def temp_user_favorites():
 
 
 # Adds a post to favorites
-# TODO: Update to use current user when authentication gets added
 # TODO: Change if True to check for duplicates once users are working
 @app.route('/favorites/add/<post_id>')
 def add_to_favorites(post_id):
-    if True:
-        db.add_to_favorites(post_id)
-        flash("Post {} added to favorites".format(post_id))
-    # else:
-    #     flash("Post {} already added to favorites".format(post_id))
+    if session:
+        user_id = session['id']
+        # user = db.find_user_by_id(user_id)
+        if True:
+            db.add_to_favorites(user_id, post_id)
+            flash("Post {} added to favorites".format(post_id))
+        # else:
+        #     flash("Post {} already added to favorites".format(post_id))
     return redirect(url_for('all_posts'))
 
 
@@ -272,7 +311,8 @@ class PostForm(FlaskForm):
                                                 ('Fruits', 'Fruits'),
                                                 ('Meat', 'Meat'),
                                                 ('Dairy', 'Dairy'),
-                                                ('Grains', 'Grains')])
+                                                ('Grains', 'Grains'),
+                                                ('Other', 'Other')])
     loc = StringField('Location (ex. Indianapolis)', validators=[Length(min=1, max=40, message='Location must be between 1 and 40 characters')])
 
     submit = SubmitField('Save Post')
@@ -283,24 +323,28 @@ class PostForm(FlaskForm):
 def create_post():
     post_form = PostForm()
 
-    if post_form.validate_on_submit():
-            rowcount = db.create_post(post_form.price.data,
-                                      post_form.quantity.data,
-                                      post_form.product.data,
-                                      post_form.category.data,
-                                      post_form.loc.data,
-                                      post_form.description.data)
+    if session:
+        user_id = session['id']
 
-            if rowcount == 1:
-                flash("Post added successfully")
-                return redirect(url_for('all_posts'))
-            else:
-                flash("New post not created")
+        if post_form.validate_on_submit():
+                rowcount = db.create_post(user_id,
+                                          post_form.price.data,
+                                          post_form.quantity.data,
+                                          post_form.product.data,
+                                          post_form.category.data,
+                                          post_form.loc.data,
+                                          post_form.description.data)
 
-    for error in post_form.errors:
-        for field_error in post_form.errors[error]:
-            flash(field_error)
-    return render_template('post-form.html', form=post_form, mode='create')
+                if rowcount == 1:
+                    flash("Post added successfully")
+                    return redirect(url_for('all_posts'))
+                else:
+                    flash("New post not created")
+
+        for error in post_form.errors:
+            for field_error in post_form.errors[error]:
+                flash(field_error)
+        return render_template('post-form.html', form=post_form, mode='create')
 
 
 # Edit a post

@@ -24,65 +24,75 @@
                             <h4 style="text-align: center">Sign In</h4>
                             <div class="well">
                                 <form method="POST">
-                                    {{ login_form.csrf_token }}
+                                    {{ sign_in_form.csrf_token }}
 
                                     <p class="form-label">
-                                        {{ login_form.email.label }}
-                                        {{ login_form.email(class='form-control', placeholder='Email') }}
+                                        {{ sign_in_form.email.label }}
+                                        {{ sign_in_form.email(class='form-control', placeholder='Email') }}
                                     </p>
-                                    {% if login_form.email.errors %}
+                                    {% if sign_in_form.email.errors %}
                                         <div class="alert alert-warning">
                                             Please enter a valid email
                                         </div>
                                     {% endif %}
                                     <p class="form-label">
-                                        {{ login_form.password.label }}
-                                        {{ login_form.password(class='form-control', placeholder='Password') }}
+                                        {{ sign_in_form.password.label }}
+                                        {{ sign_in_form.password(class='form-control', placeholder='Password') }}
                                     </p>
                                     <br>
-                                    {% if login_form.password.errors %}
+                                    {% if sign_in_form.password.errors %}
                                         <div class="alert alert-warning">
                                             Please enter a valid password
                                         </div>
                                     {% endif %}
-                                    <p> {{ login_form.submit(class_='btn btn-success btn-block') }} </p>
+                                    <p> {{ sign_in_form.submit(class_='btn btn-success btn-block') }} </p>
                                 </form>
-
-{#                                <form id="loginForm" method="POST" action="{{ url_for('all_posts') }}" novalidate="novalidate">#}
-{#                                    <div class="form-group">#}
-{#                                        <label for="email" class="control-label">Email</label>#}
-{#                                        <input type="text" class="form-control" id="email" name="email" value="" required="" placeholder="Email">#}
-{#                                    </div>#}
-{#                                    <div class="form-group">#}
-{#                                        <label for="password" class="control-label">Password</label>#}
-{#                                        <input type="password" class="form-control" id="password" name="password" value="" required="" placeholder="Password">#}
-{#                                    </div>#}
-{#                                <div id="loginErrorMsg" class="alert alert-error hide">Wrong username og password</div>#}
-{#                                <button type="submit" class="btn btn-success btn-block">Sign In</button>#}
-{#                                </form>#}
                             </div>
                         </div>
                         <div class="col-xs-6">
                             <h4 style="text-align: center">Sign Up</h4>
                             <div class="well">
-                                <form id="loginForm" method="POST" action="{{ url_for('all_posts') }}" novalidate="novalidate">
-                                    <div class="form-group">
-                                        <label for="name" class="control-label">Name</label>
-                                        <input type="text" class="form-control" id="name" name="name" value="" required="" placeholder="Name">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="email" class="control-label">Email</label>
-                                        <input type="text" class="form-control" id="email" name="email" value="" required="" placeholder="Email">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="password" class="control-label">Password</label>
-                                        <input type="password" class="form-control" id="password" name="password" value="" required="" placeholder="Password">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="confirm" class="control-label">Confirm Password</label>
-                                        <input type="password" class="form-control" id="confirm" name="confirm" value="" required="" placeholder="Confirm">
-                                    </div>
-                                    <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+                                <form method="POST">
+                                    {{ sign_up_form.csrf_token }}
+
+                                    <p class="form-label">
+                                        {{ sign_up_form.name.label }}
+                                        {{ sign_up_form.name(class='form-control', placeholder='Name') }}
+                                    </p>
+                                    {% if sign_up_form.name.errors %}
+                                        <div class="alert alert-warning">
+                                            Please enter a valid name
+                                        </div>
+                                    {% endif %}
+                                    <p class="form-label">
+                                        {{ sign_up_form.email.label }}
+                                        {{ sign_up_form.email(class='form-control', placeholder='Email') }}
+                                    </p>
+                                    {% if sign_up_form.email.errors %}
+                                        <div class="alert alert-warning">
+                                            Please enter a valid email
+                                        </div>
+                                    {% endif %}
+                                    <p class="form-label">
+                                        {{ sign_up_form.password.label }}
+                                        {{ sign_up_form.password(class='form-control', placeholder='Password') }}
+                                    </p>
+                                    {% if sign_up_form.password.errors %}
+                                        <div class="alert alert-warning">
+                                            Please enter a valid password
+                                        </div>
+                                    {% endif %}
+                                    <p class="form-label">
+                                        {{ sign_up_form.confirm.label }}
+                                        {{ sign_up_form.confirm(class='form-control', placeholder='Confirm Password') }}
+                                    </p>
+                                    <br>
+                                    {% if sign_up_form.confirm.errors %}
+                                        <div class="alert alert-warning">
+                                            Please enter a valid password
+                                        </div>
+                                    {% endif %}
+                                    <p> {{ sign_up_form.submit(class_='btn btn-primary btn-block') }} </p>
                                 </form>
                             </div>
                         </div>

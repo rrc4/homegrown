@@ -3,7 +3,7 @@ import psycopg2
 import psycopg2.extras
 
 ''' Uncomment your database before working on your code, and comment it out again when pushing '''
-data_source_name = 'host=faraday.cse.taylor.edu dbname=joeyferg user=joeyferg password=kavibeda'
+# data_source_name = 'host=faraday.cse.taylor.edu dbname=joeyferg user=joeyferg password=kavibeda'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=joeschuette user=joeschuette password=kahilewo'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=rrc4 user=rrc4 password=decisage'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=esmarrel user=esmarrel password=mowozate'
@@ -129,12 +129,11 @@ def find_duplicate_in_favorites(user_id, post_id):
 
 
 # Adds a post to favorites
-# TODO: This will need to be updated when we get actual authentication (currently it just adds everything to user 1's favorites)
-def add_to_favorites(post_id):
+def add_to_favorites(user_id, post_id):
     query = '''
-        INSERT INTO favorite (user_id, post_id) VALUES (1, %(post_id)s);
+        INSERT INTO favorite (user_id, post_id) VALUES (%(user_id)s, %(post_id)s);
     '''
-    g.cursor.execute(query, {'post_id': post_id})
+    g.cursor.execute(query, {'post_id': post_id, 'user_id': user_id})
     g.connection.commit()
     return g.cursor.rowcount
 
@@ -147,13 +146,12 @@ def add_to_favorites(post_id):
 
 
 # Creates a post
-# TODO: This will need to be changed to create a post for the user signed in, not just user_id 1
-def create_post(price, quantity, product, category, loc, description):
+def create_post(user_id, price, quantity, product, category, loc, description):
     query = '''
         INSERT INTO post (user_id, price, quantity, product, "category", loc, description)
-        VALUES (1, %(price)s, %(quantity)s, %(product)s, %(category)s, %(loc)s, %(description)s)
+        VALUES (%(user_id)s, %(price)s, %(quantity)s, %(product)s, %(category)s, %(loc)s, %(description)s)
     '''
-    g.cursor.execute(query, {'price': price, 'quantity': quantity, 'product': product, 'category': category, 'loc': loc, 'description': description})
+    g.cursor.execute(query, {'user_id': user_id, 'price': price, 'quantity': quantity, 'product': product, 'category': category, 'loc': loc, 'description': description})
     g.connection.commit()
     return g.cursor.rowcount
 
