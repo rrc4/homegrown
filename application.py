@@ -26,38 +26,68 @@ def teardown_request(exception):
     db.close_db_connection()
 
 
-class LoginForm(FlaskForm):
+# A form to sign in to an existing account
+class SignInForm(FlaskForm):
     email = StringField('Email Address', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Log In')
+    submit = SubmitField('Sign In')
+
+
+# A form to sign up for a new account
+class SignUpForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    email = StringField('Email Address', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm = PasswordField('Confirm Password', validators=[DataRequired()])
+    submit = SubmitField('Sign Up')
 
 
 @app.route('/', methods=['GET', 'POST'])
-def login():
-    login_form = LoginForm()
+def sign_in_or_sign_up():
+    sign_in_form = SignInForm()
+    sign_up_form = SignUpForm()
 
-    if login_form.validate_on_submit() and login_form.validate():
-        user = db.find_user_by_email(login_form.email.data)
+    if sign_in_form.validate_on_submit() and sign_in_form.validate():
+        user = db.find_user_by_email(sign_in_form.email.data)
 
         if user:
             is_active = True
         else:
             is_active = False
 
-        if authenticate(login_form.email.data, login_form.password.data) and is_active:
-            current = User(login_form.email.data)
+        if authenticate(sign_in_form.email.data, sign_in_form.password.data) and is_active:
+            current = User(sign_in_form.email.data)
             login_user(current)
             session['username'] = current.email
 
-            print(current)
-            print(session['username'])
-
+            flash('Sign in successful!')
             return redirect(url_for('all_posts'))
         else:
             flash('Invalid email address or password', category="danger")
-            return redirect(url_for('login'))
+            return redirect(url_for('sign_in_or_sign_up'))
 
-    return render_template('index.html', login_form=login_form)
+    if sign_up_form.validate_on_submit() and sign_up_form.validate():
+        user = db.create_user(sign_up_form.name.data, sign_up_form.email.data, sign_up_form.password.data, 5.0, True)
+
+        print(user)
+
+        if user:
+            is_active = True
+        else:
+            is_active = False
+
+        if authenticate(sign_up_form.email.data, sign_up_form.password.data) and is_active:
+            current = User(sign_up_form.email.data)
+            login_user(current)
+            session['username'] = current.email
+
+            flash('Sign up successful!')
+            return redirect(url_for('all_posts'))
+        else:
+            flash('Invalid email address or password', category="danger")
+            return redirect(url_for('sign_in_or_sign_up'))
+
+    return render_template('index.html', sign_in_form=sign_in_form, sign_up_form=sign_up_form)
 
 
 def authenticate(email, password):
@@ -93,6 +123,12 @@ class User(object):
 
     def __repr__(self):
         return "<User '{}' {} {}".format(self.email, self.is_authenticated, self.is_active)
+
+
+@app.route('/signout')
+def sign_out():
+    session.pop('user', None)
+    return redirect(url_for('sign_in_or_sign_up'))
 
 
 # The form to create or update a user
