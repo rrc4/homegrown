@@ -3,7 +3,7 @@ import psycopg2
 import psycopg2.extras
 
 ''' Uncomment your database before working on your code, and comment it out again when pushing '''
-# data_source_name = 'host=faraday.cse.taylor.edu dbname=joeyferg user=joeyferg password=kavibeda'
+data_source_name = 'host=faraday.cse.taylor.edu dbname=joeyferg user=joeyferg password=kavibeda'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=joeschuette user=joeschuette password=kahilewo'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=rrc4 user=rrc4 password=decisage'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=esmarrel user=esmarrel password=mowozate'
@@ -28,8 +28,7 @@ def create_user(name, email, password, rating, active):
         INSERT INTO "user" (name, email, password, rating, active)
         VALUES (%(name)s, %(email)s, %(password)s, %(rating)s, %(active)s)
     '''
-    g.cursor.execute(query, {'name': name, 'email': email, 'password': password,
-                             'rating': rating, 'active': active})
+    g.cursor.execute(query, {'name': name, 'email': email, 'password': password, 'rating': rating, 'active': active})
     g.connection.commit()
     return g.cursor.rowcount
 
@@ -59,8 +58,7 @@ def update_user(name, email, password, user_id):
         SET name = %(name)s, email = %(email)s, password = %(password)s
         WHERE id = %(id)s
     '''
-    g.cursor.execute(query, {'id': user_id, 'name': name,
-                             'email': email, 'password': password})
+    g.cursor.execute(query, {'id': user_id, 'name': name, 'email': email, 'password': password})
     g.connection.commit()
     return g.cursor.rowcount
 
@@ -185,14 +183,8 @@ def update_post(price, quantity, product, loc, description, post_id):
 
 
 # Finds products that match the search query
-# TODO: Fix this so that it doesn't have to match exactly
-# TODO: Split the words in the query and put them in a list, and use LIKE in SQL
-def search_products(search_query):
-    query = '''
-        SELECT * FROM post
-        WHERE product = %(search_query)s
-    '''
-    g.cursor.execute(query, {'search_query': search_query.search.data})
+def search_products(query_list):
+    g.cursor.execute('SELECT * FROM post WHERE product IN (%s)' % ','.join(map(str, query_list)))
     g.connection.commit()
     return g.cursor.fetchall()
 

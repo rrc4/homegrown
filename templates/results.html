@@ -3,7 +3,18 @@
 {% block title %}Search Results{% endblock %}
 
 {% block content %}
-    <h1>Search Results from {{ query.search.data }}</h1>
+    <div class="container">
+        <div class="row">
+            <h1 class="col-lg-9">Search Results</h1>
+
+            <form method="POST" class="col-lg-3 form-inline my-2 my-lg-0">
+                <div class="form-group">
+                    {{ form.search(class_='form-control', placeholder='Search Products') }}
+                    <button class="btn btn-primary my-2 my-sm-0" style="margin-left: 8px" type=submit value="Search">Go</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     {% for aPost in results %}
 
