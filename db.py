@@ -3,7 +3,7 @@ import psycopg2
 import psycopg2.extras
 
 ''' Uncomment your database before working on your code, and comment it out again when pushing '''
-data_source_name = 'host=faraday.cse.taylor.edu dbname=joeyferg user=joeyferg password=kavibeda'
+# data_source_name = 'host=faraday.cse.taylor.edu dbname=joeyferg user=joeyferg password=kavibeda'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=joeschuette user=joeschuette password=kahilewo'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=rrc4 user=rrc4 password=decisage'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=esmarrel user=esmarrel password=mowozate'
@@ -184,8 +184,8 @@ def update_post(price, quantity, product, loc, description, post_id):
 
 # Finds products that match the search query
 def search_products(query_list):
-    g.cursor.execute('SELECT * FROM post WHERE product IN (%s)' % ','.join(map(str, query_list)))
-    g.connection.commit()
+    pattern = '|'.join(query_list)
+    g.cursor.execute('SELECT * FROM post WHERE product ~* %(pattern)s', {'pattern': pattern})
     return g.cursor.fetchall()
 
 
