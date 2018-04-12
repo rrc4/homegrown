@@ -28,8 +28,7 @@ def create_user(name, email, password, rating, active):
         INSERT INTO "user" (name, email, password, rating, active)
         VALUES (%(name)s, %(email)s, %(password)s, %(rating)s, %(active)s)
     '''
-    g.cursor.execute(query, {'name': name, 'email': email, 'password': password,
-                             'rating': rating, 'active': active})
+    g.cursor.execute(query, {'name': name, 'email': email, 'password': password, 'rating': rating, 'active': active})
     g.connection.commit()
     return g.cursor.rowcount
 
@@ -59,8 +58,7 @@ def update_user(name, email, password, user_id):
         SET name = %(name)s, email = %(email)s, password = %(password)s
         WHERE id = %(id)s
     '''
-    g.cursor.execute(query, {'id': user_id, 'name': name,
-                             'email': email, 'password': password})
+    g.cursor.execute(query, {'id': user_id, 'name': name, 'email': email, 'password': password})
     g.connection.commit()
     return g.cursor.rowcount
 
@@ -184,23 +182,20 @@ def update_post(price, quantity, product, loc, description, post_id):
     return g.cursor.rowcount
 
 
-# This finds products that match the search query
-def search_products(search_query):
-    query = '''
-        SELECT * FROM post
-        WHERE product = %(search_query)s
-    '''
-    g.cursor.execute(query, {'search_query': search_query.search.data})
-    g.connection.commit()
+# Finds products that match the search query
+def search_products(query_list):
+    pattern = '|'.join(query_list)
+    g.cursor.execute('SELECT * FROM post WHERE product ~* %(pattern)s', {'pattern': pattern})
     return g.cursor.fetchall()
+
 
 # # Deletes a single post by post ID
 # def delete_post_by_id(post_id):
 #     g.cursor.execute('DELETE FROM post WHERE id = %(post_id)s', {'post_id': post_id})
 #     g.connection.commit()
 #     return g.cursor.rowcount
-#
-#
+
+
 # # Deletes all posts by a user's ID
 # def delete_post_by_user_id(user_id):
 #     g.cursor.execute('DELETE FROM post WHERE user_id = %(user_id)s', {'user_id': user_id})

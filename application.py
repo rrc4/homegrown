@@ -108,8 +108,8 @@ def disable_user_by_id(id):
 # Disable a user by their ID (primary key)
 @app.route('/users/enable/<id>')
 def enable_user_by_id(id):
-    user = db.find_user_by_id(id)
-    posts = db.posts_by_user(id)
+    # user = db.find_user_by_id(id)
+    # posts = db.posts_by_user(id)
 
     # if user is None:
     #     flash("User doesn't exist")
@@ -266,30 +266,27 @@ def edit_post(id):
     return render_template('post-form.html', form=post_form, mode='update')
 
 
-
-
-# All the posts in the database
+# All the posts in the database - also handles searching
 @app.route('/posts', methods=['GET', 'POST'])
 def all_posts():
     query = ProductSearchForm(request.form)
+
     if request.method == 'POST':
-        return search_results(query)
+        query_list = query.search.data.lower().split(" ")
+        print(query_list)
+        results = db.search_products(query_list)
+
+        if not results:
+            flash('No Results Found')
+            return render_template('all-posts.html', form=query, posts=db.all_posts())
+        else:
+            return render_template('results.html', form=query, results=results, query=query)
     return render_template('all-posts.html', form=query, posts=db.all_posts())
 
 
 class ProductSearchForm(FlaskForm):
     search = StringField('Search', [DataRequired()])
     submit = SubmitField('Search')
-
-
-def search_results(query):
-    results = db.search_products(query)
-    if not results:
-        flash('No Results Found')
-        return redirect(url_for('all_posts'))
-    else:
-        return render_template('results.html', results=results, query=query)
-
 
 
 # @app.route('/posts/delete/<id>')
