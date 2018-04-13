@@ -36,6 +36,7 @@
                                 <div class="card-body">
                                     <a href="#" class="card-link"><b>Buy</b></a>
                                     <a href="#" class="card-link">Post Details</a>
+                                    <a href="{{ url_for('remove_from_favorites', post_id=favorite.post_id) }}" class="card-link">Unfavorite</a>
                                 </div>
                             </div>
                         </div>

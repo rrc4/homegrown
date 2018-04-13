@@ -3,7 +3,7 @@ import psycopg2
 import psycopg2.extras
 
 ''' Uncomment your database before working on your code, and comment it out again when pushing '''
-data_source_name = 'host=faraday.cse.taylor.edu dbname=joeyferg user=joeyferg password=kavibeda'
+# data_source_name = 'host=faraday.cse.taylor.edu dbname=joeyferg user=joeyferg password=kavibeda'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=joeschuette user=joeschuette password=kahilewo'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=rrc4 user=rrc4 password=decisage'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=esmarrel user=esmarrel password=mowozate'
@@ -103,20 +103,6 @@ def favorites_by_user(user_id):
     return g.cursor.fetchall()
 
 
-# # Deletes all favorites by a user's ID
-# def hide_favorite_by_user_id(user_id):
-#     g.cursor.execute('DELETE FROM favorite WHERE user_id = %(user_id)s', {'user_id': user_id})
-#     g.connection.commit()
-#     return g.cursor.rowcount
-#
-#
-# # Deletes all favorited posts with a certain post_id
-# def delete_favorite_by_post_id(post_id):
-#     g.cursor.execute('DELETE FROM favorite WHERE post_id = %(post_id)s', {'post_id': post_id})
-#     g.connection.commit()
-#     return g.cursor.rowcount
-
-
 # Checks to see if the user has already added a post to favorites
 def find_duplicate_in_favorites(user_id, post_id):
     query = '''
@@ -138,11 +124,14 @@ def add_to_favorites(user_id, post_id):
     return g.cursor.rowcount
 
 
-# # Remove a post from favorites
-# def remove_from_favorites(post_id):
-#     g.cursor.execute('DELETE FROM favorite WHERE post_id = %(post_id)s', {'post_id': post_id})
-#     g.connection.commit()
-#     return g.cursor.fetchall()
+# Deletes a favorite by the post_id
+def delete_from_favorites(user_id, post_id):
+    query = '''
+        DELETE FROM favorite WHERE post_id = %(post_id)s AND user_id = %(user_id)s
+    '''
+    g.cursor.execute(query, {'user_id': user_id, 'post_id': post_id})
+    g.connection.commit()
+    return g.cursor.rowcount
 
 
 # Creates a post

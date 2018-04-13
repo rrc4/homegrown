@@ -248,13 +248,25 @@ def my_posts():
     return render_template('my-posts.html', user=user, posts=posts)
 
 
+# A list of the a user's posts
+@app.route('/posts/<user_id>')
+def user_posts(user_id):
+    user = db.find_user_by_id(user_id)
+    if user_id is None:
+        flash('No user with id {}'.format(user_id))
+        posts = []
+    else:
+        posts = db.posts_by_user(user_id)
+    return render_template('user-posts.html', user=user, posts=posts)
+
+
 # A list of the user's favorites
 @app.route('/favorites')
-def user_favorites():
+def my_favorites():
     if session:
         user_id = session['id']
         favorites = db.favorites_by_user(user_id)
-        return render_template('favorites.html', user_id=user_id, favorites=favorites)
+        return render_template('my-favorites.html', user_id=user_id, favorites=favorites)
 
 
 # Adds a post to favorites
@@ -270,6 +282,20 @@ def add_to_favorites(post_id):
         # else:
         #     flash("Post {} already added to favorites".format(post_id))
     return redirect(url_for('all_posts'))
+
+
+@app.route('/favorites/remove/<post_id>')
+def remove_from_favorites(post_id):
+    if session:
+        user_id = session['id']
+        favorites = db.favorites_by_user(user_id)
+
+        if favorites:
+            db.favorite_by_post_id(user_id, post_id)
+            flash("Post {} removed from favorites".format(post_id))
+        else:
+            flash("Unable to remove from favorites")
+    return redirect(url_for('my_favorites'))
 
 
 # A user's settings
