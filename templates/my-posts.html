@@ -4,7 +4,11 @@
 
 {% block content %}
     {% if user.active == True %}
-        <h1>Posts from {{ user.name }}</h1>
+        <div class="container">
+            <div class="row">
+                <h1 class="col-lg-9">My Posts</h1>
+            </div>
+        </div>
 
         {% for aPost in posts %}
 
@@ -34,7 +38,7 @@
                                     <a href="#" class="card-link"><b>Buy</b></a>
                                     <a href="#" class="card-link">Post Details</a>
                                     <a href="{{ url_for('edit_post', id=aPost.id) }}" class="card-link">Edit</a>
-{#                                    <a href="{{ url_for('delete_post_by_id', id=aPost.id) }}" class="card-link">Delete</a>#}
+                                    <a href="{{ url_for('delete_post_by_id', id=aPost.id) }}" class="card-link">Delete</a>
                                 </div>
                             </div>
                         </div>
@@ -43,9 +47,14 @@
             </div>
 
         {% else %}
-            <h3>No Posts</h3>
+            <div class="container">
+                <div class="row">
+                    <h3 class="col-lg-9">You have no posts!</h3>
+                </div>
+            </div>
         {% endfor %}
+
     {% else %}
-        <h3>User {{ user.id }} has been disabled</h3>
+        <h3>{{ user.name }} has been disabled</h3>
     {% endif %}
 {% endblock %}

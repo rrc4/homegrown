@@ -1,6 +1,7 @@
 from flask import Flask, session, request, render_template, flash, redirect, url_for
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from flask_login import LoginManager, login_user
 from flask_wtf import FlaskForm
+
 from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField
 from wtforms.validators import Length, NumberRange, Email, InputRequired, EqualTo, DataRequired
 
@@ -16,11 +17,13 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 
 
+# Opens the database connection
 @app.before_request
 def before_request():
     db.open_db_connection()
 
 
+# Closes the database connection
 @app.teardown_request
 def teardown_request(exception):
     db.close_db_connection()
@@ -42,6 +45,8 @@ class SignUpForm(FlaskForm):
     submit = SubmitField('Sign Up')
 
 
+# The main authentication page that allows users to sign in or sign up
+# TODO: Fix signing up
 @app.route('/', methods=['GET', 'POST'])
 def sign_in_or_sign_up():
     sign_in_form = SignInForm()
@@ -89,6 +94,7 @@ def sign_in_or_sign_up():
     return render_template('index.html', sign_in_form=sign_in_form, sign_up_form=sign_up_form)
 
 
+# Make sure the user email and password match with what they should be
 def authenticate(email, password):
     valid_users = db.all_users()
 
@@ -98,13 +104,14 @@ def authenticate(email, password):
     return None
 
 
+# Necessary for the login manager to work
 @login_manager.user_loader
 def load_user(id):
     return User(id)
 
 
+# A User class for creating User objects
 class User(object):
-
     def __init__(self, email):
         self.email = email
         user = db.find_user_by_email(self.email)
@@ -124,6 +131,7 @@ class User(object):
         return "<User '{}' {} {}".format(self.email, self.is_authenticated, self.is_active)
 
 
+# Signs the user out
 @app.route('/signout')
 def sign_out():
     session.pop('user', None)
@@ -196,35 +204,14 @@ def edit_user(id):
 # Disable a user by their ID (primary key)
 @app.route('/users/disable/<id>')
 def disable_user_by_id(id):
-    # posts = db.posts_by_user(id)
-    #
-    # db.hide_favorite_by_user_id(id)
-    #
-    # for post in posts:
-    #     db.hide_favorite_by_post_id(post[0])
-    #     db.hide_post_by_user_id(id)
-
     db.disable_user_by_id(id)
     flash("User {} disabled".format(id))
     return redirect(url_for('all_users'))
 
 
-# Disable a user by their ID (primary key)
+# Enable a user by their ID (primary key)
 @app.route('/users/enable/<id>')
 def enable_user_by_id(id):
-    # user = db.find_user_by_id(id)
-    # posts = db.posts_by_user(id)
-
-    # if user is None:
-    #     flash("User doesn't exist")
-    #     return redirect(url_for('all_users'))
-    #
-    # db.delete_favorite_by_user_id(id)
-    #
-    # for post in posts:
-    #     db.delete_favorite_by_post_id(post[0])
-    #     db.delete_post_by_user_id(id)
-
     db.enable_user_by_id(id)
     flash("User {} enabled".format(id))
     return redirect(url_for('all_users'))
@@ -248,18 +235,20 @@ def profile():
     return render_template("profile.html")
 
 
-# A list of the user's posts
-@app.route('/posts/<user_id>')
-def user_posts(user_id):
+# A list of the current user's posts
+@app.route('/posts/my')
+def my_posts():
+    user_id = session['id']
     user = db.find_user_by_id(user_id)
-    if user is None:
+    if user_id is None:
         flash('No user with id {}'.format(user_id))
         posts = []
     else:
         posts = db.posts_by_user(user_id)
-    return render_template('user-posts.html', user=user, posts=posts)
+    return render_template('my-posts.html', user=user, posts=posts)
 
 
+# A list of the user's favorites
 @app.route('/favorites')
 def user_favorites():
     if session:
@@ -268,20 +257,8 @@ def user_favorites():
         return render_template('favorites.html', user_id=user_id, favorites=favorites)
 
 
-# A list of the user's posts
-# @app.route('/favorites/<user_id>')
-# def user_favorites(user_id):
-#     user = db.find_user_by_id(user_id)
-#     if user is None:
-#         flash('No user with id {}'.format(user_id))
-#         favs = []
-#     else:
-#         favs = db.favorites_by_user(user_id)
-#     return render_template('favorites.html', user=user, favorites=favs)
-
-
 # Adds a post to favorites
-# TODO: Change if True to check for duplicates once users are working
+# TODO: Change if True to check for duplicates
 @app.route('/favorites/add/<post_id>')
 def add_to_favorites(post_id):
     if session:
@@ -401,15 +378,15 @@ class ProductSearchForm(FlaskForm):
     submit = SubmitField('Search')
 
 
-# @app.route('/posts/delete/<id>')
-# def delete_post_by_id(id):
-#     post = db.find_post_by_id(id)
-#     if post is None:
-#         flash("Post doesn't exist")
-#     else:
-#         db.delete_post_by_id(id)
-#         flash("Post deleted")
-#         return redirect(url_for('all_posts'))
+@app.route('/posts/delete/<id>')
+def delete_post_by_id(id):
+    post = db.find_post_by_id(id)
+    if post is None:
+        flash("Post doesn't exist")
+    else:
+        db.delete_post_by_id(id)
+        flash("Post deleted")
+        return redirect(url_for('my_posts'))
 
 
 if __name__ == '__main__':
