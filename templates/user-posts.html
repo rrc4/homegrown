@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %}My Posts{% endblock %}
+{% block title %}{{ user.name }}'s Posts{% endblock %}
 
 {% block content %}
     {% if user.active == True %}
         <div class="container">
             <div class="row">
-                <h1 class="col-lg-9">My Posts</h1>
+                <h1 class="col-lg-9">{{ user.name }}'s Posts</h1>
             </div>
         </div>
 
@@ -35,9 +35,8 @@
                                 </ul>
 
                                 <div class="card-body">
+                                    <a href="#" class="card-link"><b>Buy</b></a>
                                     <a href="#" class="card-link">Post Details</a>
-                                    <a href="{{ url_for('edit_post', id=aPost.id) }}" class="card-link">Edit</a>
-                                    <a href="{{ url_for('delete_post_by_id', id=aPost.id) }}" class="card-link">Delete</a>
                                 </div>
                             </div>
                         </div>
@@ -48,7 +47,7 @@
         {% else %}
             <div class="container">
                 <div class="row">
-                    <h3 class="col-lg-9">You have no posts!</h3>
+                    <h3 class="col-lg-9">{{ user.name }} has no posts!</h3>
                 </div>
             </div>
         {% endfor %}
