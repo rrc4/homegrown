@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS favorite;
+DROP TABLE IF EXISTS photo;
 DROP TABLE IF EXISTS post;
 DROP TABLE IF EXISTS "user";
 
@@ -32,6 +33,17 @@ CREATE TABLE post
 );
 CREATE UNIQUE INDEX post_id_index ON post (id);
 COMMENT ON TABLE post IS 'Post';
+
+
+CREATE TABLE photo
+(
+  id SERIAL NOT NULL
+    CONSTRAINT photo_pkey
+    PRIMARY KEY
+    REFERENCES post,
+  file_path VARCHAR(255) NOT NULL DEFAULT 'bogus-path'
+);
+
 
 CREATE TABLE favorite
 (

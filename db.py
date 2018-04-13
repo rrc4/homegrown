@@ -5,7 +5,7 @@ import psycopg2.extras
 ''' Uncomment your database before working on your code, and comment it out again when pushing '''
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=joeyferg user=joeyferg password=kavibeda'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=joeschuette user=joeschuette password=kahilewo'
-# data_source_name = 'host=faraday.cse.taylor.edu dbname=rrc4 user=rrc4 password=decisage'
+data_source_name = 'host=faraday.cse.taylor.edu dbname=rrc4 user=rrc4 password=decisage'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=esmarrel user=esmarrel password=mowozate'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=harrisonvdn user=harrisonvdn password=mudojose'
 
@@ -154,8 +154,28 @@ def create_post(price, quantity, product, category, loc, description):
     query = '''
         INSERT INTO post (user_id, price, quantity, product, "category", loc, description)
         VALUES (1, %(price)s, %(quantity)s, %(product)s, %(category)s, %(loc)s, %(description)s)
+        RETURNING id
     '''
     g.cursor.execute(query, {'price': price, 'quantity': quantity, 'product': product, 'category': category, 'loc': loc, 'description': description})
+    g.connection.commit()
+    return {'id': g.cursor.fetchone()['id'], 'rowcount': g.cursor.rowcount}
+
+
+def init_photo(id):
+    g.cursor.execute('INSERT INTO photo (id) VALUES (%(id)s)', {'id': id})
+    g.connection.commit()
+
+    g.cursor.execute('SELECT * FROM photo WHERE id = (%(id)s)', {'id': id})
+    return g.cursor.fetchone()
+
+
+def set_photo(photo_id, file_path):
+    query = '''
+        UPDATE photo 
+        SET file_path = %(file_path)s
+        WHERE id = %(id)s
+    '''
+    g.cursor.execute(query, {'file_path': file_path, 'id': photo_id})
     g.connection.commit()
     return g.cursor.rowcount
 
@@ -163,10 +183,11 @@ def create_post(price, quantity, product, category, loc, description):
 # Returns the entire post table
 def all_posts():
     query = '''
-         SELECT * FROM post p
+         SELECT *, p.id AS "post_id" FROM post p
          INNER JOIN "user" u ON u.id = p.user_id
+         LEFT JOIN "photo" ON p.id = photo.id
          WHERE u.active = TRUE
-         ORDER BY p.id
+         ORDER BY p.id;
     '''
     g.cursor.execute(query)
     return g.cursor.fetchall()
