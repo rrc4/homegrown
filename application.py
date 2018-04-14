@@ -1,15 +1,13 @@
 import os
 from pathlib import PurePath
 
-
 from flask import Flask, session, request, render_template, flash, redirect, url_for
 from flask_login import LoginManager, login_user
 from flask_wtf import FlaskForm
 
-from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField, BooleanField
+from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField
 from wtforms.validators import Length, NumberRange, Email, InputRequired, EqualTo, DataRequired
 from flask_wtf.file import FileField, FileRequired
-from werkzeug.utils import secure_filename
 
 from flask_bcrypt import Bcrypt
 
@@ -75,10 +73,10 @@ def sign_in():
             session['username'] = current.email
             session['id'] = current.id
 
-            flash('Sign in successful!')
+            flash('Sign in successful!', category='success')
             return redirect(url_for('all_posts'))
         else:
-            flash('Invalid email address or password', category="danger")
+            flash('Invalid email address or password', category='danger')
             return redirect(url_for('sign_in'))
 
     return render_template('sign-in.html', sign_in_form=sign_in_form)
@@ -102,7 +100,7 @@ def sign_up():
             login_user(current)
             session['username'] = current.email
 
-            flash('Sign up successful!')
+            flash('Sign up successful!', category='success')
             return redirect(url_for('all_posts'))
         else:
             flash('Invalid email address or password', category="danger")
@@ -173,7 +171,7 @@ def create_user():
         user = db.find_user_by_email(user_form.email.data)
 
         if user is not None:
-            flash("User {} already exists".format(user_form.email.data))
+            flash("User {} already exists".format(user_form.email.data), category='danger')
         else:
             rowcount = db.create_user(user_form.name.data,
                                       user_form.email.data,
@@ -182,10 +180,10 @@ def create_user():
                                       True)
 
             if rowcount == 1:
-                flash("User {} created".format(user_form.email.data))
+                flash("User {} created".format(user_form.email.data), category='success')
                 return redirect(url_for('all_users'))
             else:
-                flash("New user not created")
+                flash("New user not created", category='danger')
 
     return render_template('user-form.html', form=user_form, mode='create')
 
@@ -196,7 +194,7 @@ def edit_user(id):
     row = db.find_user_by_id(id)
 
     if row is None:
-        flash("User doesn't exist")
+        flash("User doesn't exist", category='danger')
         return redirect(url_for('all_users'))
 
     user_form = UserForm(name=row['name'],
@@ -210,10 +208,10 @@ def edit_user(id):
                                   id)
 
         if rowcount == 1:
-            flash("User '{}' updated".format(user_form.email.data))
+            flash("User '{}' updated".format(user_form.email.data), category='success')
             return redirect(url_for('all_users'))
         else:
-            flash('User not updated')
+            flash('User not updated', category='danger')
 
     return render_template('user-form.html', form=user_form, mode='update')
 
@@ -222,7 +220,7 @@ def edit_user(id):
 @app.route('/users/disable/<id>')
 def disable_user_by_id(id):
     db.disable_user_by_id(id)
-    flash("User {} disabled".format(id))
+    flash("User {} disabled".format(id), category='success')
     return redirect(url_for('all_users'))
 
 
@@ -230,7 +228,7 @@ def disable_user_by_id(id):
 @app.route('/users/enable/<id>')
 def enable_user_by_id(id):
     db.enable_user_by_id(id)
-    flash("User {} enabled".format(id))
+    flash("User {} enabled".format(id), category='success')
     return redirect(url_for('all_users'))
 
 
@@ -258,7 +256,7 @@ def my_posts():
     user_id = session['id']
     user = db.find_user_by_id(user_id)
     if user_id is None:
-        flash('No user with id {}'.format(user_id))
+        flash('User is not logged in!', category='danger')
         posts = []
     else:
         posts = db.posts_by_user(user_id)
@@ -270,7 +268,7 @@ def my_posts():
 def user_posts(user_id):
     user = db.find_user_by_id(user_id)
     if user_id is None:
-        flash('No user with id {}'.format(user_id))
+        flash('No user with id {}'.format(user_id), category='danger')
         posts = []
     else:
         posts = db.posts_by_user(user_id)
@@ -295,9 +293,9 @@ def add_to_favorites(post_id):
         # user = db.find_user_by_id(user_id)
         if True:
             db.add_to_favorites(user_id, post_id)
-            flash("Post {} added to favorites".format(post_id))
+            flash("Post {} added to favorites".format(post_id), category='success')
         # else:
-        #     flash("Post {} already added to favorites".format(post_id))
+        #     flash("Post {} already added to favorites".format(post_id), category='danger')
     return redirect(url_for('all_posts'))
 
 
@@ -309,9 +307,9 @@ def remove_from_favorites(post_id):
 
         if favorites:
             db.favorite_by_post_id(user_id, post_id)
-            flash("Post {} removed from favorites".format(post_id))
+            flash("Post {} removed from favorites".format(post_id), category='success')
         else:
-            flash("Unable to remove from favorites")
+            flash("Unable to remove from favorites", category='danger')
     return redirect(url_for('my_favorites'))
 
 
@@ -374,14 +372,14 @@ def create_post():
                 db.set_photo(photo_row['id'], file_path)
 
                 if post_dict['rowcount'] == 1:
-                    flash("Post added successfully")
+                    flash("Post added successfully", category='success')
                     return redirect(url_for('all_posts'))
                 else:
-                    flash("New post not created")   
+                    flash("New post not created", category='danger')
 
         for error in post_form.errors:
             for field_error in post_form.errors[error]:
-                flash(field_error)
+                flash(field_error, category='danger')
         return render_template('post-form.html', form=post_form, mode='create')
 
 
@@ -391,7 +389,7 @@ def edit_post(id):
     row = db.find_post_by_id(id)
 
     if row is None:
-        flash("Post doesn't exist")
+        flash("Post doesn't exist", category='danger')
         return redirect(url_for('index'))
 
     post_form = PostForm(price=row['price'],
@@ -409,10 +407,10 @@ def edit_post(id):
                                   id)
 
         if rowcount == 1:
-            flash("Post '{}' updated".format(post_form.product.data))
-            return redirect(url_for('index'))
+            flash("Post '{}' updated".format(post_form.product.data), category='success')
+            return redirect(url_for('all_posts'))
         else:
-            flash('Post not updated')
+            flash('Post not updated', category='danger')
 
     return render_template('post-form.html', form=post_form, mode='update')
 
@@ -427,7 +425,7 @@ def all_posts():
         results = db.search_products(query_list)
 
         if not results:
-            flash('No Results Found')
+            flash('No Results Found', category='danger')
             return render_template('all-posts.html', form=query, posts=db.all_posts())
         else:
             return render_template('results.html', form=query, results=results, query=query)
@@ -443,10 +441,10 @@ class ProductSearchForm(FlaskForm):
 def delete_post_by_id(id):
     post = db.find_post_by_id(id)
     if post is None:
-        flash("Post doesn't exist")
+        flash("Post doesn't exist", category='danger')
     else:
         db.delete_post_by_id(id)
-        flash("Post deleted")
+        flash("Post deleted", category='success')
         return redirect(url_for('my_posts'))
 
 
