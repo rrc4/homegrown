@@ -6,97 +6,127 @@
         <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
         <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
         <title>HomeGrown</title>
+
+        <style>
+            .background-image {
+                background-image: url('http://islasfoods.com/wp-content/uploads/2018/01/fruits-vegetables-rainbow-hero-getty.jpg');
+                filter: blur(7px);
+                -webkit-filter: blur(7px);
+                background-size: 1920px 1000px;
+                display: block;
+                height: 1000px;
+                left: 0;
+                position: fixed;
+                right: 0;
+                z-index: 1;
+            }
+
+            .content {
+                top: 10px;
+                left: 0;
+                position: fixed;
+                margin-left: 20px;
+                margin-right: 20px;
+                right: 0;
+                z-index: 2;
+                padding: 0 10px;
+            }
+        </style>
     </head>
 
-    <body background="http://www.taylor.edu/contentAsset/image/5ac27fac-1757-4fb3-8425-f5cc2da06904/thumbnailPhoto/filter/Thumbnail/thumbnail_w/100/thumbnail_h/100/thumbnail_bg/">
-    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <body>
+        <div class="background-image"></div>
+        <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+        <div class="content">
+            <br><br><br><br>
+            <div id="login-overlay" class="modal-dialog">
+                <div class="modal-content">
+                    <div style="text-align: center">
+                        <h1>Welcome To HomeGrown!</h1>
+                        <h3>Fresh produce sold by backyard growers</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <h4 style="text-align: center">Sign In</h4>
+                                <div class="well">
+                                    <form method="POST">
+                                        {{ sign_in_form.csrf_token }}
 
-    <div class="jumbotron text-center">
-      <div class="container">
-        <h1>Welcome To Homegrown</h1>
-        <p>Fresh Produce sold online!</p>
-        <a href="#" class="btn btn-primary">Read More</a>
-      </div>
-    </div>
-    <div id="login-overlay" class="modal-dialog">
-        <div class="modal-content">
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-xs-6">
-                            <h4 style="text-align: center">Sign In</h4>
-                            <div class="well">
-                                <form method="POST">
-                                    {{ sign_in_form.csrf_token }}
+                                        <p class="form-label">
+                                            {{ sign_in_form.email.label }}
+                                            {{ sign_in_form.email(class='form-control', placeholder='Email') }}
+                                        </p>
+                                        {% if sign_in_form.email.errors %}
+                                            <div class="alert alert-warning">
+                                                Please enter a valid email
+                                            </div>
+                                        {% endif %}
+                                        <p class="form-label">
+                                            {{ sign_in_form.password.label }}
+                                            {{ sign_in_form.password(class='form-control', placeholder='Password') }}
+                                        </p>
+                                        <br>
+                                        {% if sign_in_form.password.errors %}
+                                            <div class="alert alert-warning">
+                                                Please enter a valid password
+                                            </div>
+                                        {% endif %}
+                                        <p> {{ sign_in_form.submit(class_='btn btn-success btn-block') }} </p>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <h4 style="text-align: center">Sign Up</h4>
+                                <div class="well">
+                                    <form method="POST">
+                                        {{ sign_up_form.csrf_token }}
 
-                                    <p class="form-label">
-                                        {{ sign_in_form.email.label }}
-                                        {{ sign_in_form.email(class='form-control', placeholder='Email') }}
-                                    </p>
-                                    {% if sign_in_form.email.errors %}
-                                        <div class="alert alert-warning">
-                                            Please enter a valid email
-                                        </div>
-                                    {% endif %}
-                                    <p class="form-label">
-                                        {{ sign_in_form.password.label }}
-                                        {{ sign_in_form.password(class='form-control', placeholder='Password') }}
-                                    </p>
-                                    <br>
-                                    {% if sign_in_form.password.errors %}
-                                        <div class="alert alert-warning">
-                                            Please enter a valid password
-                                        </div>
-                                    {% endif %}
-                                    <p> {{ sign_in_form.submit(class_='btn btn-success btn-block') }} </p>
-                                </form>
+                                        <p class="form-label">
+                                            {{ sign_up_form.name.label }}
+                                            {{ sign_up_form.name(class='form-control', placeholder='Name') }}
+                                        </p>
+                                        {% if sign_up_form.name.errors %}
+                                            <div class="alert alert-warning">
+                                                Please enter a valid name
+                                            </div>
+                                        {% endif %}
+                                        <p class="form-label">
+                                            {{ sign_up_form.email.label }}
+                                            {{ sign_up_form.email(class='form-control', placeholder='Email') }}
+                                        </p>
+                                        {% if sign_up_form.email.errors %}
+                                            <div class="alert alert-warning">
+                                                Please enter a valid email
+                                            </div>
+                                        {% endif %}
+                                        <p class="form-label">
+                                            {{ sign_up_form.password.label }}
+                                            {{ sign_up_form.password(class='form-control', placeholder='Password') }}
+                                        </p>
+                                        {% if sign_up_form.password.errors %}
+                                            <div class="alert alert-warning">
+                                                Please enter a valid password
+                                            </div>
+                                        {% endif %}
+                                        <p class="form-label">
+                                            {{ sign_up_form.confirm.label }}
+                                            {{ sign_up_form.confirm(class='form-control', placeholder='Confirm Password') }}
+                                        </p>
+                                        <br>
+                                        {% if sign_up_form.confirm.errors %}
+                                            <div class="alert alert-warning">
+                                                Please enter a valid password
+                                            </div>
+                                        {% endif %}
+                                        <p> {{ sign_up_form.submit(class_='btn btn-primary btn-block') }} </p>
+                                    </form>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-xs-6">
-                            <h4 style="text-align: center">Sign Up</h4>
-                            <div class="well">
-                                <form method="POST">
-                                    {{ sign_up_form.csrf_token }}
-
-                                    <p class="form-label">
-                                        {{ sign_up_form.name.label }}
-                                        {{ sign_up_form.name(class='form-control', placeholder='Name') }}
-                                    </p>
-                                    {% if sign_up_form.name.errors %}
-                                        <div class="alert alert-warning">
-                                            Please enter a valid name
-                                        </div>
-                                    {% endif %}
-                                    <p class="form-label">
-                                        {{ sign_up_form.email.label }}
-                                        {{ sign_up_form.email(class='form-control', placeholder='Email') }}
-                                    </p>
-                                    {% if sign_up_form.email.errors %}
-                                        <div class="alert alert-warning">
-                                            Please enter a valid email
-                                        </div>
-                                    {% endif %}
-                                    <p class="form-label">
-                                        {{ sign_up_form.password.label }}
-                                        {{ sign_up_form.password(class='form-control', placeholder='Password') }}
-                                    </p>
-                                    {% if sign_up_form.password.errors %}
-                                        <div class="alert alert-warning">
-                                            Please enter a valid password
-                                        </div>
-                                    {% endif %}
-                                    <p class="form-label">
-                                        {{ sign_up_form.confirm.label }}
-                                        {{ sign_up_form.confirm(class='form-control', placeholder='Confirm Password') }}
-                                    </p>
-                                    <br>
-                                    {% if sign_up_form.confirm.errors %}
-                                        <div class="alert alert-warning">
-                                            Please enter a valid password
-                                        </div>
-                                    {% endif %}
-                                    <p> {{ sign_up_form.submit(class_='btn btn-primary btn-block') }} </p>
-                                </form>
-                            </div>
+                        <br>
+                        <div style="text-align: center">
+                            <a href="{{ url_for('all_posts') }}" class="btn btn-primary">Continue as Guest</a>
                         </div>
                     </div>
                 </div>
