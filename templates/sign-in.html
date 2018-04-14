@@ -47,15 +47,42 @@
                     </div>
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-xs-6" style="text-align:center">
-                                <a href="{{ url_for('sign_in') }}" class="btn btn-success">Sign In</a>
+                            <div class="col-xs-2"></div>
+                            <div class="col-xs-8">
+                                <h4 style="text-align: center">Sign In</h4>
+                                <div class="well">
+                                    <form method="POST">
+                                        {{ sign_in_form.csrf_token }}
+
+                                        <p class="form-label">
+                                            {{ sign_in_form.email.label }}
+                                            {{ sign_in_form.email(class='form-control', placeholder='Email') }}
+                                        </p>
+                                        {% if sign_in_form.email.errors %}
+                                            <div class="alert alert-warning">
+                                                Please enter a valid email
+                                            </div>
+                                        {% endif %}
+                                        <p class="form-label">
+                                            {{ sign_in_form.password.label }}
+                                            {{ sign_in_form.password(class='form-control', placeholder='Password') }}
+                                        </p>
+                                        <br>
+                                        {% if sign_in_form.password.errors %}
+                                            <div class="alert alert-warning">
+                                                Please enter a valid password
+                                            </div>
+                                        {% endif %}
+                                        <p> {{ sign_in_form.submit(class_='btn btn-success btn-block') }} </p>
+                                    </form>
+                                </div>
                             </div>
-                            <div class="col-xs-6" style="text-align:center">
-                                <a href="{{ url_for('sign_up') }}" class="btn btn-primary">Sign Up</a>
-                            </div>
+                            <div class="col-xs-2"></div>
                         </div>
                         <br>
                         <div style="text-align: center">
+                            <a href="{{ url_for('index') }}" class="btn btn-danger">Back to Sign Up</a>
+                            <br><br>
                             <a href="{{ url_for('all_posts') }}" class="btn btn-secondary">Continue as Guest</a>
                         </div>
                     </div>

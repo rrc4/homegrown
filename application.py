@@ -51,12 +51,15 @@ class SignUpForm(FlaskForm):
     submit = SubmitField('Sign Up')
 
 
-# The main authentication page that allows users to sign in or sign up
-# TODO: Fix signing up
-@app.route('/', methods=['GET', 'POST'])
-def sign_in_or_sign_up():
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+
+# Allows users to sign in
+@app.route('/signin', methods=['GET', 'POST'])
+def sign_in():
     sign_in_form = SignInForm()
-    sign_up_form = SignUpForm()
 
     if sign_in_form.validate_on_submit() and sign_in_form.validate():
         user = db.find_user_by_email(sign_in_form.email.data)
@@ -76,7 +79,15 @@ def sign_in_or_sign_up():
             return redirect(url_for('all_posts'))
         else:
             flash('Invalid email address or password', category="danger")
-            return redirect(url_for('sign_in_or_sign_up'))
+            return redirect(url_for('sign_in'))
+
+    return render_template('sign-in.html', sign_in_form=sign_in_form)
+
+
+# Allows users to sign up
+@app.route('/signup', methods=['GET', 'POST'])
+def sign_up():
+    sign_up_form = SignUpForm()
 
     if sign_up_form.validate_on_submit() and sign_up_form.validate():
         user = db.create_user(sign_up_form.name.data, sign_up_form.email.data, sign_up_form.password.data, 5.0, True)
@@ -95,9 +106,9 @@ def sign_in_or_sign_up():
             return redirect(url_for('all_posts'))
         else:
             flash('Invalid email address or password', category="danger")
-            return redirect(url_for('sign_in_or_sign_up'))
+            return redirect(url_for('sign_up'))
 
-    return render_template('index.html', sign_in_form=sign_in_form, sign_up_form=sign_up_form)
+    return render_template('sign-up.html', sign_up_form=sign_up_form)
 
 
 # Make sure the user email and password match with what they should be
