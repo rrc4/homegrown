@@ -59,8 +59,8 @@
                                             {{ sign_in_form.email(class='form-control', placeholder='Email') }}
                                         </p>
                                         {% if sign_in_form.email.errors %}
-                                            <div class="alert alert-warning">
-                                                Please enter a valid email
+                                            <div class="alert alert-danger">
+                                                Invalid email
                                             </div>
                                         {% endif %}
                                         <p class="form-label">
@@ -69,8 +69,14 @@
                                         </p>
                                         <br>
                                         {% if sign_in_form.password.errors %}
-                                            <div class="alert alert-warning">
-                                                Please enter a valid password
+                                            <div class="alert alert-danger">
+                                                Invalid password
+                                                <ul>
+                                                    <li>Minimum 8 characters</li>
+                                                    <li>Minimum 1 letter</li>
+                                                    <li>Minimum 1 number</li>
+                                                    <li>Minimum 1 special character (!@#$%^&*_+=)</li>
+                                                </ul>
                                             </div>
                                         {% endif %}
                                         <p> {{ sign_in_form.submit(class_='btn btn-success btn-block') }} </p>

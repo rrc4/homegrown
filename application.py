@@ -6,7 +6,7 @@ from flask_login import LoginManager, login_user
 from flask_wtf import FlaskForm
 
 from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField
-from wtforms.validators import Length, NumberRange, Email, InputRequired, EqualTo, DataRequired
+from wtforms.validators import Length, NumberRange, Email, InputRequired, EqualTo, DataRequired, Regexp
 from flask_wtf.file import FileField, FileRequired
 
 from flask_bcrypt import Bcrypt
@@ -35,17 +35,24 @@ def teardown_request(exception):
 
 # A form to sign in to an existing account
 class SignInForm(FlaskForm):
-    email = StringField('Email Address', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
+    email = StringField('Email', validators=[InputRequired(), Email()])
+    password = PasswordField('Password', validators=[Length(min=8),
+                                                     Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
+                                                     Regexp(r'.*[0-9]', message="Password must have at least one digit"),
+                                                     Regexp(r'.*[!@#$%^&*_+=]', message="Password must have at least one special character")])
     submit = SubmitField('Sign In')
 
 
 # A form to sign up for a new account
 class SignUpForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired()])
-    email = StringField('Email Address', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    confirm = PasswordField('Confirm Password', validators=[DataRequired()])
+    name = StringField('Name', validators=[InputRequired(), Length(min=1, max=80)])
+    email = StringField('Email', validators=[InputRequired(), Email()])
+    password = PasswordField('New Password', validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
+                                                         Length(min=8),
+                                                         Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
+                                                         Regexp(r'.*[0-9]', message="Password must have at least one digit"),
+                                                         Regexp(r'.*[!@#$%^&*_+=]', message="Password must have at least one special character")])
+    confirm = PasswordField('Confirm Password', validators=[InputRequired()])
     submit = SubmitField('Sign Up')
 
 
@@ -150,15 +157,19 @@ class User(object):
 @app.route('/signout')
 def sign_out():
     session.pop('user', None)
-    return redirect(url_for('sign_in_or_sign_up'))
+    return redirect(url_for('index'))
 
 
 # The form to create or update a user
 class UserForm(FlaskForm):
-    name = StringField('Name', validators=[Length(min=1, max=50)])
-    email = StringField('Email', validators=[Email()])
-    password = PasswordField('New Password', [InputRequired(), EqualTo('confirm', message='Passwords must match')])
-    confirm = PasswordField('Repeat Password')
+    name = StringField('Name', validators=[InputRequired(), Length(min=1, max=80)])
+    email = StringField('Email', validators=[InputRequired(), Email()])
+    password = PasswordField('New Password', validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
+                                                         Length(min=8),
+                                                         Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
+                                                         Regexp(r'.*[0-9]', message="Password must have at least one digit"),
+                                                         Regexp(r'.*[!@#$%^&*_+=]', message="Password must have at least one special character")])
+    confirm = PasswordField('Repeat Password', validators=[InputRequired()])
     submit = SubmitField('Save User')
 
 
@@ -251,7 +262,7 @@ def profile():
 
 
 # A list of the current user's posts
-@app.route('/posts/my')
+@app.route('/my-posts')
 def my_posts():
     user_id = session['id']
     user = db.find_user_by_id(user_id)
@@ -321,17 +332,17 @@ def settings():
 
 # The form to create or edit a post
 class PostForm(FlaskForm):
-    product = StringField('Product (ex. Strawberries)', validators=[Length(min=1, max=40, message='Product must be between 1 and 40 characters')])
-    description = StringField('Description (<150 characters)', validators=[Length(min=1, max=150, message='Description must be between 1 and 150 characters')])
-    price = FloatField('Price (ex. 5.99)', validators=[NumberRange(min=0.01, max=1000, message='Price must be between $0.01 and $1000')])
-    quantity = IntegerField('Quantity (ex. 100)', validators=[NumberRange(min=1, max=1000, message='Quantity must be between 1 and 1000')])
+    product = StringField('Product (ex. Strawberries)', validators=[InputRequired(), Length(min=1, max=100, message='Product must be between 1 and 100 characters')])
+    description = StringField('Description (<500 characters)', validators=[InputRequired(), Length(min=1, max=500, message='Description must be between 1 and 500 characters')])
+    price = FloatField('Price (ex. 5.99)', validators=[InputRequired(), NumberRange(min=0.01, message='Price must be at least $0.01')])
+    quantity = IntegerField('Quantity (ex. 100)', validators=[InputRequired(), NumberRange(min=1, max=1000000, message='Quantity must be between 1 and 1,000,000')])
     category = SelectField('Category', choices=[('Vegetables', 'Vegetables'),
                                                 ('Fruits', 'Fruits'),
                                                 ('Meat', 'Meat'),
                                                 ('Dairy', 'Dairy'),
                                                 ('Grains', 'Grains'),
                                                 ('Other', 'Other')])
-    loc = StringField('Location (ex. Indianapolis)', validators=[Length(min=1, max=40, message='Location must be between 1 and 40 characters')])
+    loc = StringField('Location (ex. Indianapolis)', validators=[InputRequired(), Length(min=1, max=50, message='Location must be between 1 and 50 characters')])
     image = FileField('Image', validators=[FileRequired(message="Image required")])
 
     submit = SubmitField('Save Post')
