@@ -1,9 +1,15 @@
+import os
+from pathlib import PurePath
+
+
 from flask import Flask, session, request, render_template, flash, redirect, url_for
 from flask_login import LoginManager, login_user
 from flask_wtf import FlaskForm
 
-from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField
+from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField, BooleanField
 from wtforms.validators import Length, NumberRange, Email, InputRequired, EqualTo, DataRequired
+from flask_wtf.file import FileField, FileRequired
+from werkzeug.utils import secure_filename
 
 from flask_bcrypt import Bcrypt
 
@@ -317,6 +323,7 @@ class PostForm(FlaskForm):
                                                 ('Grains', 'Grains'),
                                                 ('Other', 'Other')])
     loc = StringField('Location (ex. Indianapolis)', validators=[Length(min=1, max=40, message='Location must be between 1 and 40 characters')])
+    image = FileField('Image', validators=[FileRequired(message="Image required")])
 
     submit = SubmitField('Save Post')
 
@@ -325,24 +332,41 @@ class PostForm(FlaskForm):
 @app.route('/posts/create', methods=['GET', 'POST'])
 def create_post():
     post_form = PostForm()
-
+    
     if session:
         user_id = session['id']
 
         if post_form.validate_on_submit():
-                rowcount = db.create_post(user_id,
-                                          post_form.price.data,
-                                          post_form.quantity.data,
-                                          post_form.product.data,
-                                          post_form.category.data,
-                                          post_form.loc.data,
-                                          post_form.description.data)
+                post_dict = db.create_post(user_id,
+                                           post_form.price.data,
+                                           post_form.quantity.data,
+                                           post_form.product.data,
+                                           post_form.category.data,
+                                           post_form.loc.data,
+                                           post_form.description.data)
+                uploaded_photo = post_form.image.data
 
-                if rowcount == 1:
+                photo_row = db.init_photo(post_dict['id'])
+
+                file_name = "file{:04d}".format(photo_row['id'])
+
+                extension = PurePath(uploaded_photo.filename).suffix
+                file_name += extension
+
+                file_path = os.path.join('static/photos', file_name)
+
+                file_path2 = os.path.join('photos', file_name)
+
+                save_path = os.path.join(app.static_folder, file_path2)
+                uploaded_photo.save(save_path)
+
+                db.set_photo(photo_row['id'], file_path)
+
+                if post_dict['rowcount'] == 1:
                     flash("Post added successfully")
                     return redirect(url_for('all_posts'))
                 else:
-                    flash("New post not created")
+                    flash("New post not created")   
 
         for error in post_form.errors:
             for field_error in post_form.errors[error]:

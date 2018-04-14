@@ -5,9 +5,9 @@ INSERT INTO "user" (name, email, password, rating, active) VALUES ('Ross Otto', 
 INSERT INTO "user" (name, email, password, rating, active) VALUES ('Harry VanDerNoord', 'harry@example.com', 'password', 1.0, TRUE);
 
 INSERT INTO post (user_id, price, quantity, product, category, loc, description) VALUES (1, 5.67, 10, 'Carrots', 'Vegetables', 'Upland', 'Sample Description');
-INSERT INTO post (user_id, price, quantity, product, category,loc, description) VALUES (2, 6.00, 100, 'Strawberries', 'Fruits', 'Indianapolis', 'Sample Description');
-INSERT INTO post (user_id, price, quantity, product, category,loc, description) VALUES (3, 99.00, 50, 'Beef', 'Meat', 'Gas City', 'Sample Description');
-INSERT INTO post (user_id, price, quantity, product, category,loc, description) VALUES (3, 99.00, 50, 'Milk', 'Dairy', 'Gas City', 'Sample Description');
+INSERT INTO post (user_id, price, quantity, product, category, loc, description) VALUES (2, 6.00, 100, 'Strawberries', 'Fruits', 'Indianapolis', 'Sample Description');
+INSERT INTO post (user_id, price, quantity, product, category, loc, description) VALUES (3, 99.00, 50, 'Beef', 'Meat', 'Gas City', 'Sample Description');
+INSERT INTO post (user_id, price, quantity, product, category, loc, description) VALUES (3, 99.00, 50, 'Milk', 'Dairy', 'Gas City', 'Sample Description');
 INSERT INTO post (user_id, price, quantity, product, category, loc, description) VALUES (4, 1.25, 1, 'Bread', 'Grains', 'Marion', 'Sample Description');
 
 INSERT INTO favorite (user_id, post_id) VALUES (1, 1);
