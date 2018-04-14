@@ -24,7 +24,7 @@
             .content {
                 top: 10px;
                 left: 0;
-                position: fixed;
+                position: absolute;
                 margin-left: 20px;
                 margin-right: 20px;
                 right: 0;
@@ -38,14 +38,14 @@
         <div class="background-image"></div>
         <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
         <div class="content">
-            <br><br><br><br>
-            <div id="login-overlay" class="modal-dialog">
-                <div class="modal-content">
-                    <div style="text-align: center">
+            <br><br>
+            <div id="login-overlay" class="modal-dialog" style="overflow-y: initial !important">
+                <div class="modal-content" style="overflow-y: auto">
+                    <div class="modal-header" style="text-align: center">
                         <h1>Welcome To HomeGrown!</h1>
                         <h3>Fresh produce sold by backyard growers</h3>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body" style="overflow-y: auto">
                         <div class="row">
                             <div class="col-xs-2"></div>
                             <div class="col-xs-8">
