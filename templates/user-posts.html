@@ -17,7 +17,11 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="card-block">
-                                <img class="card-img-top" src="https://ae01.alicdn.com/kf/HTB1b4FILVXXXXaCXVXXq6xXFXXXS/2016-new-Home-Decor-Heart-shaped-Fruit-and-vegetable-diy-diamond-painting-square-drill-diamond-full.jpg" alt="Card image cap">
+                               {% if aPost.file_path == "bogus_path" or aPost.file_path == none or aPost.file_path == "None" %}
+                                    <img class="card-img-top" src="https://az616578.vo.msecnd.net/files/2016/12/12/636171217554268315-714313718_foodd.jpg" alt="Product Image">
+                                {% else %}
+                                    <img class="card-img-top" src="{{ aPost.file_path }}" alt="Product Image">
+                                {% endif %}
                             </div>
                         </div>
                         <div class="col-md-8">

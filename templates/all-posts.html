@@ -25,11 +25,9 @@
                         <div class="card-block">
                             {% if aPost.file_path == "bogus_path" or aPost.file_path == none or aPost.file_path == "None" %}
                                 <img class="card-img-top" src="https://az616578.vo.msecnd.net/files/2016/12/12/636171217554268315-714313718_foodd.jpg" alt="Product Image">
-
                             {% else %}
-                            <img class="card-img-top" src="{{ aPost.file_path }}" alt="Product Image">
+                                <img class="card-img-top" src="{{ aPost.file_path }}" alt="Product Image">
                             {% endif %}
-
                         </div>
                     </div>
                     <div class="col-md-8">
