@@ -3,8 +3,12 @@
 {% block title %}Favorites{% endblock %}
 
 {% block content %}
-    {% if user %}
-        <h1>Favorites from User {{ user.id }}</h1>
+    {% if user_id %}
+        <div class="container">
+            <div class="row">
+                <h1 class="col-lg-9">My Favorites</h1>
+            </div>
+        </div>
 
         {% for favorite in favorites %}
 
@@ -32,6 +36,7 @@
                                 <div class="card-body">
                                     <a href="#" class="card-link"><b>Buy</b></a>
                                     <a href="#" class="card-link">Post Details</a>
+                                    <a href="{{ url_for('remove_from_favorites', post_id=favorite.post_id) }}" class="card-link">Unfavorite</a>
                                 </div>
                             </div>
                         </div>
@@ -41,7 +46,11 @@
 
         {% else %}
 
-            <h3>No Favorites</h3>
+            <div class="container">
+                <div class="row">
+                    <h3 class="col-lg-9">You have no favorites!</h3>
+                </div>
+            </div>
 
         {% endfor %}
     {% endif %}

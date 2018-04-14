@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
-{% block title %}All Posts{% endblock %}
+{% block title %}Search Results{% endblock %}
 
 {% block content %}
     <div class="container">
         <div class="row">
-            <h1 class="col-lg-9">Feed</h1>
+            <h1 class="col-lg-9">Search Results</h1>
 
             <form method="POST" class="col-lg-3 form-inline my-2 my-lg-0">
                 <div class="form-group">
@@ -16,20 +16,14 @@
         </div>
     </div>
 
-    {% for aPost in posts %}
+    {% for aPost in results %}
 
         <div class="container">
             <div class="card">
                 <div class="row">
                     <div class="col-md-4">
                         <div class="card-block">
-                            {% if aPost.file_path == "bogus_path" or aPost.file_path == none or aPost.file_path == "None" %}
-                                <img class="card-img-top" src="https://az616578.vo.msecnd.net/files/2016/12/12/636171217554268315-714313718_foodd.jpg" alt="Product Image">
-
-                            {% else %}
-                            <img class="card-img-top" src="{{ aPost.file_path }}" alt="Product Image">
-                            {% endif %}
-
+                            <img class="card-img-top" src="https://ae01.alicdn.com/kf/HTB1b4FILVXXXXaCXVXXq6xXFXXXS/2016-new-Home-Decor-Heart-shaped-Fruit-and-vegetable-diy-diamond-painting-square-drill-diamond-full.jpg" alt="Card image cap">
                         </div>
                     </div>
                     <div class="col-md-8">
@@ -49,7 +43,6 @@
                             <div class="card-body">
                                 <a href="#" class="card-link"><b>Buy</b></a>
                                 <a href="#" class="card-link">Post Details</a>
-                                <a href="{{ url_for('add_to_favorites', post_id=aPost.post_id) }}" class="card-link">Favorite</a>
                             </div>
                         </div>
                     </div>
