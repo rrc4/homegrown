@@ -280,7 +280,7 @@ def my_posts():
         posts = []
     else:
         posts = db.posts_by_user(user_id)
-    return render_template('posts.html', form=query, posts=posts, mode='my')
+    return render_template('posts.html', form=query, posts=posts, mode='my-posts')
 
 
 # A list of the a user's posts
@@ -300,10 +300,12 @@ def user_posts(user_id):
 # A list of the user's favorites
 @app.route('/favorites')
 def my_favorites():
+    query = ProductSearchForm(request.form)
+
     if session:
         user_id = session['id']
         favorites = db.favorites_by_user(user_id)
-        return render_template('my-favorites.html', user_id=user_id, favorites=favorites)
+        return render_template('posts.html', user_id=user_id, form=query, posts=favorites, mode='favorites')
 
 
 # Adds a post to favorites

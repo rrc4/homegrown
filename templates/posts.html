@@ -5,8 +5,10 @@
         All Posts
     {% elif mode == 'results' %}
         Results
-    {% elif mode == 'my' %}
+    {% elif mode == 'my-posts' %}
         My Posts
+    {% elif mode == 'favorites' %}
+        My Favorites
     {% elif mode == 'user' %}
         {{ user.name }}'s Posts
     {% endif %}
@@ -20,8 +22,10 @@
                     Feed
                 {% elif mode == 'results' %}
                     Results
-                {% elif mode == 'my' %}
+                {% elif mode == 'my-posts' %}
                     My Posts
+                {% elif mode == 'favorites' %}
+                    My Favorites
                 {% elif mode == 'user' %}
                     {{ user.name }}'s Posts
                 {% endif %}
@@ -70,9 +74,14 @@
                                 {%  endif %}
 
                                 <a href="#" class="card-link">Post Details</a>
-                                <a href="{{ url_for('add_to_favorites', post_id=post.post_id) }}" class="card-link">Favorite</a>
 
-                                {% if mode == 'my' %}
+                                {% if mode == 'favorites' %}
+                                    <a href="{{ url_for('remove_from_favorites', post_id=post.post_id) }}" class="card-link">Unfavorite</a>
+                                {% else %}
+                                    <a href="{{ url_for('add_to_favorites', post_id=post.post_id) }}" class="card-link">Favorite</a>
+                                {% endif %}
+
+                                {% if mode == 'my-posts' %}
                                     <a href="{{ url_for('edit_post', id=post.post_id) }}" class="card-link">Edit</a>
                                     <a href="{{ url_for('delete_post_by_id', id=post.post_id) }}" class="card-link">Delete</a>
                                 {%  endif %}
@@ -91,8 +100,10 @@
                         No Posts
                     {% elif mode == 'results' %}
                         No Results
-                    {% elif mode == 'my' %}
+                    {% elif mode == 'my-posts' %}
                         You have no posts!
+                    {% elif mode == 'favorites' %}
+                        You have no favorites!
                     {% elif mode == 'user' %}
                         {{ user.name }} has no posts!
                     {% endif %}
