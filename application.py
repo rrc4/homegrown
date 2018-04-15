@@ -94,24 +94,30 @@ def sign_in():
 def sign_up():
     sign_up_form = SignUpForm()
 
-    if sign_up_form.validate_on_submit() and sign_up_form.validate():
-        user = db.create_user(sign_up_form.name.data, sign_up_form.email.data, sign_up_form.password.data, 5.0, True)
+    user = db.find_user_by_email(sign_up_form.email.data)
 
-        if user:
-            is_active = True
-        else:
-            is_active = False
+    if user is not None:
+        flash("User {} already exists".format(sign_up_form.email.data), category='danger')
+        return redirect(url_for('sign_up'))
+    else:
+        if sign_up_form.validate_on_submit() and sign_up_form.validate():
+            user = db.create_user(sign_up_form.name.data, sign_up_form.email.data, sign_up_form.password.data, 5.0, True)
 
-        if authenticate(sign_up_form.email.data, sign_up_form.password.data) and is_active:
-            current = User(sign_up_form.email.data)
-            login_user(current)
-            session['username'] = current.email
+            if user:
+                is_active = True
+            else:
+                is_active = False
 
-            flash('Sign up successful!', category='success')
-            return redirect(url_for('all_posts'))
-        else:
-            flash('Invalid email address or password', category="danger")
-            return redirect(url_for('sign_up'))
+            if authenticate(sign_up_form.email.data, sign_up_form.password.data) and is_active:
+                current = User(sign_up_form.email.data)
+                login_user(current)
+                session['username'] = current.email
+
+                flash('Sign up successful!', category='success')
+                return redirect(url_for('all_posts'))
+            else:
+                flash('Invalid email address or password', category="danger")
+                return redirect(url_for('sign_up'))
 
     return render_template('sign-up.html', sign_up_form=sign_up_form)
 
@@ -174,7 +180,7 @@ class UserForm(FlaskForm):
 
 
 # Allows an administrator to create a user
-@app.route('/users/create', methods=['GET', 'POST'])
+@app.route('/users/new', methods=['GET', 'POST'])
 def create_user():
     user_form = UserForm()
 
@@ -191,7 +197,7 @@ def create_user():
                                       True)
 
             if rowcount == 1:
-                flash("User {} created".format(user_form.email.data), category='success')
+                flash("User {} created".format(user_form.name.data), category='success')
                 return redirect(url_for('all_users'))
             else:
                 flash("New user not created", category='danger')
@@ -219,7 +225,7 @@ def edit_user(id):
                                   id)
 
         if rowcount == 1:
-            flash("User '{}' updated".format(user_form.email.data), category='success')
+            flash("User '{}' updated".format(user_form.name.data), category='success')
             return redirect(url_for('all_users'))
         else:
             flash('User not updated', category='danger')
@@ -230,16 +236,18 @@ def edit_user(id):
 # Disable a user by their ID (primary key)
 @app.route('/users/disable/<id>')
 def disable_user_by_id(id):
+    user = db.find_user_by_id(id)
     db.disable_user_by_id(id)
-    flash("User {} disabled".format(id), category='success')
+    flash("User {} disabled".format(user['name']), category='success')
     return redirect(url_for('all_users'))
 
 
 # Enable a user by their ID (primary key)
 @app.route('/users/enable/<id>')
 def enable_user_by_id(id):
+    user = db.find_user_by_id(id)
     db.enable_user_by_id(id)
-    flash("User {} enabled".format(id), category='success')
+    flash("User {} enabled".format(user['name']), category='success')
     return redirect(url_for('all_users'))
 
 
@@ -296,17 +304,16 @@ def my_favorites():
 
 
 # Adds a post to favorites
-# TODO: Change if True to check for duplicates
+# TODO: Check for duplicates
 @app.route('/favorites/add/<post_id>')
 def add_to_favorites(post_id):
     if session:
         user_id = session['id']
-        # user = db.find_user_by_id(user_id)
-        if True:
-            db.add_to_favorites(user_id, post_id)
-            flash("Post {} added to favorites".format(post_id), category='success')
-        # else:
-        #     flash("Post {} already added to favorites".format(post_id), category='danger')
+        post = db.find_post_by_id(post_id)
+
+        db.add_to_favorites(user_id, post_id)
+        flash("{} added to favorites".format(post['product']), category='success')
+
     return redirect(url_for('all_posts'))
 
 
@@ -315,10 +322,11 @@ def remove_from_favorites(post_id):
     if session:
         user_id = session['id']
         favorites = db.favorites_by_user(user_id)
+        post = db.find_post_by_id(post_id)
 
         if favorites:
-            db.favorite_by_post_id(user_id, post_id)
-            flash("Post {} removed from favorites".format(post_id), category='success')
+            db.delete_from_favorites(user_id, post_id)
+            flash("{} removed from favorites".format(post['product']), category='success')
         else:
             flash("Unable to remove from favorites", category='danger')
     return redirect(url_for('my_favorites'))
@@ -349,7 +357,7 @@ class PostForm(FlaskForm):
 
 
 # Create a post
-@app.route('/posts/create', methods=['GET', 'POST'])
+@app.route('/posts/new', methods=['GET', 'POST'])
 def create_post():
     post_form = PostForm()
     
@@ -383,10 +391,10 @@ def create_post():
                 db.set_photo(photo_row['id'], file_path)
 
                 if post_dict['rowcount'] == 1:
-                    flash("Post added successfully", category='success')
+                    flash("{} added successfully".format(post_form.product.data), category='success')
                     return redirect(url_for('all_posts'))
                 else:
-                    flash("New post not created", category='danger')
+                    flash("Post not created", category='danger')
 
         for error in post_form.errors:
             for field_error in post_form.errors[error]:
@@ -418,7 +426,7 @@ def edit_post(id):
                                   id)
 
         if rowcount == 1:
-            flash("Post '{}' updated".format(post_form.product.data), category='success')
+            flash("'{}' post updated".format(post_form.product.data), category='success')
             return redirect(url_for('all_posts'))
         else:
             flash('Post not updated', category='danger')
