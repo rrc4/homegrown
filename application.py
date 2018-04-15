@@ -273,34 +273,39 @@ def profile():
 @app.route('/my-posts')
 def my_posts():
     user_id = session['id']
-    user = db.find_user_by_id(user_id)
+    query = ProductSearchForm(request.form)
+
     if user_id is None:
         flash('User is not logged in!', category='danger')
         posts = []
     else:
         posts = db.posts_by_user(user_id)
-    return render_template('my-posts.html', user=user, posts=posts)
+    return render_template('posts.html', form=query, posts=posts, mode='my-posts')
 
 
 # A list of the a user's posts
-@app.route('/posts/<user_id>')
+@app.route('/posts/user/<user_id>')
 def user_posts(user_id):
+    query = ProductSearchForm(request.form)
     user = db.find_user_by_id(user_id)
+
     if user_id is None:
         flash('No user with id {}'.format(user_id), category='danger')
         posts = []
     else:
         posts = db.posts_by_user(user_id)
-    return render_template('user-posts.html', user=user, posts=posts)
+    return render_template('posts.html', form=query, user=user, posts=posts, mode='user')
 
 
 # A list of the user's favorites
 @app.route('/favorites')
 def my_favorites():
+    query = ProductSearchForm(request.form)
+
     if session:
         user_id = session['id']
         favorites = db.favorites_by_user(user_id)
-        return render_template('my-favorites.html', user_id=user_id, favorites=favorites)
+        return render_template('posts.html', user_id=user_id, form=query, posts=favorites, mode='favorites')
 
 
 # Adds a post to favorites
@@ -441,14 +446,14 @@ def all_posts():
 
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
-        results = db.search_products(query_list)
+        posts = db.search_products(query_list)
 
-        if not results:
+        if not posts:
             flash('No Results Found', category='danger')
-            return render_template('all-posts.html', form=query, posts=db.all_posts())
+            return render_template('posts.html', form=query, posts=[], mode='results')
         else:
-            return render_template('results.html', form=query, results=results, query=query)
-    return render_template('all-posts.html', form=query, posts=db.all_posts())
+            return render_template('posts.html', form=query, posts=posts, mode='results')
+    return render_template('posts.html', form=query, posts=db.all_posts(), mode='feed')
 
 
 class ProductSearchForm(FlaskForm):

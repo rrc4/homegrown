@@ -27,7 +27,8 @@ CREATE TABLE post
            category = 'Fruits' OR
            category = 'Meat' OR
            category = 'Dairy' OR
-           category = 'Grains'),
+           category = 'Grains' OR
+           category = 'Other'),
     loc VARCHAR(40) NOT NULL,
     description VARCHAR(150) NOT NULL
 );
