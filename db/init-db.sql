@@ -1,8 +1,8 @@
-INSERT INTO "user" (name, email, password, rating, active) VALUES ('Joey Ferguson', 'joey@example.com', 'password', 5.0, TRUE);
-INSERT INTO "user" (name, email, password, rating, active) VALUES ('Jake Smarrella', 'jake@example.com', 'password', 4.0, TRUE);
-INSERT INTO "user" (name, email, password, rating, active) VALUES ('Joe Schuette', 'joe@example.com', 'password', 3.0, TRUE);
-INSERT INTO "user" (name, email, password, rating, active) VALUES ('Ross Otto', 'ross@example.com', 'password', 2.0, TRUE);
-INSERT INTO "user" (name, email, password, rating, active) VALUES ('Harry VanDerNoord', 'harry@example.com', 'password', 1.0, TRUE);
+INSERT INTO "user" (name, email, password, rating, active) VALUES ('Joey Ferguson', 'joey@example.com', 'password1!', 5.0, TRUE);
+INSERT INTO "user" (name, email, password, rating, active) VALUES ('Jake Smarrella', 'jake@example.com', 'password1!', 4.0, TRUE);
+INSERT INTO "user" (name, email, password, rating, active) VALUES ('Joe Schuette', 'joe@example.com', 'password1!', 3.0, TRUE);
+INSERT INTO "user" (name, email, password, rating, active) VALUES ('Ross Otto', 'ross@example.com', 'password1!', 2.0, TRUE);
+INSERT INTO "user" (name, email, password, rating, active) VALUES ('Harry VanDerNoord', 'harry@example.com', 'password1!', 1.0, TRUE);
 
 INSERT INTO post (user_id, price, quantity, product, category, loc, description) VALUES (1, 5.67, 10, 'Carrots', 'Vegetables', 'Upland', 'Sample Description');
 INSERT INTO post (user_id, price, quantity, product, category, loc, description) VALUES (2, 6.00, 100, 'Strawberries', 'Fruits', 'Indianapolis', 'Sample Description');
