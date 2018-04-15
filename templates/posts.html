@@ -7,6 +7,8 @@
         Results
     {% elif mode == 'my' %}
         My Posts
+    {% elif mode == 'user' %}
+        {{ user.name }}'s Posts
     {% endif %}
 {% endblock %}
 
@@ -20,6 +22,8 @@
                     Results
                 {% elif mode == 'my' %}
                     My Posts
+                {% elif mode == 'user' %}
+                    {{ user.name }}'s Posts
                 {% endif %}
             </h1>
 
@@ -61,7 +65,7 @@
                             </ul>
 
                             <div class="card-body">
-                                {% if mode == 'feed' or mode == 'results' %}
+                                {% if mode == 'feed' or mode == 'results' or mode == 'user' %}
                                     <a href="#" class="card-link"><b>Buy</b></a>
                                 {%  endif %}
 
@@ -80,18 +84,20 @@
         </div>
 
     {% else %}
-        {% if mode == 'feed' or mode == 'results' %}
-            <div class="container">
-                <div class="row">
-                    <h3 class="col-lg-9">No Posts</h3>
-                </div>
+        <div class="container">
+            <div class="row">
+                <h3 class="col-lg-9">
+                    {% if mode == 'feed' %}
+                        No Posts
+                    {% elif mode == 'results' %}
+                        No Results
+                    {% elif mode == 'my' %}
+                        You have no posts!
+                    {% elif mode == 'user' %}
+                        {{ user.name }} has no posts!
+                    {% endif %}
+                </h3>
             </div>
-        {% else %}
-            <div class="container">
-                <div class="row">
-                    <h3 class="col-lg-9">You have no posts!</h3>
-                </div>
-            </div>
-        {% endif %}
+        </div>
     {% endfor %}
 {% endblock %}

@@ -280,19 +280,21 @@ def my_posts():
         posts = []
     else:
         posts = db.posts_by_user(user_id)
-    return render_template('all-posts.html', form=query, posts=posts, mode='my')
+    return render_template('posts.html', form=query, posts=posts, mode='my')
 
 
 # A list of the a user's posts
-@app.route('/posts/<user_id>')
+@app.route('/posts/user/<user_id>')
 def user_posts(user_id):
+    query = ProductSearchForm(request.form)
     user = db.find_user_by_id(user_id)
+
     if user_id is None:
         flash('No user with id {}'.format(user_id), category='danger')
         posts = []
     else:
         posts = db.posts_by_user(user_id)
-    return render_template('user-posts.html', user=user, posts=posts)
+    return render_template('posts.html', form=query, user=user, posts=posts, mode='user')
 
 
 # A list of the user's favorites
@@ -446,10 +448,10 @@ def all_posts():
 
         if not posts:
             flash('No Results Found', category='danger')
-            return render_template('all-posts.html', form=query, posts=[], mode='results')
+            return render_template('posts.html', form=query, posts=[], mode='results')
         else:
-            return render_template('all-posts.html', form=query, posts=posts, mode='results')
-    return render_template('all-posts.html', form=query, posts=db.all_posts(), mode='feed')
+            return render_template('posts.html', form=query, posts=posts, mode='results')
+    return render_template('posts.html', form=query, posts=db.all_posts(), mode='feed')
 
 
 class ProductSearchForm(FlaskForm):
