@@ -2,8 +2,11 @@ from flask import g
 import psycopg2
 import psycopg2.extras
 
+import config
+
+# data_source_name = config.data_source_name
+
 ''' Uncomment your database before working on your code, and comment it out again when pushing '''
-# data_source_name = 'host=faraday.cse.taylor.edu dbname=joeyferg user=joeyferg password=kavibeda'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=joeschuette user=joeschuette password=kahilewo'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=rrc4 user=rrc4 password=decisage'
 # data_source_name = 'host=faraday.cse.taylor.edu dbname=esmarrel user=esmarrel password=mowozate'
