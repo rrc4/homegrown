@@ -152,7 +152,7 @@ class User(object):
 @app.route('/signout')
 def sign_out():
     session.pop('user', None)
-    return redirect(url_for('sign_in_or_sign_up'))
+    return redirect(url_for('index'))
 
 
 # The form to create or update a user
