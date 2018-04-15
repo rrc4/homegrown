@@ -441,14 +441,14 @@ def all_posts():
 
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
-        results = db.search_products(query_list)
+        posts = db.search_products(query_list)
 
-        if not results:
+        if not posts:
             flash('No Results Found', category='danger')
-            return render_template('all-posts.html', form=query, posts=db.all_posts())
+            return render_template('all-posts.html', form=query, posts=[], mode='results')
         else:
-            return render_template('results.html', form=query, results=results, query=query)
-    return render_template('all-posts.html', form=query, posts=db.all_posts())
+            return render_template('all-posts.html', form=query, posts=posts, mode='results')
+    return render_template('all-posts.html', form=query, posts=db.all_posts(), mode='feed')
 
 
 class ProductSearchForm(FlaskForm):

@@ -177,11 +177,11 @@ def set_photo(photo_id, file_path):
 # Returns the entire post table
 def all_posts():
     query = '''
-         SELECT *, p.id AS "post_id" FROM post p
-         INNER JOIN "user" u ON u.id = p.user_id
-         LEFT JOIN "photo" ON p.id = photo.id
-         WHERE u.active = TRUE
-         ORDER BY p.id;
+        SELECT *, p.id AS "post_id" FROM post p
+        INNER JOIN "user" u ON u.id = p.user_id
+        LEFT JOIN "photo" ON p.id = photo.id
+        WHERE u.active = TRUE
+        ORDER BY p.id;
     '''
     g.cursor.execute(query)
     return g.cursor.fetchall()
@@ -202,7 +202,14 @@ def update_post(price, quantity, product, loc, description, post_id):
 # Finds products that match the search query
 def search_products(query_list):
     pattern = '|'.join(query_list)
-    g.cursor.execute('SELECT * FROM post WHERE product ~* %(pattern)s OR category ~* %(pattern)s', {'pattern': pattern})
+    query = '''
+        SELECT *, p.id AS "post_id" FROM post p
+        INNER JOIN "user" u ON u.id = p.user_id
+        LEFT JOIN "photo" ON p.id = photo.id
+        WHERE u.active = TRUE AND product ~* %(pattern)s OR category ~* %(pattern)s
+        ORDER BY p.id;
+    '''
+    g.cursor.execute(query, {'pattern': pattern})
     return g.cursor.fetchall()
 
 
@@ -216,10 +223,3 @@ def delete_post_by_id(post_id):
     g.cursor.execute(query, {'post_id': post_id})
     g.connection.commit()
     return g.cursor.rowcount
-
-
-# # Deletes all posts by a user's ID
-# def delete_post_by_user_id(user_id):
-#     g.cursor.execute('DELETE FROM post WHERE user_id = %(user_id)s', {'user_id': user_id})
-#     g.connection.commit()
-#     return g.cursor.rowcount
