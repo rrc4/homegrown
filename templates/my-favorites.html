@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Favorites{% endblock %}
+{% block title %}My Favorites{% endblock %}
 
 {% block content %}
     {% if user_id %}
@@ -10,37 +10,37 @@
             </div>
         </div>
 
-        {% for favorite in favorites %}
+        {% for post in favorites %}
 
             <div class="container">
                 <div class="card">
                     <div class="row">
                         <div class="col-md-4">
                             <div class="card-block">
-                                {% if aPost.file_path == "bogus_path" or aPost.file_path == none or aPost.file_path == "None" %}
+                                {% if post.file_path == "bogus_path" or post.file_path == none or post.file_path == "None" %}
                                     <img class="card-img-top" src="https://az616578.vo.msecnd.net/files/2016/12/12/636171217554268315-714313718_foodd.jpg" alt="Product Image">
                                 {% else %}
-                                    <img class="card-img-top" src="{{ aPost.file_path }}" alt="Product Image">
+                                    <img class="card-img-top" src="{{ post.file_path }}" alt="Product Image">
                                 {% endif %}
                             </div>
                         </div>
                         <div class="col-md-8">
                             <div class="card-block">
                                 <br>
-                                <h3 class="card-title" style="padding-left: 20px">{{ favorite.product }}</h3>
-                                <p class="card-text" style="padding-left: 20px">{{ favorite.description }}</p>
+                                <h3 class="card-title" style="padding-left: 20px">{{ post.product }}</h3>
+                                <p class="card-text" style="padding-left: 20px">{{ post.description }}</p>
                                 <br>
 
                                 <ul class="list-group list-group-flush">
-                                    <li class="list-group-item"><b>Price: </b>{{'${:,.2f}'.format(favorite.price) }}</li>
-                                    <li class="list-group-item"><b>Quantity: </b>{{ favorite.quantity }}</li>
-                                    <li class="list-group-item"><b>Pickup Location: </b>{{ favorite.loc }}</li>
+                                    <li class="list-group-item"><b>Price: </b>{{'${:,.2f}'.format(post.price) }}</li>
+                                    <li class="list-group-item"><b>Quantity: </b>{{ post.quantity }}</li>
+                                    <li class="list-group-item"><b>Pickup Location: </b>{{ post.loc }}</li>
                                 </ul>
 
                                 <div class="card-body">
                                     <a href="#" class="card-link"><b>Buy</b></a>
                                     <a href="#" class="card-link">Post Details</a>
-                                    <a href="{{ url_for('remove_from_favorites', post_id=favorite.post_id) }}" class="card-link">Unfavorite</a>
+                                    <a href="{{ url_for('remove_from_favorites', post_id=post.post_id) }}" class="card-link">Unfavorite</a>
                                 </div>
                             </div>
                         </div>
