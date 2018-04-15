@@ -439,6 +439,13 @@ def edit_post(id):
     return render_template('post-form.html', form=post_form, mode='update')
 
 
+@app.route('/posts/<id>', methods=['GET'])
+def post_details(id):
+    post = db.find_post_by_id(id)
+    query = ProductSearchForm(request.form)
+    return render_template('post-details.html', form=query, post=post)
+
+
 # All the posts in the database - also handles searching
 @app.route('/posts', methods=['GET', 'POST'])
 def all_posts():
