@@ -85,7 +85,15 @@ def find_post_by_id(id):
 
 # Finds all posts by a user
 def posts_by_user(user_id):
-    g.cursor.execute('SELECT * FROM post WHERE user_id = %(user_id)s', {'user_id': user_id})
+    query = '''
+        SELECT *, p.id AS "post_id" FROM post p
+        INNER JOIN "user" u ON u.id = p.user_id
+        LEFT JOIN "photo" ON p.id = photo.id
+        WHERE u.active = TRUE AND user_id = %(user_id)s
+        ORDER BY p.id;
+     '''
+
+    g.cursor.execute(query, {'user_id': user_id})
     g.connection.commit()
     return g.cursor.fetchall()
 
@@ -96,6 +104,7 @@ def favorites_by_user(user_id):
       SELECT * FROM favorite f
       INNER JOIN post p ON p.id = f.post_id
       INNER JOIN "user" u ON u.id = f.user_id 
+        LEFT JOIN "photo" ON p.id = photo.id
       WHERE u.id = %(user_id)s AND u.active = TRUE
     '''
     g.cursor.execute(query, {'user_id': user_id})
