@@ -199,7 +199,12 @@ def search_products(query_list):
 
 # Deletes a single post by post ID
 def delete_post_by_id(post_id):
-    g.cursor.execute('DELETE FROM post WHERE id = %(post_id)s', {'post_id': post_id})
+    query = '''
+        DELETE FROM photo WHERE id = %(post_id)s;
+        DELETE FROM favorite WHERE post_id = %(post_id)s;
+        DELETE FROM post WHERE id = %(post_id)s;
+    '''
+    g.cursor.execute(query, {'post_id': post_id})
     g.connection.commit()
     return g.cursor.rowcount
 
