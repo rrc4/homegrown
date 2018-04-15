@@ -24,12 +24,29 @@
             .content {
                 top: 10px;
                 left: 0;
-                position: fixed;
+                position: absolute;
                 margin-left: 20px;
                 margin-right: 20px;
                 right: 0;
                 z-index: 2;
                 padding: 0 10px;
+            }
+
+            .sign-in-button {
+                font-size: 24px;
+                height: 100px;
+                width: 220px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .sign-in-container {
+                display: flex;
+                align-self: center;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
             }
         </style>
     </head>
@@ -39,24 +56,24 @@
         <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
         <div class="content">
             <br><br><br><br>
-            <div id="login-overlay" class="modal-dialog">
-                <div class="modal-content">
+            <div id="login-overlay" class="modal-dialog" style="overflow-y: initial !important">
+                <div class="modal-content" style="overflow-y: auto">
                     <div style="text-align: center">
-                        <h1>Welcome To HomeGrown!</h1>
+                        <h1>Welcome to HomeGrown!</h1>
                         <h3>Fresh produce sold by backyard growers</h3>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body" style="overflow-y: auto">
                         <div class="row">
-                            <div class="col-xs-6" style="text-align:center">
-                                <a href="{{ url_for('sign_in') }}" class="btn btn-success">Sign In</a>
+                            <div class="col-xs-6 sign-in-container">
+                                <a href="{{ url_for('sign_in') }}" class="btn btn-success sign-in-button">Sign In</a>
                             </div>
-                            <div class="col-xs-6" style="text-align:center">
-                                <a href="{{ url_for('sign_up') }}" class="btn btn-primary">Sign Up</a>
+                            <div class="col-xs-6 sign-in-container">
+                                <a href="{{ url_for('sign_up') }}" class="btn btn-primary sign-in-button">Sign Up</a>
                             </div>
                         </div>
-                        <br>
+                        <hr>
                         <div style="text-align: center">
-                            <a href="{{ url_for('all_posts') }}" class="btn btn-secondary">Continue as Guest</a>
+                            <a href="{{ url_for('all_posts') }}" class="btn btn-secondary" style="font-size: 16px">Continue as Guest</a>
                         </div>
                     </div>
                 </div>
