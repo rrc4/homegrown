@@ -273,13 +273,14 @@ def profile():
 @app.route('/my-posts')
 def my_posts():
     user_id = session['id']
-    user = db.find_user_by_id(user_id)
+    query = ProductSearchForm(request.form)
+
     if user_id is None:
         flash('User is not logged in!', category='danger')
         posts = []
     else:
         posts = db.posts_by_user(user_id)
-    return render_template('my-posts.html', user=user, posts=posts)
+    return render_template('all-posts.html', form=query, posts=posts, mode='my')
 
 
 # A list of the a user's posts
