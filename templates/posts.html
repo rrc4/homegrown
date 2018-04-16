@@ -73,7 +73,7 @@
                                     <a href="#" class="card-link"><b>Buy</b></a>
                                 {%  endif %}
 
-                                <a href="#" class="card-link">Post Details</a>
+                                <a href="{{ url_for('post_details', id=post.post_id) }}" class="card-link">Post Details</a>
 
                                 {% if mode == 'favorites' %}
                                     <a href="{{ url_for('remove_from_favorites', post_id=post.post_id) }}" class="card-link">Unfavorite</a>
