@@ -6,9 +6,6 @@ import config
 
 data_source_name = config.data_source_name
 
-# data_source_name = 'host=faraday.cse.taylor.edu dbname=rrc4 user=rrc4 password=decisage'
-# data_source_name = 'host=faraday.cse.taylor.edu dbname=harrisonvdn user=harrisonvdn password=mudojose'
-
 
 # Open database connection
 def open_db_connection():
