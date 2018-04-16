@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS favorite;
+DROP TABLE IF EXISTS photo;
 DROP TABLE IF EXISTS post;
 DROP TABLE IF EXISTS "user";
 
@@ -26,12 +27,20 @@ CREATE TABLE post
            category = 'Fruits' OR
            category = 'Meat' OR
            category = 'Dairy' OR
-           category = 'Grains'),
+           category = 'Grains' OR
+           category = 'Other'),
     loc VARCHAR(40) NOT NULL,
     description VARCHAR(150) NOT NULL
 );
 CREATE UNIQUE INDEX post_id_index ON post (id);
 COMMENT ON TABLE post IS 'Post';
+
+CREATE TABLE photo
+(
+  id SERIAL NOT NULL CONSTRAINT photo_pkey PRIMARY KEY REFERENCES post,
+  file_path VARCHAR(255) NOT NULL DEFAULT 'bogus-path'
+);
+COMMENT ON TABLE photo IS 'Photo';
 
 CREATE TABLE favorite
 (

@@ -29,7 +29,10 @@
                         <a class="nav-link" href="{{ url_for('profile') }}">Profile</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('temp_user_favorites') }}">Favorites</a>
+                        <a class="nav-link" href="{{ url_for('my_posts') }}">My Posts</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('my_favorites') }}">Favorites</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('settings') }}">Settings</a>
@@ -37,18 +40,23 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('test') }}">Test</a>
                     </li>
+                    <li>
+                        <a class="nav-link" href="{{ url_for('sign_out') }}">Sign Out</a>
+                    </li>
                 </ul>
-                <form class="form-inline my-2 my-lg-0">
-                  <input class="form-control mr-sm-2" type="search" placeholder="Search Products" aria-label="Search">
-                  <button class="btn btn-primary my-2 my-sm-0" type="submit">Go</button>
-                </form>
             </div>
         </nav>
 
         <div style="padding: 75px 50px 50px 50px">
-            {% for message in get_flashed_messages() %}
-                <div class="alert alert-primary">{{ message }}</div>
-            {% endfor %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} fade show" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
 
             {% block content %}
             {% endblock %}

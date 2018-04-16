@@ -1,42 +1,186 @@
+import os
+from pathlib import PurePath
+
 from flask import Flask, session, request, render_template, flash, redirect, url_for
+from flask_login import LoginManager, login_user
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField, BooleanField, Form
-from wtforms.validators import Length, NumberRange, Email, InputRequired, EqualTo, DataRequired
+
+from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField
+from wtforms.validators import Length, NumberRange, Email, InputRequired, EqualTo, DataRequired, Regexp
+from flask_wtf.file import FileField, FileRequired
+
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'Super Secret Unguessable Key'
+app.config['SECRET_KEY'] = 'Team Bryson Key'
 
 
 import db
 
+bcrypt = Bcrypt(app)
+login_manager = LoginManager(app)
 
+
+# Opens the database connection
 @app.before_request
 def before_request():
     db.open_db_connection()
 
 
+# Closes the database connection
 @app.teardown_request
 def teardown_request(exception):
     db.close_db_connection()
 
 
-# Home page
+# A form to sign in to an existing account
+class SignInForm(FlaskForm):
+    email = StringField('Email', validators=[InputRequired(), Email()])
+    password = PasswordField('Password', validators=[Length(min=8),
+                                                     Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
+                                                     Regexp(r'.*[0-9]', message="Password must have at least one digit"),
+                                                     Regexp(r'.*[!@#$%^&*_+=]', message="Password must have at least one special character")])
+    submit = SubmitField('Sign In')
+
+
+# A form to sign up for a new account
+class SignUpForm(FlaskForm):
+    name = StringField('Name', validators=[InputRequired(), Length(min=1, max=80)])
+    email = StringField('Email', validators=[InputRequired(), Email()])
+    password = PasswordField('New Password', validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
+                                                         Length(min=8),
+                                                         Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
+                                                         Regexp(r'.*[0-9]', message="Password must have at least one digit"),
+                                                         Regexp(r'.*[!@#$%^&*_+=]', message="Password must have at least one special character")])
+    confirm = PasswordField('Confirm Password', validators=[InputRequired()])
+    submit = SubmitField('Sign Up')
+
+
 @app.route('/')
 def index():
-    return render_template("index.html")
+    return render_template('index.html')
+
+
+# Allows users to sign in
+@app.route('/signin', methods=['GET', 'POST'])
+def sign_in():
+    sign_in_form = SignInForm()
+
+    if sign_in_form.validate_on_submit() and sign_in_form.validate():
+        user = db.find_user_by_email(sign_in_form.email.data)
+
+        if user:
+            is_active = True
+        else:
+            is_active = False
+
+        if authenticate(sign_in_form.email.data, sign_in_form.password.data) and is_active:
+            current = User(sign_in_form.email.data)
+            login_user(current)
+            session['username'] = current.email
+            session['id'] = current.id
+
+            flash('Sign in successful!', category='success')
+            return redirect(url_for('all_posts'))
+        else:
+            flash('Invalid email address or password', category='danger')
+            return redirect(url_for('sign_in'))
+
+    return render_template('sign-in.html', sign_in_form=sign_in_form)
+
+
+# Allows users to sign up
+@app.route('/signup', methods=['GET', 'POST'])
+def sign_up():
+    sign_up_form = SignUpForm()
+
+    user = db.find_user_by_email(sign_up_form.email.data)
+
+    if user is not None:
+        flash("User {} already exists".format(sign_up_form.email.data), category='danger')
+        return redirect(url_for('sign_up'))
+    else:
+        if sign_up_form.validate_on_submit() and sign_up_form.validate():
+            user = db.create_user(sign_up_form.name.data, sign_up_form.email.data, sign_up_form.password.data, 5.0, True)
+
+            if user:
+                is_active = True
+            else:
+                is_active = False
+
+            if authenticate(sign_up_form.email.data, sign_up_form.password.data) and is_active:
+                current = User(sign_up_form.email.data)
+                login_user(current)
+                session['username'] = current.email
+
+                flash('Sign up successful!', category='success')
+                return redirect(url_for('all_posts'))
+            else:
+                flash('Invalid email address or password', category="danger")
+                return redirect(url_for('sign_up'))
+
+    return render_template('sign-up.html', sign_up_form=sign_up_form)
+
+
+# Make sure the user email and password match with what they should be
+def authenticate(email, password):
+    valid_users = db.all_users()
+
+    for user in valid_users:
+        if email == user['email'] and user['password'] == password:
+            return email
+    return None
+
+
+# Necessary for the login manager to work
+@login_manager.user_loader
+def load_user(id):
+    return User(id)
+
+
+# A User class for creating User objects
+class User(object):
+    def __init__(self, email):
+        self.email = email
+        user = db.find_user_by_email(self.email)
+        if user is not None:
+            # self.name = db.find_member_info(self.email)['first_name']
+            self.id = user['id']
+        else:
+            self.name = 'no name'
+
+        self.is_active = True
+        self.is_authenticated = True
+
+    def get_id(self):
+        return self.email
+
+    def __repr__(self):
+        return "<User '{}' {} {}".format(self.email, self.is_authenticated, self.is_active)
+
+
+# Signs the user out
+@app.route('/signout')
+def sign_out():
+    session.pop('user', None)
+    return redirect(url_for('index'))
 
 
 # The form to create or update a user
 class UserForm(FlaskForm):
-    name = StringField('Name', validators=[Length(min=1, max=50)])
-    email = StringField('Email', validators=[Email()])
-    password = PasswordField('New Password', [InputRequired(), EqualTo('confirm', message='Passwords must match')])
-    confirm = PasswordField('Repeat Password')
+    name = StringField('Name', validators=[InputRequired(), Length(min=1, max=80)])
+    email = StringField('Email', validators=[InputRequired(), Email()])
+    password = PasswordField('New Password', validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
+                                                         Length(min=8),
+                                                         Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
+                                                         Regexp(r'.*[0-9]', message="Password must have at least one digit"),
+                                                         Regexp(r'.*[!@#$%^&*_+=]', message="Password must have at least one special character")])
+    confirm = PasswordField('Repeat Password', validators=[InputRequired()])
     submit = SubmitField('Save User')
 
 
 # Allows an administrator to create a user
-@app.route('/users/create', methods=['GET', 'POST'])
+@app.route('/users/new', methods=['GET', 'POST'])
 def create_user():
     user_form = UserForm()
 
@@ -44,7 +188,7 @@ def create_user():
         user = db.find_user_by_email(user_form.email.data)
 
         if user is not None:
-            flash("User {} already exists".format(user_form.email.data))
+            flash("User {} already exists".format(user_form.email.data), category='danger')
         else:
             rowcount = db.create_user(user_form.name.data,
                                       user_form.email.data,
@@ -53,10 +197,10 @@ def create_user():
                                       True)
 
             if rowcount == 1:
-                flash("User {} created".format(user_form.email.data))
+                flash("User {} created".format(user_form.name.data), category='success')
                 return redirect(url_for('all_users'))
             else:
-                flash("New user not created")
+                flash("New user not created", category='danger')
 
     return render_template('user-form.html', form=user_form, mode='create')
 
@@ -67,7 +211,7 @@ def edit_user(id):
     row = db.find_user_by_id(id)
 
     if row is None:
-        flash("User doesn't exist")
+        flash("User doesn't exist", category='danger')
         return redirect(url_for('all_users'))
 
     user_form = UserForm(name=row['name'],
@@ -81,10 +225,10 @@ def edit_user(id):
                                   id)
 
         if rowcount == 1:
-            flash("User '{}' updated".format(user_form.email.data))
+            flash("User '{}' updated".format(user_form.name.data), category='success')
             return redirect(url_for('all_users'))
         else:
-            flash('User not updated')
+            flash('User not updated', category='danger')
 
     return render_template('user-form.html', form=user_form, mode='update')
 
@@ -92,37 +236,18 @@ def edit_user(id):
 # Disable a user by their ID (primary key)
 @app.route('/users/disable/<id>')
 def disable_user_by_id(id):
-    # posts = db.posts_by_user(id)
-    #
-    # db.hide_favorite_by_user_id(id)
-    #
-    # for post in posts:
-    #     db.hide_favorite_by_post_id(post[0])
-    #     db.hide_post_by_user_id(id)
-
+    user = db.find_user_by_id(id)
     db.disable_user_by_id(id)
-    flash("User {} disabled".format(id))
+    flash("User {} disabled".format(user['name']), category='success')
     return redirect(url_for('all_users'))
 
 
-# Disable a user by their ID (primary key)
+# Enable a user by their ID (primary key)
 @app.route('/users/enable/<id>')
 def enable_user_by_id(id):
     user = db.find_user_by_id(id)
-    posts = db.posts_by_user(id)
-
-    # if user is None:
-    #     flash("User doesn't exist")
-    #     return redirect(url_for('all_users'))
-    #
-    # db.delete_favorite_by_user_id(id)
-    #
-    # for post in posts:
-    #     db.delete_favorite_by_post_id(post[0])
-    #     db.delete_post_by_user_id(id)
-
     db.enable_user_by_id(id)
-    flash("User {} enabled".format(id))
+    flash("User {} enabled".format(user['name']), category='success')
     return redirect(url_for('all_users'))
 
 
@@ -144,47 +269,72 @@ def profile():
     return render_template("profile.html")
 
 
-# A list of the user's posts
-@app.route('/posts/<user_id>')
-def user_posts(user_id):
-    user = db.find_user_by_id(user_id)
-    if user is None:
-        flash('No user with id {}'.format(user_id))
+# A list of the current user's posts
+@app.route('/my-posts')
+def my_posts():
+    user_id = session['id']
+    query = ProductSearchForm(request.form)
+
+    if user_id is None:
+        flash('User is not logged in!', category='danger')
         posts = []
     else:
         posts = db.posts_by_user(user_id)
-    return render_template('user-posts.html', user=user, posts=posts)
+    return render_template('posts.html', form=query, posts=posts, mode='my-posts')
 
 
-@app.route('/favorites/1')
-def temp_user_favorites():
-    favs = db.favorites_by_user(1)
-    return render_template('favorites.html', user=1, favorites=favs)
+# A list of the a user's posts
+@app.route('/posts/user/<user_id>')
+def user_posts(user_id):
+    query = ProductSearchForm(request.form)
+    user = db.find_user_by_id(user_id)
+
+    if user_id is None:
+        flash('No user with id {}'.format(user_id), category='danger')
+        posts = []
+    else:
+        posts = db.posts_by_user(user_id)
+    return render_template('posts.html', form=query, user=user, posts=posts, mode='user')
 
 
-# A list of the user's posts
-# @app.route('/favorites/<user_id>')
-# def user_favorites(user_id):
-#     user = db.find_user_by_id(user_id)
-#     if user is None:
-#         flash('No user with id {}'.format(user_id))
-#         favs = []
-#     else:
-#         favs = db.favorites_by_user(user_id)
-#     return render_template('favorites.html', user=user, favorites=favs)
+# A list of the user's favorites
+@app.route('/favorites')
+def my_favorites():
+    query = ProductSearchForm(request.form)
+
+    if session:
+        user_id = session['id']
+        favorites = db.favorites_by_user(user_id)
+        return render_template('posts.html', user_id=user_id, form=query, posts=favorites, mode='favorites')
 
 
 # Adds a post to favorites
-# TODO: Update to use current user when authentication gets added
-# TODO: Change if True to check for duplicates once users are working
+# TODO: Check for duplicates
 @app.route('/favorites/add/<post_id>')
 def add_to_favorites(post_id):
-    if True:
-        db.add_to_favorites(post_id)
-        flash("Post {} added to favorites".format(post_id))
-    # else:
-    #     flash("Post {} already added to favorites".format(post_id))
+    if session:
+        user_id = session['id']
+        post = db.find_post_by_id(post_id)
+
+        db.add_to_favorites(user_id, post_id)
+        flash("{} added to favorites".format(post['product']), category='success')
+
     return redirect(url_for('all_posts'))
+
+
+@app.route('/favorites/remove/<post_id>')
+def remove_from_favorites(post_id):
+    if session:
+        user_id = session['id']
+        favorites = db.favorites_by_user(user_id)
+        post = db.find_post_by_id(post_id)
+
+        if favorites:
+            db.delete_from_favorites(user_id, post_id)
+            flash("{} removed from favorites".format(post['product']), category='success')
+        else:
+            flash("Unable to remove from favorites", category='danger')
+    return redirect(url_for('my_favorites'))
 
 
 # A user's settings
@@ -195,43 +345,66 @@ def settings():
 
 # The form to create or edit a post
 class PostForm(FlaskForm):
-    product = StringField('Product (ex. Strawberries)', validators=[Length(min=1, max=40, message='Product must be between 1 and 40 characters')])
-    description = StringField('Description (<150 characters)', validators=[Length(min=1, max=150, message='Description must be between 1 and 150 characters')])
-    price = FloatField('Price (ex. 5.99)', validators=[NumberRange(min=0.01, max=1000, message='Price must be between $0.01 and $1000')])
-    quantity = IntegerField('Quantity (ex. 100)', validators=[NumberRange(min=1, max=1000, message='Quantity must be between 1 and 1000')])
+    product = StringField('Product (ex. Strawberries)', validators=[InputRequired(), Length(min=1, max=100, message='Product must be between 1 and 100 characters')])
+    description = StringField('Description (<500 characters)', validators=[InputRequired(), Length(min=1, max=500, message='Description must be between 1 and 500 characters')])
+    price = FloatField('Price (ex. 5.99)', validators=[InputRequired(), NumberRange(min=0.01, message='Price must be at least $0.01')])
+    quantity = IntegerField('Quantity (ex. 100)', validators=[InputRequired(), NumberRange(min=1, max=1000000, message='Quantity must be between 1 and 1,000,000')])
     category = SelectField('Category', choices=[('Vegetables', 'Vegetables'),
                                                 ('Fruits', 'Fruits'),
                                                 ('Meat', 'Meat'),
                                                 ('Dairy', 'Dairy'),
-                                                ('Grains', 'Grains')])
-    loc = StringField('Location (ex. Indianapolis)', validators=[Length(min=1, max=40, message='Location must be between 1 and 40 characters')])
+                                                ('Grains', 'Grains'),
+                                                ('Other', 'Other')])
+    loc = StringField('Location (ex. Indianapolis)', validators=[InputRequired(), Length(min=1, max=50, message='Location must be between 1 and 50 characters')])
+    image = FileField('Image', validators=[FileRequired(message="Image required")])
 
     submit = SubmitField('Save Post')
 
 
 # Create a post
-@app.route('/posts/create', methods=['GET', 'POST'])
+@app.route('/posts/new', methods=['GET', 'POST'])
 def create_post():
     post_form = PostForm()
+    
+    if session:
+        user_id = session['id']
 
-    if post_form.validate_on_submit():
-            rowcount = db.create_post(post_form.price.data,
-                                      post_form.quantity.data,
-                                      post_form.product.data,
-                                      post_form.category.data,
-                                      post_form.loc.data,
-                                      post_form.description.data)
+        if post_form.validate_on_submit():
+                post_dict = db.create_post(user_id,
+                                           post_form.price.data,
+                                           post_form.quantity.data,
+                                           post_form.product.data,
+                                           post_form.category.data,
+                                           post_form.loc.data,
+                                           post_form.description.data)
+                uploaded_photo = post_form.image.data
 
-            if rowcount == 1:
-                flash("Post added successfully")
-                return redirect(url_for('all_posts'))
-            else:
-                flash("New post not created")
+                photo_row = db.init_photo(post_dict['id'])
 
-    for error in post_form.errors:
-        for field_error in post_form.errors[error]:
-            flash(field_error)
-    return render_template('post-form.html', form=post_form, mode='create')
+                file_name = "file{:04d}".format(photo_row['id'])
+
+                extension = PurePath(uploaded_photo.filename).suffix
+                file_name += extension
+
+                file_path = os.path.join('static/photos', file_name)
+
+                file_path2 = os.path.join('photos', file_name)
+
+                save_path = os.path.join(app.static_folder, file_path2)
+                uploaded_photo.save(save_path)
+
+                db.set_photo(photo_row['id'], file_path)
+
+                if post_dict['rowcount'] == 1:
+                    flash("{} added successfully".format(post_form.product.data), category='success')
+                    return redirect(url_for('all_posts'))
+                else:
+                    flash("Post not created", category='danger')
+
+        for error in post_form.errors:
+            for field_error in post_form.errors[error]:
+                flash(field_error, category='danger')
+        return render_template('post-form.html', form=post_form, mode='create')
 
 
 # Edit a post
@@ -240,7 +413,7 @@ def edit_post(id):
     row = db.find_post_by_id(id)
 
     if row is None:
-        flash("Post doesn't exist")
+        flash("Post doesn't exist", category='danger')
         return redirect(url_for('index'))
 
     post_form = PostForm(price=row['price'],
@@ -258,23 +431,36 @@ def edit_post(id):
                                   id)
 
         if rowcount == 1:
-            flash("Post '{}' updated".format(post_form.product.data))
-            return redirect(url_for('index'))
+            flash("'{}' post updated".format(post_form.product.data), category='success')
+            return redirect(url_for('all_posts'))
         else:
-            flash('Post not updated')
+            flash('Post not updated', category='danger')
 
     return render_template('post-form.html', form=post_form, mode='update')
 
 
+@app.route('/posts/<id>', methods=['GET'])
+def post_details(id):
+    post = db.find_post_by_id(id)
+    query = ProductSearchForm(request.form)
+    return render_template('post-details.html', form=query, post=post)
 
 
-# All the posts in the database
+# All the posts in the database - also handles searching
 @app.route('/posts', methods=['GET', 'POST'])
 def all_posts():
     query = ProductSearchForm(request.form)
+
     if request.method == 'POST':
-        return search_results(query)
-    return render_template('all-posts.html', form=query, posts=db.all_posts())
+        query_list = query.search.data.lower().split(" ")
+        posts = db.search_products(query_list)
+
+        if not posts:
+            flash('No Results Found', category='danger')
+            return render_template('posts.html', form=query, posts=[], mode='results')
+        else:
+            return render_template('posts.html', form=query, posts=posts, mode='results')
+    return render_template('posts.html', form=query, posts=db.all_posts(), mode='feed')
 
 
 class ProductSearchForm(FlaskForm):
@@ -282,25 +468,15 @@ class ProductSearchForm(FlaskForm):
     submit = SubmitField('Search')
 
 
-def search_results(query):
-    results = db.search_products(query)
-    if not results:
-        flash('No Results Found')
-        return redirect(url_for('all_posts'))
+@app.route('/posts/delete/<id>')
+def delete_post_by_id(id):
+    post = db.find_post_by_id(id)
+    if post is None:
+        flash("Post doesn't exist", category='danger')
     else:
-        return render_template('results.html', results=results, query=query)
-
-
-
-# @app.route('/posts/delete/<id>')
-# def delete_post_by_id(id):
-#     post = db.find_post_by_id(id)
-#     if post is None:
-#         flash("Post doesn't exist")
-#     else:
-#         db.delete_post_by_id(id)
-#         flash("Post deleted")
-#         return redirect(url_for('all_posts'))
+        db.delete_post_by_id(id)
+        flash("Post deleted", category='success')
+        return redirect(url_for('my_posts'))
 
 
 if __name__ == '__main__':
