@@ -76,7 +76,13 @@ def enable_user_by_id(user_id):
 
 # Finds a post by it's ID
 def find_post_by_id(id):
-    g.cursor.execute('SELECT * FROM post WHERE id = %(id)s', {'id': id})
+    query = '''
+        SELECT *, p.id AS "post_id" FROM post p
+        INNER JOIN "user" u ON u.id = p.user_id
+        LEFT JOIN "photo" ON p.id = photo.id
+        WHERE p.id = %(id)s
+    '''
+    g.cursor.execute(query, {'id': id})
     return g.cursor.fetchone()
 
 
