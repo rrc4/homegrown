@@ -394,7 +394,7 @@ class PostForm(FlaskForm):
                                                 ('Dairy', 'Dairy'),
                                                 ('Grains', 'Grains'),
                                                 ('Other', 'Other')])
-    zip = StringField('ZIP Code (ex. 46969)', validators=[InputRequired(), Length(min=5, max=9, message='ZIP code must be between 1 and 5 characters')])
+    zip = IntegerField('ZIP Code (ex. 46969)', validators=[InputRequired(), NumberRange(min=3000, max=99999, message='ZIP code not valid - must be 5 characters')])
     image = FileField('Image', validators=[FileRequired(message="Image required")])
 
     submit = SubmitField('Save Post')
