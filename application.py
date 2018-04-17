@@ -394,7 +394,7 @@ class PostForm(FlaskForm):
                                                 ('Dairy', 'Dairy'),
                                                 ('Grains', 'Grains'),
                                                 ('Other', 'Other')])
-    loc = StringField('Location (ex. Indianapolis)', validators=[InputRequired(), Length(min=1, max=50, message='Location must be between 1 and 50 characters')])
+    zip = StringField('ZIP Code (ex. 46969)', validators=[InputRequired(), Length(min=5, max=9, message='ZIP code must be between 1 and 5 characters')])
     image = FileField('Image', validators=[FileRequired(message="Image required")])
 
     submit = SubmitField('Save Post')
@@ -414,7 +414,7 @@ def create_post():
                                            post_form.quantity.data,
                                            post_form.product.data,
                                            post_form.category.data,
-                                           post_form.loc.data,
+                                           post_form.zip.data,
                                            post_form.description.data)
                 uploaded_photo = post_form.image.data
 
@@ -458,14 +458,14 @@ def edit_post(id):
     post_form = PostForm(price=row['price'],
                          quantity=row['quantity'],
                          product=row['product'],
-                         loc=row['loc'],
+                         zip=row['zip'],
                          description=row['description'])
 
     if post_form.validate_on_submit():
         rowcount = db.update_post(post_form.price.data,
                                   post_form.quantity.data,
                                   post_form.product.data,
-                                  post_form.loc.data,
+                                  post_form.zip.data,
                                   post_form.description.data,
                                   id)
 

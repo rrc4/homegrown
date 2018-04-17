@@ -4,11 +4,11 @@ INSERT INTO "user" (name, email, password, rating, active) VALUES ('Joe Schuette
 INSERT INTO "user" (name, email, password, rating, active) VALUES ('Ross Otto', 'ross@example.com', 'password1!', 2.0, TRUE);
 INSERT INTO "user" (name, email, password, rating, active) VALUES ('Harry VanDerNoord', 'harry@example.com', 'password1!', 1.0, TRUE);
 
-INSERT INTO post (user_id, price, quantity, product, category, loc, description) VALUES (1, 5.67, 10, 'Carrots', 'Vegetables', 'Upland', 'Sample Description');
-INSERT INTO post (user_id, price, quantity, product, category, loc, description) VALUES (2, 6.00, 100, 'Strawberries', 'Fruits', 'Indianapolis', 'Sample Description');
-INSERT INTO post (user_id, price, quantity, product, category, loc, description) VALUES (3, 99.00, 50, 'Beef', 'Meat', 'Gas City', 'Sample Description');
-INSERT INTO post (user_id, price, quantity, product, category, loc, description) VALUES (3, 99.00, 50, 'Milk', 'Dairy', 'Gas City', 'Sample Description');
-INSERT INTO post (user_id, price, quantity, product, category, loc, description) VALUES (4, 1.25, 1, 'Bread', 'Grains', 'Marion', 'Sample Description');
+INSERT INTO post (user_id, price, quantity, product, category, zip, description) VALUES (1, 5.67, 10, 'Carrots', 'Vegetables', '46989', 'Sample Description');
+INSERT INTO post (user_id, price, quantity, product, category, zip, description) VALUES (2, 6.00, 100, 'Strawberries', 'Fruits', '56718', 'Sample Description');
+INSERT INTO post (user_id, price, quantity, product, category, zip, description) VALUES (3, 99.00, 50, 'Beef', 'Meat', '89345', 'Sample Description');
+INSERT INTO post (user_id, price, quantity, product, category, zip, description) VALUES (3, 99.00, 50, 'Milk', 'Dairy', '71834', 'Sample Description');
+INSERT INTO post (user_id, price, quantity, product, category, zip, description) VALUES (4, 1.25, 1, 'Bread', 'Grains', '55317', 'Sample Description');
 
 INSERT INTO PHOTO (id, file_path) VALUES (1, 'static/photos/file0001.jpg');
 INSERT INTO PHOTO (id, file_path) VALUES (2, 'static/photos/file0002.jpg');

@@ -29,7 +29,7 @@ CREATE TABLE post
            category = 'Dairy' OR
            category = 'Grains' OR
            category = 'Other'),
-    loc VARCHAR(40) NOT NULL,
+    zip VARCHAR(9) NOT NULL,
     description VARCHAR(150) NOT NULL
 );
 CREATE UNIQUE INDEX post_id_index ON post (id);
