@@ -16,30 +16,30 @@
     <div class="container">
         <div class="row">
             <form method="POST" enctype="multipart/form-data" class="col-md-4">
-                {{ form.csrf_token }}
+                {{ post_form.csrf_token }}
                 <div class="form-group">
-                    {{ form.product.label }}{{ form.product(class_="form-control") }}
+                    {{ post_form.product.label }}{{ post_form.product(class_="form-control") }}
                 </div>
                 <div class="form-group">
-                    {{ form.category.label }}{{ form.category(class_="form-control") }}
+                    {{ post_form.category.label }}{{ post_form.category(class_="form-control") }}
                 </div>
                 <div class="form-group">
-                    {{ form.description.label }}{{ form.description(class_="form-control") }}
+                    {{ post_form.description.label }}{{ post_form.description(class_="form-control") }}
                 </div>
                 <div class="form-group">
-                    {{ form.price.label }}{{ form.price(class_="form-control") }}
+                    {{ post_form.price.label }}{{ post_form.price(class_="form-control") }}
                 </div>
                 <div class="form-group">
-                    {{ form.quantity.label }}{{ form.quantity(class_="form-control") }}
+                    {{ post_form.quantity.label }}{{ post_form.quantity(class_="form-control") }}
                 </div>
                 <div class="form-group">
-                    {{ form.loc.label }}{{ form.loc(class_="form-control") }}
+                    {{ post_form.loc.label }}{{ post_form.loc(class_="form-control") }}
                 </div>
                 <div class="form-group">
-                    {{ form.image.label }}{{ form.image(class_="form-control") }}
+                    {{ post_form.image.label }}{{ post_form.image(class_="form-control") }}
                 </div>
 
-                {{ form.submit(class_="btn btn-primary") }}
+                {{ post_form.submit(class_="btn btn-primary") }}
             </form>
         </div>
     </div>

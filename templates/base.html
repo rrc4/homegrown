@@ -44,6 +44,14 @@
                         <a class="nav-link" href="{{ url_for('sign_out') }}">Sign Out</a>
                     </li>
                 </ul>
+                {% if search_form %}
+                    <form method="POST" class="form-inline my-2 my-lg-0">
+                        <div class="form-group">
+                            {{ search_form.search(class_='form-control', placeholder='Search Products') }}
+                            <button class="btn btn-primary my-2 my-sm-0" style="margin-left: 8px" type=submit value="Search">Go</button>
+                        </div>
+                    </form>
+                {% endif %}
             </div>
         </nav>
 
