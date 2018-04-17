@@ -475,7 +475,7 @@ def edit_post(id):
         else:
             flash('Post not updated', category='danger')
 
-    return render_template('post-form.html', form=post_form, mode='update')
+    return render_template('post-form.html', post_form=post_form, mode='update')
 
 
 @app.route('/posts/<id>', methods=['GET', 'POST'])
