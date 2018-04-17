@@ -147,13 +147,13 @@ def delete_from_favorites(user_id, post_id):
 
 
 # Creates a post
-def create_post(user_id, price, quantity, product, category, loc, description):
+def create_post(user_id, price, quantity, product, category, zip, description):
     query = '''
-        INSERT INTO post (user_id, price, quantity, product, "category", loc, description)
-        VALUES (%(user_id)s, %(price)s, %(quantity)s, %(product)s, %(category)s, %(loc)s, %(description)s)
+        INSERT INTO post (user_id, price, quantity, product, "category", zip, description)
+        VALUES (%(user_id)s, %(price)s, %(quantity)s, %(product)s, %(category)s, %(zip)s, %(description)s)
         RETURNING id
     '''
-    g.cursor.execute(query, {'user_id': user_id, 'price': price, 'quantity': quantity, 'product': product, 'category': category, 'loc': loc, 'description': description})
+    g.cursor.execute(query, {'user_id': user_id, 'price': price, 'quantity': quantity, 'product': product, 'category': category, 'zip': zip, 'description': description})
     g.connection.commit()
     return {'id': g.cursor.fetchone()['id'], 'rowcount': g.cursor.rowcount}
 
@@ -191,13 +191,13 @@ def all_posts():
 
 
 # Updates/edits a post
-def update_post(price, quantity, product, loc, description, post_id):
+def update_post(price, quantity, product, zip, description, post_id):
     query = '''
         UPDATE post 
-        SET price = %(price)s, product = %(product)s, quantity = %(quantity)s, loc = %(loc)s, description = %(description)s
+        SET price = %(price)s, product = %(product)s, quantity = %(quantity)s, zip = %(zip)s, description = %(description)s
         WHERE id = %(id)s
     '''
-    g.cursor.execute(query, {'id': post_id, 'price': price, 'quantity': quantity, 'product': product, 'loc': loc, 'description': description})
+    g.cursor.execute(query, {'id': post_id, 'price': price, 'quantity': quantity, 'product': product, 'zip': zip, 'description': description})
     g.connection.commit()
     return g.cursor.rowcount
 
