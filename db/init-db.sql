@@ -6,9 +6,9 @@ INSERT INTO "user" (name, email, password, rating, active) VALUES ('Harry VanDer
 
 INSERT INTO post (user_id, price, quantity, unit, product, category, zip, description) VALUES (1, 5.67, 10, 'lb', 'Carrots', 'Vegetables', 46989, 'Sample Description');
 INSERT INTO post (user_id, price, quantity, unit, product, category, zip, description) VALUES (2, 6.00, 100, 'oz', 'Strawberries', 'Fruits', 56718, 'Sample Description');
-INSERT INTO post (user_id, price, quantity, unit, product, category, zip, description) VALUES (3, 99.00, 75, 'item', 'Beef', 'Meat', 89345, 'Sample Description');
-INSERT INTO post (user_id, price, quantity, unit, product, category, zip, description) VALUES (3, 99.00, 50, 'oz', 'Milk', 'Dairy', 71834, 'Sample Description');
-INSERT INTO post (user_id, price, quantity, unit, product, category, zip, description) VALUES (4, 1.25, 1, 'lb', 'Bread', 'Grains', 55317, 'Sample Description');
+INSERT INTO post (user_id, price, quantity, unit, product, category, zip, description) VALUES (3, 5.00, 75, 'item', 'Beef', 'Meat', 89345, 'Sample Description');
+INSERT INTO post (user_id, price, quantity, unit, product, category, zip, description) VALUES (3, 3.00, 50, 'gal', 'Milk', 'Dairy', 71834, 'Sample Description');
+INSERT INTO post (user_id, price, quantity, unit, product, category, zip, description) VALUES (4, 1.25, 1, 'kg', 'Bread', 'Grains', 55317, 'Sample Description');
 
 INSERT INTO PHOTO (id, file_path) VALUES (1, 'static/photos/file0001.jpg');
 INSERT INTO PHOTO (id, file_path) VALUES (2, 'static/photos/file0002.jpg');

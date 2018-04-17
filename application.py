@@ -387,10 +387,12 @@ class PostForm(FlaskForm):
     product = StringField('Product (ex. Strawberries)', validators=[InputRequired(), Length(min=1, max=100, message='Product must be between 1 and 100 characters')])
     description = StringField('Description (<500 characters)', validators=[InputRequired(), Length(min=1, max=500, message='Description must be between 1 and 500 characters')])
     price = FloatField('Price (ex. 5.99)', validators=[InputRequired(), NumberRange(min=0.01, message='Price must be at least $0.01')])
-    quantity = IntegerField('Quantity (ex. 100)', validators=[InputRequired(), NumberRange(min=1, max=1000000, message='Quantity must be between 1 and 1,000,000')])
+    quantity = IntegerField('Quantity', validators=[InputRequired(), NumberRange(min=1, max=1000000, message='Quantity must be between 1 and 1,000,000')])
     unit = SelectField('Unit', choices=[('item', 'item'),
                                         ('oz', 'oz'),
-                                        ('lb', 'lb')])
+                                        ('lb', 'lb'),
+                                        ('gal', 'gal'),
+                                        ('kg', 'kg')])
     category = SelectField('Category', choices=[('Vegetables', 'Vegetables'),
                                                 ('Fruits', 'Fruits'),
                                                 ('Meat', 'Meat'),
