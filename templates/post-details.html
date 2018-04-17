@@ -30,7 +30,7 @@
 
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item"><b>Price: </b>{{'${:,.2f}'.format(post.price) }} per {{ post.unit }}</li>
-                            {% if post.unit != 'oz' %}
+                            {% if post.unit != 'oz' and post.quantity > 1 %}
                                 <li class="list-group-item"><b>Quantity: </b>{{ post.quantity }} {{ post.unit }}s</li>
                             {% else %}
                                 <li class="list-group-item"><b>Quantity: </b>{{ post.quantity }} {{ post.unit }}</li>
