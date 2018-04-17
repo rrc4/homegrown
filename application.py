@@ -5,7 +5,7 @@ from flask import Flask, session, request, render_template, flash, redirect, url
 from flask_login import LoginManager, login_user
 from flask_wtf import FlaskForm
 
-from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField
+from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField, TextAreaField
 from wtforms.validators import Length, NumberRange, Email, InputRequired, EqualTo, DataRequired, Regexp
 from flask_wtf.file import FileField, FileRequired
 
@@ -385,7 +385,7 @@ def settings():
 # The form to create or edit a post
 class PostForm(FlaskForm):
     product = StringField('Product (ex. Strawberries)', validators=[InputRequired(), Length(min=1, max=100, message='Product must be between 1 and 100 characters')])
-    description = StringField('Description (<500 characters)', validators=[InputRequired(), Length(min=1, max=500, message='Description must be between 1 and 500 characters')])
+    description = TextAreaField('Description (<150 characters)', validators=[InputRequired(), Length(min=1, max=150, message='Description must be between 1 and 150 characters')])
     price = FloatField('Price (ex. 5.99)', validators=[InputRequired(), NumberRange(min=0.01, message='Price must be at least $0.01')])
     quantity = IntegerField('Quantity', validators=[InputRequired(), NumberRange(min=1, max=1000000, message='Quantity must be between 1 and 1,000,000')])
     unit = SelectField('Unit', choices=[('item', 'item'),
