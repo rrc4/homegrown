@@ -32,6 +32,9 @@
             </h1>
         </div>
     </div>
+    <div>
+
+    </div>
     <div class="container">
         <div class="row">
             {% for post in posts %}
@@ -46,8 +49,12 @@
                             <h5 class="card-title">{{ post.product }}</h5>
 
                             <ul class="list-group list-group-flush">
-                                <li class="list-group-item"><b>Price: </b>{{'${:,.2f}'.format(post.price) }}</li>
-                                <li class="list-group-item"><b>Quantity: </b>{{ post.quantity }}</li>
+                                <li class="list-group-item"><b>Price: </b>{{'${:,.2f}'.format(post.price) }} per {{ post.unit }}</li>
+                                {% if post.unit != 'oz' %}
+                                    <li class="list-group-item"><b>Quantity: </b>{{ post.quantity }} {{ post.unit }}s</li>
+                                {% else %}
+                                    <li class="list-group-item"><b>Quantity: </b>{{ post.quantity }} {{ post.unit }}</li>
+                                {% endif %}
                                 <li class="list-group-item"><b>Category: </b>{{ post.category }}</li>
                             </ul>
                         </div>

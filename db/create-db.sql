@@ -21,6 +21,10 @@ CREATE TABLE post
     user_id INTEGER NOT NULL REFERENCES "user",
     price FLOAT NOT NULL,
     quantity INTEGER NOT NULL,
+    unit VARCHAR(5) NOT NULL,
+    CHECK (unit = 'item' OR
+           unit = 'oz' OR
+           unit = 'lb'),
     product VARCHAR(40) NOT NULL,
     category VARCHAR(10) NOT NULL,
     CHECK (category = 'Vegetables' OR
