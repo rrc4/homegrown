@@ -367,19 +367,6 @@ def remove_from_favorites(post_id):
         else:
             flash("Unable to remove from favorites", category='danger')
     return redirect(url_for('my_favorites'))
-
-
-# A user's settings
-@app.route('/settings', methods=['GET', 'POST'])
-def settings():
-    query = ProductSearchForm(request.form)
-
-    if request.method == 'POST':
-        query_list = query.search.data.lower().split(" ")
-        posts = db.search_products(query_list)
-        return render_template('posts.html', search_form=query, posts=posts, mode='results')
-
-    return render_template('settings.html', search_form=query)
   
 
 # The form to create or edit a post
