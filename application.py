@@ -388,6 +388,9 @@ class PostForm(FlaskForm):
     description = StringField('Description (<500 characters)', validators=[InputRequired(), Length(min=1, max=500, message='Description must be between 1 and 500 characters')])
     price = FloatField('Price (ex. 5.99)', validators=[InputRequired(), NumberRange(min=0.01, message='Price must be at least $0.01')])
     quantity = IntegerField('Quantity (ex. 100)', validators=[InputRequired(), NumberRange(min=1, max=1000000, message='Quantity must be between 1 and 1,000,000')])
+    unit = SelectField('Unit', choices=[('item', 'item'),
+                                        ('oz', 'oz'),
+                                        ('lb', 'lb')])
     category = SelectField('Category', choices=[('Vegetables', 'Vegetables'),
                                                 ('Fruits', 'Fruits'),
                                                 ('Meat', 'Meat'),
@@ -412,6 +415,7 @@ def create_post():
                 post_dict = db.create_post(user_id,
                                            post_form.price.data,
                                            post_form.quantity.data,
+                                           post_form.unit.data,
                                            post_form.product.data,
                                            post_form.category.data,
                                            post_form.zip.data,
@@ -457,6 +461,7 @@ def edit_post(id):
 
     post_form = PostForm(price=row['price'],
                          quantity=row['quantity'],
+                         unit=row['unit'],
                          product=row['product'],
                          zip=row['zip'],
                          description=row['description'])
@@ -464,6 +469,7 @@ def edit_post(id):
     if post_form.validate_on_submit():
         rowcount = db.update_post(post_form.price.data,
                                   post_form.quantity.data,
+                                  post_form.unit.data,
                                   post_form.product.data,
                                   post_form.zip.data,
                                   post_form.description.data,
