@@ -258,19 +258,33 @@ def all_users():
 
 
 # Testing page
-@app.route('/test')
+@app.route('/test', methods=['GET', 'POST'])
 def test():
-    return render_template("test.html")
+    query = ProductSearchForm(request.form)
+
+    if request.method == 'POST':
+        query_list = query.search.data.lower().split(" ")
+        posts = db.search_products(query_list)
+        return render_template('posts.html', form=query, posts=posts, mode='results')
+
+    return render_template('test.html', search_form=query)
 
 
 # A user's profile
-@app.route('/profile')
+@app.route('/profile', methods=['GET', 'POST'])
 def profile():
-    return render_template("profile.html")
+    query = ProductSearchForm(request.form)
+
+    if request.method == 'POST':
+        query_list = query.search.data.lower().split(" ")
+        posts = db.search_products(query_list)
+        return render_template('posts.html', search_form=query, posts=posts, mode='results')
+
+    return render_template('profile.html', search_form=query)
 
 
 # A list of the current user's posts
-@app.route('/my-posts')
+@app.route('/my-posts', methods=['GET', 'POST'])
 def my_posts():
     user_id = session['id']
     query = ProductSearchForm(request.form)
@@ -280,11 +294,17 @@ def my_posts():
         posts = []
     else:
         posts = db.posts_by_user(user_id)
-    return render_template('posts.html', form=query, posts=posts, mode='my-posts')
+
+    if request.method == 'POST':
+        query_list = query.search.data.lower().split(" ")
+        posts = db.search_products(query_list)
+        return render_template('posts.html', search_form=query, posts=posts, mode='results')
+
+    return render_template('posts.html', search_form=query, posts=posts, mode='my-posts')
 
 
 # A list of the a user's posts
-@app.route('/posts/user/<user_id>')
+@app.route('/posts/user/<user_id>', methods=['GET', 'POST'])
 def user_posts(user_id):
     query = ProductSearchForm(request.form)
     user = db.find_user_by_id(user_id)
@@ -294,18 +314,30 @@ def user_posts(user_id):
         posts = []
     else:
         posts = db.posts_by_user(user_id)
-    return render_template('posts.html', form=query, user=user, posts=posts, mode='user')
+
+    if request.method == 'POST':
+        query_list = query.search.data.lower().split(" ")
+        posts = db.search_products(query_list)
+        return render_template('posts.html', search_form=query, posts=posts, mode='results')
+
+    return render_template('posts.html', search_form=query, user=user, posts=posts, mode='user')
 
 
 # A list of the user's favorites
-@app.route('/favorites')
+@app.route('/favorites', methods=['GET', 'POST'])
 def my_favorites():
     query = ProductSearchForm(request.form)
 
     if session:
         user_id = session['id']
         favorites = db.favorites_by_user(user_id)
-        return render_template('posts.html', user_id=user_id, form=query, posts=favorites, mode='favorites')
+
+        if request.method == 'POST':
+            query_list = query.search.data.lower().split(" ")
+            posts = db.search_products(query_list)
+            return render_template('posts.html', search_form=query, posts=posts, mode='results')
+
+        return render_template('posts.html', user_id=user_id, search_form=query, posts=favorites, mode='favorites')
 
 
 # Adds a post to favorites
@@ -338,9 +370,16 @@ def remove_from_favorites(post_id):
 
 
 # A user's settings
-@app.route('/settings')
+@app.route('/settings', methods=['GET', 'POST'])
 def settings():
-    return render_template("settings.html")
+    query = ProductSearchForm(request.form)
+
+    if request.method == 'POST':
+        query_list = query.search.data.lower().split(" ")
+        posts = db.search_products(query_list)
+        return render_template('posts.html', search_form=query, posts=posts, mode='results')
+
+    return render_template('settings.html', search_form=query)
   
 
 # The form to create or edit a post
@@ -404,7 +443,7 @@ def create_post():
         for error in post_form.errors:
             for field_error in post_form.errors[error]:
                 flash(field_error, category='danger')
-        return render_template('post-form.html', form=post_form, mode='create')
+        return render_template('post-form.html', post_form=post_form, mode='create')
 
 
 # Edit a post
@@ -439,11 +478,17 @@ def edit_post(id):
     return render_template('post-form.html', form=post_form, mode='update')
 
 
-@app.route('/posts/<id>', methods=['GET'])
+@app.route('/posts/<id>', methods=['GET', 'POST'])
 def post_details(id):
     post = db.find_post_by_id(id)
     query = ProductSearchForm(request.form)
-    return render_template('post-details.html', form=query, post=post)
+
+    if request.method == 'POST':
+        query_list = query.search.data.lower().split(" ")
+        posts = db.search_products(query_list)
+        return render_template('posts.html', search_form=query, posts=posts, mode='results')
+
+    return render_template('post-details.html', search_form=query, post=post)
 
 
 # All the posts in the database - also handles searching
@@ -457,10 +502,10 @@ def all_posts():
 
         if not posts:
             flash('No Results Found', category='danger')
-            return render_template('posts.html', form=query, posts=[], mode='results')
+            return render_template('posts.html', search_form=query, posts=[], mode='results')
         else:
-            return render_template('posts.html', form=query, posts=posts, mode='results')
-    return render_template('posts.html', form=query, posts=db.all_posts(), mode='feed')
+            return render_template('posts.html', search_form=query, posts=posts, mode='results')
+    return render_template('posts.html', search_form=query, posts=db.all_posts(), mode='feed')
 
 
 class ProductSearchForm(FlaskForm):
