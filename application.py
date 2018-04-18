@@ -342,15 +342,19 @@ def my_favorites():
 
 
 # Adds a post to favorites
-# TODO: Check for duplicates
 @app.route('/favorites/add/<post_id>')
 def add_to_favorites(post_id):
     if session:
         user_id = session['id']
-        post = db.find_post_by_id(post_id)
 
-        db.add_to_favorites(user_id, post_id)
-        flash("{} added to favorites".format(post['product']), category='success')
+        post = db.find_post_by_id(post_id)
+        favorites = db.find_duplicate_in_favorites(user_id, post_id)
+
+        if not favorites:
+            db.add_to_favorites(user_id, post_id)
+            flash("{} added to favorites".format(post['product']), category='success')
+        else:
+            flash("{} already added to favorites".format(post['product']), category='danger')
 
     return redirect(url_for('all_posts'))
 
