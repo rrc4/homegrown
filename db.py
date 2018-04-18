@@ -216,6 +216,19 @@ def search_products(query_list):
     return g.cursor.fetchall()
 
 
+# Filters products by category
+def filter_products(key_list):
+    pattern = '|'.join(key_list)
+    query = '''
+        SELECT *, p.id AS "post_id" FROM post p
+        INNER JOIN "user" u ON u.id = p.user_id
+        LEFT JOIN "photo" ON p.id = photo.id
+        WHERE u.active = TRUE AND %(pattern)s ~* category
+    '''
+    g.cursor.execute(query, {'pattern': pattern})
+    return g.cursor.fetchall()
+
+
 # Deletes a single post by post ID
 def delete_post_by_id(post_id):
     query = '''

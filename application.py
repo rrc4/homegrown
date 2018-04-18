@@ -5,7 +5,7 @@ from flask import Flask, session, request, render_template, flash, redirect, url
 from flask_login import LoginManager, login_user
 from flask_wtf import FlaskForm
 
-from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField
+from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField, TextAreaField, BooleanField
 from wtforms.validators import Length, NumberRange, Email, InputRequired, EqualTo, DataRequired, Regexp
 from flask_wtf.file import FileField, FileRequired
 
@@ -367,25 +367,12 @@ def remove_from_favorites(post_id):
         else:
             flash("Unable to remove from favorites", category='danger')
     return redirect(url_for('my_favorites'))
-
-
-# A user's settings
-@app.route('/settings', methods=['GET', 'POST'])
-def settings():
-    query = ProductSearchForm(request.form)
-
-    if request.method == 'POST':
-        query_list = query.search.data.lower().split(" ")
-        posts = db.search_products(query_list)
-        return render_template('posts.html', search_form=query, posts=posts, mode='results')
-
-    return render_template('settings.html', search_form=query)
   
 
 # The form to create or edit a post
 class PostForm(FlaskForm):
     product = StringField('Product (ex. Strawberries)', validators=[InputRequired(), Length(min=1, max=100, message='Product must be between 1 and 100 characters')])
-    description = StringField('Description (<500 characters)', validators=[InputRequired(), Length(min=1, max=500, message='Description must be between 1 and 500 characters')])
+    description = TextAreaField('Description (<150 characters)', validators=[InputRequired(), Length(min=1, max=150, message='Description must be between 1 and 150 characters')])
     price = FloatField('Price (ex. 5.99)', validators=[InputRequired(), NumberRange(min=0.01, message='Price must be at least $0.01')])
     quantity = IntegerField('Quantity', validators=[InputRequired(), NumberRange(min=1, max=1000000, message='Quantity must be between 1 and 1,000,000')])
     unit = SelectField('Unit', choices=[('item', 'item'),
@@ -486,6 +473,7 @@ def edit_post(id):
     return render_template('post-form.html', post_form=post_form, mode='update')
 
 
+# Returns a more in-depth look at a post
 @app.route('/posts/<id>', methods=['GET', 'POST'])
 def post_details(id):
     post = db.find_post_by_id(id)
@@ -503,22 +491,48 @@ def post_details(id):
 @app.route('/posts', methods=['GET', 'POST'])
 def all_posts():
     query = ProductSearchForm(request.form)
+    selected = FilterForm(request.form)
 
-    if request.method == 'POST':
+    if selected.data['submit'] is True:
+        key_list = []
+        for key, value in selected.data.items():
+            if key != "submit" and key != "csrf_token":
+                if value:
+                    key_list.append(key)
+
+        filtered_posts = db.filter_products(key_list)
+
+        if not filtered_posts:
+            flash('No Results Found', category='danger')
+            return render_template('posts.html', filter_form=selected, search_form=query, posts=[], mode='results')
+        else:
+            return render_template('posts.html', filter_form=selected, search_form=query, posts=filtered_posts, mode='results')
+
+    if query.search.data is not None:
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
 
         if not posts:
             flash('No Results Found', category='danger')
-            return render_template('posts.html', search_form=query, posts=[], mode='results')
+            return render_template('posts.html', filter_form=selected, search_form=query, posts=[], mode='results')
         else:
-            return render_template('posts.html', search_form=query, posts=posts, mode='results')
-    return render_template('posts.html', search_form=query, posts=db.all_posts(), mode='feed')
+            return render_template('posts.html', filter_form=selected, search_form=query, posts=posts, mode='results')
+    return render_template('posts.html', filter_form=selected, search_form=query, posts=db.all_posts(), mode='feed')
 
 
 class ProductSearchForm(FlaskForm):
     search = StringField('Search', [DataRequired()])
     submit = SubmitField('Search')
+
+
+class FilterForm(FlaskForm):
+    vegetables = BooleanField('Vegetables')
+    fruits = BooleanField('Fruit')
+    meat = BooleanField('Meat')
+    dairy = BooleanField('Dairy')
+    grains = BooleanField('Grains')
+    other = BooleanField('Other')
+    submit = SubmitField('Filter')
 
 
 @app.route('/posts/delete/<id>')
