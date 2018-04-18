@@ -3,63 +3,55 @@
 {% block title %}{{ post.product }}{% endblock %}
 
 {% block content %}
+    <button onclick="goBack()">Go Back</button>
+
+    <script>
+    function goBack() {
+        window.history.back();
+    }
+    </script>
+
     <div class="container">
         <div class="row">
             <h1 class="col-lg-9">{{ post.product }}</h1>
         </div>
     </div>
 
-    <div class="container">
-        <div class="card">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="card-block">
-                        {% if post.file_path == "bogus_path" or post.file_path == none or post.file_path == "None" %}
-                            <img class="card-img-top" src="https://vignette.wikia.nocookie.net/pandorahearts/images/a/ad/Not_available.jpg/revision/latest?cb=20141028171337" alt="No Image Available">
-                        {% else %}
-                            <img class="card-img-top" src="/{{ post.file_path }}" alt="Product Image">
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="col-md-8">
-                    <div class="card-block">
-                        <br>
-                        <h3 class="card-title" style="padding-left: 20px">{{ post.product }}</h3>
-                        <p class="card-text" style="padding-left: 20px">{{ post.description }}</p>
-                        <br>
+    <div class="card w-50">
+        <img class="card-img-top"
+             {% if post.file_path == "bogus_path" or post.file_path == none or post.file_path == "None" %}
+                 <img class="card-img-top" src="https://vignette.wikia.nocookie.net/pandorahearts/images/a/ad/Not_available.jpg/revision/latest?cb=20141028171337" alt="No Image Available">
+             {% else %}
+                 <img class="card-img-top" src="/{{ post.file_path }}" alt="Product Image">
+             {% endif %}
+        <div class="card-body">
+            <br>
+            <h3 class="card-title" style="padding-left: 20px">{{ post.product }}</h3>
+            <p class="card-text" style="padding-left: 20px">{{ post.description }}</p>
+            <br>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><b>Price: </b>{{'${:,.2f}'.format(post.price) }}</li>
+                <li class="list-group-item"><b>Quantity: </b>{{ post.quantity }}</li>
+                <li class="list-group-item"><b>Category: </b>{{ post.category }}</li>
+                {% if (post.zip)|string|length == 4 %}
+                    <li class="list-group-item"><b>ZIP: </b>0{{ post.zip }}</li>
+                {% else %}
+                    <li class="list-group-item"><b>ZIP: </b>{{ post.zip }}</li>
+                {% endif %}
+            </ul>
 
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item"><b>Price: </b>{{'${:,.2f}'.format(post.price) }} per {{ post.unit }}</li>
-                            {% if post.unit != 'oz' and post.quantity > 1 %}
-                                <li class="list-group-item"><b>Quantity: </b>{{ post.quantity }} {{ post.unit }}s</li>
-                            {% else %}
-                                <li class="list-group-item"><b>Quantity: </b>{{ post.quantity }} {{ post.unit }}</li>
-                            {% endif %}
-
-                            <li class="list-group-item"><b>Category: </b>{{ post.category }}</li>
-
-                            {% if (post.zip)|string|length == 4 %}
-                                <li class="list-group-item"><b>ZIP: </b>0{{ post.zip }}</li>
-                            {% else %}
-                                <li class="list-group-item"><b>ZIP: </b>{{ post.zip }}</li>
-                            {% endif %}
-                        </ul>
-
-                        <div class="card-body">
-                            <a href="#" class="card-link"><b>Buy</b></a>
-                            <a href="#" class="card-link"><b>Trade</b></a>
-                            <a href="#" class="card-link"><b>Contact Seller</b></a>
-                        </div>
-
-                        {% if date - post.timestamp == 0 %}
-                            <div class="card-footer text-muted" style="text-align: center">Posted today</div>
-                        {% else %}
-                            <div class="card-footer text-muted" style="text-align: center">Posted {{ date - post.timestamp }} ago</div>
-                        {% endif %}
-                    </div>
-                </div>
+            <div class="card-body">
+                <a href="#" class="card-link"><b>Buy</b></a>
+                <a href="#" class="card-link"><b>Trade</b></a>
+                <a href="#" class="card-link"><b>Contact Seller</b></a>
             </div>
+            {% if date - post.timestamp == 0 %}
+                <div class="card-footer text-muted" style="text-align: center">Posted today</div>
+            {% else %}
+                <div class="card-footer text-muted" style="text-align: center">Posted {{ date - post.timestamp }} ago</div>
+            {% endif %}
         </div>
     </div>
+
 
 {% endblock %}
