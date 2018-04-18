@@ -45,6 +45,11 @@
                 <a href="#" class="card-link"><b>Trade</b></a>
                 <a href="#" class="card-link"><b>Contact Seller</b></a>
             </div>
+            {% if date - post.timestamp == 0 %}
+                <div class="card-footer text-muted" style="text-align: center">Posted today</div>
+            {% else %}
+                <div class="card-footer text-muted" style="text-align: center">Posted {{ date - post.timestamp }} ago</div>
+            {% endif %}
         </div>
     </div>
 

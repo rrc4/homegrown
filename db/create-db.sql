@@ -36,7 +36,8 @@ CREATE TABLE post
            category = 'Grains' OR
            category = 'Other'),
     zip INTEGER NOT NULL,
-    description VARCHAR(150) NOT NULL
+    description VARCHAR(150) NOT NULL,
+    timestamp DATE NOT NULL DEFAULT CURRENT_DATE
 );
 CREATE UNIQUE INDEX post_id_index ON post (id);
 COMMENT ON TABLE post IS 'Post';
