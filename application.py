@@ -112,6 +112,7 @@ def sign_up():
             if authenticate(sign_up_form.email.data, sign_up_form.password.data) and is_active:
                 current = User(sign_up_form.email.data)
                 login_user(current)
+                session.pop('user', None)
                 session['username'] = current.email
 
                 flash('Sign up successful!', category='success')
@@ -261,14 +262,7 @@ def all_users():
 # Testing page
 @app.route('/test', methods=['GET', 'POST'])
 def test():
-    query = ProductSearchForm(request.form)
-
-    if request.method == 'POST':
-        query_list = query.search.data.lower().split(" ")
-        posts = db.search_products(query_list)
-        return render_template('posts.html', form=query, posts=posts, mode='results')
-
-    return render_template('test.html', search_form=query)
+    return render_template('test.html')
 
 
 # A user's profile
