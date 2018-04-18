@@ -1,4 +1,5 @@
 import os
+import datetime
 from pathlib import PurePath
 
 from flask import Flask, session, request, render_template, flash, redirect, url_for
@@ -14,11 +15,11 @@ from flask_bcrypt import Bcrypt
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'Team Bryson Key'
 
-
 import db
 
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
+date = datetime.date.today()
 
 
 # Opens the database connection
@@ -278,9 +279,9 @@ def profile():
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
-        return render_template('posts.html', search_form=query, posts=posts, mode='results')
+        return render_template('posts.html', date=date, search_form=query, posts=posts, mode='results')
 
-    return render_template('profile.html', search_form=query)
+    return render_template('profile.html', date=date, search_form=query)
 
 
 # A list of the current user's posts
@@ -298,9 +299,9 @@ def my_posts():
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
-        return render_template('posts.html', search_form=query, posts=posts, mode='results')
+        return render_template('posts.html', date=date, search_form=query, posts=posts, mode='results')
 
-    return render_template('posts.html', search_form=query, posts=posts, mode='my-posts')
+    return render_template('posts.html', date=date, search_form=query, posts=posts, mode='my-posts')
 
 
 # A list of the a user's posts
@@ -318,9 +319,9 @@ def user_posts(user_id):
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
-        return render_template('posts.html', search_form=query, posts=posts, mode='results')
+        return render_template('posts.html', date=date, search_form=query, posts=posts, mode='results')
 
-    return render_template('posts.html', search_form=query, user=user, posts=posts, mode='user')
+    return render_template('posts.html', date=date, search_form=query, user=user, posts=posts, mode='user')
 
 
 # A list of the user's favorites
@@ -335,9 +336,9 @@ def my_favorites():
         if request.method == 'POST':
             query_list = query.search.data.lower().split(" ")
             posts = db.search_products(query_list)
-            return render_template('posts.html', search_form=query, posts=posts, mode='results')
+            return render_template('posts.html', date=date, search_form=query, posts=posts, mode='results')
 
-        return render_template('posts.html', user_id=user_id, search_form=query, posts=favorites, mode='favorites')
+        return render_template('posts.html', date=date, user_id=user_id, search_form=query, posts=favorites, mode='favorites')
 
 
 # Adds a post to favorites
@@ -482,9 +483,9 @@ def post_details(id):
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
-        return render_template('posts.html', search_form=query, posts=posts, mode='results')
+        return render_template('posts.html', date=date, search_form=query, posts=posts, mode='results')
 
-    return render_template('post-details.html', search_form=query, post=post)
+    return render_template('post-details.html', date=date, search_form=query, post=post)
 
 
 # All the posts in the database - also handles searching
@@ -504,9 +505,9 @@ def all_posts():
 
         if not filtered_posts:
             flash('No Results Found', category='danger')
-            return render_template('posts.html', filter_form=selected, search_form=query, posts=[], mode='results')
+            return render_template('posts.html', date=date, filter_form=selected, search_form=query, posts=[], mode='results')
         else:
-            return render_template('posts.html', filter_form=selected, search_form=query, posts=filtered_posts, mode='results')
+            return render_template('posts.html', date=date, filter_form=selected, search_form=query, posts=filtered_posts, mode='results')
 
     if query.search.data is not None:
         query_list = query.search.data.lower().split(" ")
@@ -514,10 +515,10 @@ def all_posts():
 
         if not posts:
             flash('No Results Found', category='danger')
-            return render_template('posts.html', filter_form=selected, search_form=query, posts=[], mode='results')
+            return render_template('posts.html', date=date, filter_form=selected, search_form=query, posts=[], mode='results')
         else:
-            return render_template('posts.html', filter_form=selected, search_form=query, posts=posts, mode='results')
-    return render_template('posts.html', filter_form=selected, search_form=query, posts=db.all_posts(), mode='feed')
+            return render_template('posts.html', date=date, filter_form=selected, search_form=query, posts=posts, mode='results')
+    return render_template('posts.html', date=date, filter_form=selected, search_form=query, posts=db.all_posts(), mode='feed')
 
 
 class ProductSearchForm(FlaskForm):
