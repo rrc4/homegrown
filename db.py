@@ -147,13 +147,13 @@ def delete_from_favorites(user_id, post_id):
 
 
 # Creates a post
-def create_post(user_id, price, quantity, product, category, zip, description):
+def create_post(user_id, price, quantity, unit, product, category, zip, description):
     query = '''
-        INSERT INTO post (user_id, price, quantity, product, "category", zip, description)
-        VALUES (%(user_id)s, %(price)s, %(quantity)s, %(product)s, %(category)s, %(zip)s, %(description)s)
+        INSERT INTO post (user_id, price, quantity, unit, product, "category", zip, description)
+        VALUES (%(user_id)s, %(price)s, %(quantity)s, %(unit)s, %(product)s, %(category)s, %(zip)s, %(description)s)
         RETURNING id
     '''
-    g.cursor.execute(query, {'user_id': user_id, 'price': price, 'quantity': quantity, 'product': product, 'category': category, 'zip': zip, 'description': description})
+    g.cursor.execute(query, {'user_id': user_id, 'price': price, 'quantity': quantity, 'unit': unit, 'product': product, 'category': category, 'zip': zip, 'description': description})
     g.connection.commit()
     return {'id': g.cursor.fetchone()['id'], 'rowcount': g.cursor.rowcount}
 
@@ -191,13 +191,13 @@ def all_posts():
 
 
 # Updates/edits a post
-def update_post(price, quantity, product, zip, description, post_id):
+def update_post(price, quantity, unit, product, zip, description, post_id):
     query = '''
         UPDATE post 
-        SET price = %(price)s, product = %(product)s, quantity = %(quantity)s, zip = %(zip)s, description = %(description)s
+        SET price = %(price)s, product = %(product)s, unit = %(unit)s, quantity = %(quantity)s, zip = %(zip)s, description = %(description)s
         WHERE id = %(id)s
     '''
-    g.cursor.execute(query, {'id': post_id, 'price': price, 'quantity': quantity, 'product': product, 'zip': zip, 'description': description})
+    g.cursor.execute(query, {'id': post_id, 'price': price, 'quantity': quantity, 'unit': unit, 'product': product, 'zip': zip, 'description': description})
     g.connection.commit()
     return g.cursor.rowcount
 
@@ -211,6 +211,19 @@ def search_products(query_list):
         LEFT JOIN "photo" ON p.id = photo.id
         WHERE u.active = TRUE AND product ~* %(pattern)s OR category ~* %(pattern)s
         ORDER BY p.id;
+    '''
+    g.cursor.execute(query, {'pattern': pattern})
+    return g.cursor.fetchall()
+
+
+# Filters products by category
+def filter_products(key_list):
+    pattern = '|'.join(key_list)
+    query = '''
+        SELECT *, p.id AS "post_id" FROM post p
+        INNER JOIN "user" u ON u.id = p.user_id
+        LEFT JOIN "photo" ON p.id = photo.id
+        WHERE u.active = TRUE AND %(pattern)s ~* category
     '''
     g.cursor.execute(query, {'pattern': pattern})
     return g.cursor.fetchall()
