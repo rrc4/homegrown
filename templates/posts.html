@@ -17,19 +17,18 @@
 {% block content %}
     <div class="container">
         <div class="row">
-            <h1 class="col-lg-3">
-                {% if mode == 'feed' %}
-                    Feed
-                {% elif mode == 'results' %}
-                    Results
-                {% elif mode == 'my-posts' %}
-                    My Posts
-                {% elif mode == 'favorites' %}
-                    My Favorites
-                {% elif mode == 'user' %}
-                    {{ user.name }}'s Posts
-                {% endif %}
-            </h1>
+            {% if mode == 'feed' %}
+                <h1 class="col-lg-3">Feed</h1>
+            {% elif mode == 'results' %}
+                <h1 class="col-lg-3">Results</h1>
+            {% elif mode == 'my-posts' %}
+                <h1 class="col-lg-6">My Posts</h1>
+            {% elif mode == 'favorites' %}
+                <h1 class="col-lg-6">My Favorites</h1>
+            {% elif mode == 'user' %}
+                <h1 class="col-lg-6">{{ user.name }}'s Posts</h1>
+            {% endif %}
+
             {% if filter_form %}
                 <form method="POST" class="col-md-9 form-inline" style="display:flex; justify-content:flex-end">
                     {{ filter_form.csrf_token }}

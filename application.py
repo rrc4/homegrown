@@ -260,9 +260,9 @@ def all_users():
 
 
 # Testing page
-@app.route('/test', methods=['GET', 'POST'])
-def test():
-    return render_template('test.html')
+@app.route('/admin/dashboard', methods=['GET', 'POST'])
+def admin_dashboard():
+    return render_template('admin-dashboard.html')
 
 
 # A user's profile
