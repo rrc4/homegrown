@@ -3,7 +3,8 @@
 {% block title %}{{ post.product }}{% endblock %}
 
 {% block content %}
-    <button onclick="goBack()">Go Back</button>
+    <img src="https://cdn.iconscout.com/public/images/icon/free/png-512/back-arrow-35325b9dd72f970a-512x512.png"
+         style="height: 35px; width: 35px; cursor: pointer" onclick="goBack()">
 
     <script>
     function goBack() {
@@ -15,10 +16,10 @@
         <div class="row">
             <h1 class="col-md-6">{{ post.product }} - {{'${:,.2f}'.format(post.price) }}/{{ post.unit }}</h1>
 
-            <div class="col-md-6" style="text-align: center">
+            <div class="col-md-6" style="text-align: center; display:flex; justify-content:center; align-items:center">
                 <a href="#" class="card-link"><b>Buy</b></a>
-                <a href="#" class="card-link"><b>Trade</b></a>
-                <a href="#" class="card-link"><b>Contact Seller</b></a>
+                <a href="#" class="card-link">Trade</a>
+                <a href="#" class="card-link">Contact Seller</a>
             </div>
         </div>
     </div>
@@ -33,10 +34,16 @@
                  {% endif %}
             </div>
 
+            <div class="col-md-5" style="margin-left: auto">
+                <img class="card-img-top" style="height: 250px; width: 350px" src="https://www.notizie.it/wp-content/uploads/2016/04/article-new_ds-cdn-write_upload_9000_000_00_9_109009.jpg" alt="Product Location">
+            </div>
+
+            <div class="col-md-6">
+                <br>
+                <p style="padding-left: 20px">{{ post.description }}</p>
+                <br>
+            </div>
             <div class="col-md-12">
-                <br>
-                <p class="text" style="padding-left: 20px">{{ post.description }}</p>
-                <br>
                 <ul>
                     {% if post.unit != 'oz' and post.quantity > 1 %}
                         <li><b>Quantity: </b>{{ post.quantity }} {{ post.unit }}s</li>
