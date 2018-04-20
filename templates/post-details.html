@@ -59,17 +59,9 @@
                     {% endif %}
                 </ul>
 
-
-                {% if date - post.timestamp == 0 %}
-                    <div class="footer text-muted" style="text-align: center">Posted today</div>
-                {% else %}
-                    <div class="footer text-muted" style="text-align: center">Posted {{ date - post.timestamp }} ago</div>
-                {% endif %}
+                <div class="card-footer text-muted" style="text-align: center">Posted {{ now - post.timestamp }} ago</div>
             </div>
-
-            <div class="card-footer text-muted" style="text-align: center">Posted {{ now - post.timestamp }} ago</div>
         </div>
     </div>
-
-
+    
 {% endblock %}
