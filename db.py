@@ -119,7 +119,7 @@ def favorites_by_user(user_id):
 def find_duplicate_in_favorites(user_id, post_id):
     query = '''
         SELECT * FROM favorite f
-        WHERE post_id = %(post_id)s
+        WHERE post_id = %(post_id)s AND user_id = %(user_id)s
     '''
     g.cursor.execute(query, {'user_id': user_id, 'post_id': post_id})
     g.connection.commit()

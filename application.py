@@ -112,6 +112,7 @@ def sign_up():
             if authenticate(sign_up_form.email.data, sign_up_form.password.data) and is_active:
                 current = User(sign_up_form.email.data)
                 login_user(current)
+                session.pop('user', None)
                 session['username'] = current.email
 
                 flash('Sign up successful!', category='success')
@@ -261,14 +262,7 @@ def all_users():
 # Testing page
 @app.route('/test', methods=['GET', 'POST'])
 def test():
-    query = ProductSearchForm(request.form)
-
-    if request.method == 'POST':
-        query_list = query.search.data.lower().split(" ")
-        posts = db.search_products(query_list)
-        return render_template('posts.html', form=query, posts=posts, mode='results')
-
-    return render_template('test.html', search_form=query)
+    return render_template('test.html')
 
 
 # A user's profile
@@ -342,15 +336,19 @@ def my_favorites():
 
 
 # Adds a post to favorites
-# TODO: Check for duplicates
 @app.route('/favorites/add/<post_id>')
 def add_to_favorites(post_id):
     if session:
         user_id = session['id']
-        post = db.find_post_by_id(post_id)
 
-        db.add_to_favorites(user_id, post_id)
-        flash("{} added to favorites".format(post['product']), category='success')
+        post = db.find_post_by_id(post_id)
+        favorites = db.find_duplicate_in_favorites(user_id, post_id)
+
+        if not favorites:
+            db.add_to_favorites(user_id, post_id)
+            flash("{} added to favorites".format(post['product']), category='success')
+        else:
+            flash("{} already added to favorites".format(post['product']), category='danger')
 
     return redirect(url_for('all_posts'))
 
@@ -500,12 +498,13 @@ def all_posts():
             if key != "submit" and key != "csrf_token":
                 if value:
                     key_list.append(key)
-
         filtered_posts = db.filter_products(key_list)
 
         if not filtered_posts:
-            flash('No Results Found', category='danger')
-            return render_template('posts.html', now=now, filter_form=selected, search_form=query, posts=[], mode='results')
+            if not key_list:
+                return render_template('posts.html', date=date, filter_form=selected, search_form=query, posts=db.all_posts(), mode='results')
+            else:
+                return render_template('posts.html', date=date, filter_form=selected, search_form=query, posts=[], mode='results')
         else:
             return render_template('posts.html', now=now, filter_form=selected, search_form=query, posts=filtered_posts, mode='results')
 
