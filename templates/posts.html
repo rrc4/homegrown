@@ -17,7 +17,7 @@
 {% block content %}
     <div class="container">
         <div class="row">
-            <h1 class="col-lg-9">
+            <h1 class="col-lg-3">
                 {% if mode == 'feed' %}
                     Feed
                 {% elif mode == 'results' %}
@@ -30,69 +30,91 @@
                     {{ user.name }}'s Posts
                 {% endif %}
             </h1>
-
-            <form method="POST" class="col-lg-3 form-inline my-2 my-lg-0">
-                <div class="form-group">
-                    {{ form.search(class_='form-control', placeholder='Search Products') }}
-                    <button class="btn btn-primary my-2 my-sm-0" style="margin-left: 8px" type=submit value="Search">Go</button>
-                </div>
-            </form>
+            {% if filter_form %}
+                <form method="POST" class="col-md-9 form-inline" style="display:flex; justify-content:flex-end">
+                    {{ filter_form.csrf_token }}
+                    <div class="form-check" style="padding: 0 10px 0 10px">
+                        {{ filter_form.vegetables(class_="form-check-input") }}
+                        {{ filter_form.vegetables.label(class_="form-check-label") }}
+                    </div>
+                    <div class="form-check" style="padding: 0 10px 0 10px">
+                        {{ filter_form.fruits(class_="form-check-input") }}
+                        {{ filter_form.fruits.label(class_="form-check-label") }}
+                    </div>
+                    <div class="form-check" style="padding: 0 10px 0 10px">
+                        {{ filter_form.meat(class_="form-check-input") }}
+                        {{ filter_form.meat.label(class_="form-check-label") }}
+                    </div>
+                    <div class="form-check" style="padding: 0 10px 0 10px">
+                        {{ filter_form.dairy(class_="form-check-input") }}
+                        {{ filter_form.dairy.label(class_="form-check-label") }}
+                    </div>
+                    <div class="form-check" style="padding: 0 10px 0 10px">
+                        {{ filter_form.grains(class_="form-check-input") }}
+                        {{ filter_form.grains.label(class_="form-check-label") }}
+                    </div>
+                    <div class="form-check" style="padding: 0 20px 0 10px">
+                        {{ filter_form.other(class_="form-check-input") }}
+                        {{ filter_form.other.label(class_="form-check-label") }}
+                    </div>
+                    <br>
+                    {{ filter_form.submit(class_="btn btn-primary") }}
+                </form>
+            {% endif %}
         </div>
     </div>
-
-    {% for post in posts %}
-
-        <div class="container">
-            <div class="card">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="card-block">
-                            {% if post.file_path == "bogus_path" or post.file_path == none or post.file_path == "None" %}
-                                <img class="card-img-top" src="https://vignette.wikia.nocookie.net/pandorahearts/images/a/ad/Not_available.jpg/revision/latest?cb=20141028171337" alt="No Image Available">
-                            {% else %}
-                                <img class="card-img-top" src="/{{ post.file_path }}" alt="Product Image">
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-block">
-                            <br>
-                            <h3 class="card-title" style="padding-left: 20px">{{ post.product }}</h3>
-                            <p class="card-text" style="padding-left: 20px">{{ post.description }}</p>
-                            <br>
+    <div class="container">
+        <div class="row">
+            {% for post in posts %}
+                <div class="col-lg-4">
+                    <div class="card" style="width: 350px; margin: 10px 10px 10px 10px;">
+                        {% if post.file_path == "bogus_path" or post.file_path == none or post.file_path == "None" %}
+                            <img class="card-img-top" style="width: 348px; height: 240px;" src="https://vignette.wikia.nocookie.net/pandorahearts/images/a/ad/Not_available.jpg/revision/latest?cb=20141028171337" alt="No Image Available">
+                        {% else %}
+                            <img class="card-img-top" style="width: 348px; height: 240px;" src="/{{ post.file_path }}" alt="Product Image">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ post.product }}</h5>
 
                             <ul class="list-group list-group-flush">
-                                <li class="list-group-item"><b>Price: </b>{{'${:,.2f}'.format(post.price) }}</li>
-                                <li class="list-group-item"><b>Quantity: </b>{{ post.quantity }}</li>
-                                <li class="list-group-item"><b>Category: </b>{{ post.category }}</li>
-                                <li class="list-group-item"><b>Pickup Location: </b>{{ post.loc }}</li>
-                            </ul>
-
-                            <div class="card-body">
-                                {% if mode == 'feed' or mode == 'results' or mode == 'user' %}
-                                    <a href="#" class="card-link"><b>Buy</b></a>
-                                {%  endif %}
-
-                                <a href="#" class="card-link">Post Details</a>
-
-                                {% if mode == 'favorites' %}
-                                    <a href="{{ url_for('remove_from_favorites', post_id=post.post_id) }}" class="card-link">Unfavorite</a>
+                                <li class="list-group-item"><b>Price: </b>{{'${:,.2f}'.format(post.price) }} per {{ post.unit }}</li>
+                                {% if post.unit != 'oz' and post.quantity > 1 %}
+                                    <li class="list-group-item"><b>Quantity: </b>{{ post.quantity }} {{ post.unit }}s</li>
                                 {% else %}
-                                    <a href="{{ url_for('add_to_favorites', post_id=post.post_id) }}" class="card-link">Favorite</a>
+                                    <li class="list-group-item"><b>Quantity: </b>{{ post.quantity }} {{ post.unit }}</li>
                                 {% endif %}
-
-                                {% if mode == 'my-posts' %}
-                                    <a href="{{ url_for('edit_post', id=post.post_id) }}" class="card-link">Edit</a>
-                                    <a href="{{ url_for('delete_post_by_id', id=post.post_id) }}" class="card-link">Delete</a>
-                                {%  endif %}
-                            </div>
+                                <li class="list-group-item"><b>Category: </b>{{ post.category }}</li>
+                            </ul>
                         </div>
+                        <div class="card-body" style="text-align: center">
+                            {% if mode == 'feed' or mode == 'results' or mode == 'user' %}
+                                <a href="#" class="card-link"><b>Buy</b></a>
+                            {%  endif %}
+
+                            <a href="{{ url_for('post_details', id=post.post_id) }}" class="card-link">Post Details</a>
+
+                            {% if mode == 'favorites' %}
+                                <a href="{{ url_for('remove_from_favorites', post_id=post.post_id) }}" class="card-link">Unfavorite</a>
+                            {% else %}
+                                <a href="{{ url_for('add_to_favorites', post_id=post.post_id) }}" class="card-link">Favorite</a>
+                            {% endif %}
+
+                            {% if mode == 'my-posts' %}
+                                <a href="{{ url_for('edit_post', id=post.post_id) }}" class="card-link">Edit</a>
+                                <a href="{{ url_for('delete_post_by_id', id=post.post_id) }}" class="card-link">Delete</a>
+                            {%  endif %}
+                        </div>
+                        {% if date - post.timestamp == 0 %}
+                            <div class="card-footer text-muted" style="text-align: center">Posted today</div>
+                        {% else %}
+                            <div class="card-footer text-muted" style="text-align: center">Posted {{ date - post.timestamp }} ago</div>
+                        {% endif %}
                     </div>
                 </div>
-            </div>
+            {% endfor %}
         </div>
-
-    {% else %}
+    </div>
+    {% if not posts %}
         <div class="container">
             <div class="row">
                 <h3 class="col-lg-9">
@@ -110,5 +132,5 @@
                 </h3>
             </div>
         </div>
-    {% endfor %}
+    {% endif %}
 {% endblock %}

@@ -21,6 +21,12 @@ CREATE TABLE post
     user_id INTEGER NOT NULL REFERENCES "user",
     price FLOAT NOT NULL,
     quantity INTEGER NOT NULL,
+    unit VARCHAR(5) NOT NULL,
+    CHECK (unit = 'item' OR
+           unit = 'oz' OR
+           unit = 'lb' OR
+           unit = 'gal' OR
+           unit = 'kg'),
     product VARCHAR(40) NOT NULL,
     category VARCHAR(10) NOT NULL,
     CHECK (category = 'Vegetables' OR
@@ -29,8 +35,9 @@ CREATE TABLE post
            category = 'Dairy' OR
            category = 'Grains' OR
            category = 'Other'),
-    loc VARCHAR(40) NOT NULL,
-    description VARCHAR(150) NOT NULL
+    zip INTEGER NOT NULL,
+    description VARCHAR(150) NOT NULL,
+    timestamp DATE NOT NULL DEFAULT CURRENT_DATE
 );
 CREATE UNIQUE INDEX post_id_index ON post (id);
 COMMENT ON TABLE post IS 'Post';

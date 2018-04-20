@@ -1,11 +1,12 @@
 import os
+import datetime
 from pathlib import PurePath
 
 from flask import Flask, session, request, render_template, flash, redirect, url_for
 from flask_login import LoginManager, login_user
 from flask_wtf import FlaskForm
 
-from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField
+from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField, TextAreaField, BooleanField
 from wtforms.validators import Length, NumberRange, Email, InputRequired, EqualTo, DataRequired, Regexp
 from flask_wtf.file import FileField, FileRequired
 
@@ -14,11 +15,11 @@ from flask_bcrypt import Bcrypt
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'Team Bryson Key'
 
-
 import db
 
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
+date = datetime.date.today()
 
 
 # Opens the database connection
@@ -111,6 +112,7 @@ def sign_up():
             if authenticate(sign_up_form.email.data, sign_up_form.password.data) and is_active:
                 current = User(sign_up_form.email.data)
                 login_user(current)
+                session.pop('user', None)
                 session['username'] = current.email
 
                 flash('Sign up successful!', category='success')
@@ -258,19 +260,26 @@ def all_users():
 
 
 # Testing page
-@app.route('/admin/dashboard')
-def admin_dashboard():
-    return render_template("admin-dashboard.html")
+@app.route('/test', methods=['GET', 'POST'])
+def test():
+    return render_template('test.html')
 
 
 # A user's profile
-@app.route('/profile')
+@app.route('/profile', methods=['GET', 'POST'])
 def profile():
-    return render_template("profile.html")
+    query = ProductSearchForm(request.form)
+
+    if request.method == 'POST':
+        query_list = query.search.data.lower().split(" ")
+        posts = db.search_products(query_list)
+        return render_template('posts.html', date=date, search_form=query, posts=posts, mode='results')
+
+    return render_template('profile.html', date=date, search_form=query)
 
 
 # A list of the current user's posts
-@app.route('/my-posts')
+@app.route('/my-posts', methods=['GET', 'POST'])
 def my_posts():
     user_id = session['id']
     query = ProductSearchForm(request.form)
@@ -280,11 +289,17 @@ def my_posts():
         posts = []
     else:
         posts = db.posts_by_user(user_id)
-    return render_template('posts.html', form=query, posts=posts, mode='my-posts')
+
+    if request.method == 'POST':
+        query_list = query.search.data.lower().split(" ")
+        posts = db.search_products(query_list)
+        return render_template('posts.html', date=date, search_form=query, posts=posts, mode='results')
+
+    return render_template('posts.html', date=date, search_form=query, posts=posts, mode='my-posts')
 
 
 # A list of the a user's posts
-@app.route('/posts/user/<user_id>')
+@app.route('/posts/user/<user_id>', methods=['GET', 'POST'])
 def user_posts(user_id):
     query = ProductSearchForm(request.form)
     user = db.find_user_by_id(user_id)
@@ -294,30 +309,46 @@ def user_posts(user_id):
         posts = []
     else:
         posts = db.posts_by_user(user_id)
-    return render_template('posts.html', form=query, user=user, posts=posts, mode='user')
+
+    if request.method == 'POST':
+        query_list = query.search.data.lower().split(" ")
+        posts = db.search_products(query_list)
+        return render_template('posts.html', date=date, search_form=query, posts=posts, mode='results')
+
+    return render_template('posts.html', date=date, search_form=query, user=user, posts=posts, mode='user')
 
 
 # A list of the user's favorites
-@app.route('/favorites')
+@app.route('/favorites', methods=['GET', 'POST'])
 def my_favorites():
     query = ProductSearchForm(request.form)
 
     if session:
         user_id = session['id']
         favorites = db.favorites_by_user(user_id)
-        return render_template('posts.html', user_id=user_id, form=query, posts=favorites, mode='favorites')
+
+        if request.method == 'POST':
+            query_list = query.search.data.lower().split(" ")
+            posts = db.search_products(query_list)
+            return render_template('posts.html', date=date, search_form=query, posts=posts, mode='results')
+
+        return render_template('posts.html', date=date, user_id=user_id, search_form=query, posts=favorites, mode='favorites')
 
 
 # Adds a post to favorites
-# TODO: Check for duplicates
 @app.route('/favorites/add/<post_id>')
 def add_to_favorites(post_id):
     if session:
         user_id = session['id']
-        post = db.find_post_by_id(post_id)
 
-        db.add_to_favorites(user_id, post_id)
-        flash("{} added to favorites".format(post['product']), category='success')
+        post = db.find_post_by_id(post_id)
+        favorites = db.find_duplicate_in_favorites(user_id, post_id)
+
+        if not favorites:
+            db.add_to_favorites(user_id, post_id)
+            flash("{} added to favorites".format(post['product']), category='success')
+        else:
+            flash("{} already added to favorites".format(post['product']), category='danger')
 
     return redirect(url_for('all_posts'))
 
@@ -335,27 +366,26 @@ def remove_from_favorites(post_id):
         else:
             flash("Unable to remove from favorites", category='danger')
     return redirect(url_for('my_favorites'))
-
-
-# A user's settings
-@app.route('/settings')
-def settings():
-    return render_template("settings.html")
   
 
 # The form to create or edit a post
 class PostForm(FlaskForm):
     product = StringField('Product (ex. Strawberries)', validators=[InputRequired(), Length(min=1, max=100, message='Product must be between 1 and 100 characters')])
-    description = StringField('Description (<500 characters)', validators=[InputRequired(), Length(min=1, max=500, message='Description must be between 1 and 500 characters')])
+    description = TextAreaField('Description (<150 characters)', validators=[InputRequired(), Length(min=1, max=150, message='Description must be between 1 and 150 characters')])
     price = FloatField('Price (ex. 5.99)', validators=[InputRequired(), NumberRange(min=0.01, message='Price must be at least $0.01')])
-    quantity = IntegerField('Quantity (ex. 100)', validators=[InputRequired(), NumberRange(min=1, max=1000000, message='Quantity must be between 1 and 1,000,000')])
+    quantity = IntegerField('Quantity', validators=[InputRequired(), NumberRange(min=1, max=1000000, message='Quantity must be between 1 and 1,000,000')])
+    unit = SelectField('Unit', choices=[('item', 'item'),
+                                        ('oz', 'oz'),
+                                        ('lb', 'lb'),
+                                        ('gal', 'gal'),
+                                        ('kg', 'kg')])
     category = SelectField('Category', choices=[('Vegetables', 'Vegetables'),
                                                 ('Fruits', 'Fruits'),
                                                 ('Meat', 'Meat'),
                                                 ('Dairy', 'Dairy'),
                                                 ('Grains', 'Grains'),
                                                 ('Other', 'Other')])
-    loc = StringField('Location (ex. Indianapolis)', validators=[InputRequired(), Length(min=1, max=50, message='Location must be between 1 and 50 characters')])
+    zip = IntegerField('ZIP Code (ex. 46969)', validators=[InputRequired(), NumberRange(min=3000, max=99999, message='ZIP code not valid - must be 5 characters')])
     image = FileField('Image', validators=[FileRequired(message="Image required")])
 
     submit = SubmitField('Save Post')
@@ -373,9 +403,10 @@ def create_post():
                 post_dict = db.create_post(user_id,
                                            post_form.price.data,
                                            post_form.quantity.data,
+                                           post_form.unit.data,
                                            post_form.product.data,
                                            post_form.category.data,
-                                           post_form.loc.data,
+                                           post_form.zip.data,
                                            post_form.description.data)
                 uploaded_photo = post_form.image.data
 
@@ -404,7 +435,7 @@ def create_post():
         for error in post_form.errors:
             for field_error in post_form.errors[error]:
                 flash(field_error, category='danger')
-        return render_template('post-form.html', form=post_form, mode='create')
+        return render_template('post-form.html', post_form=post_form, mode='create')
 
 
 # Edit a post
@@ -418,15 +449,17 @@ def edit_post(id):
 
     post_form = PostForm(price=row['price'],
                          quantity=row['quantity'],
+                         unit=row['unit'],
                          product=row['product'],
-                         loc=row['loc'],
+                         zip=row['zip'],
                          description=row['description'])
 
     if post_form.validate_on_submit():
         rowcount = db.update_post(post_form.price.data,
                                   post_form.quantity.data,
+                                  post_form.unit.data,
                                   post_form.product.data,
-                                  post_form.loc.data,
+                                  post_form.zip.data,
                                   post_form.description.data,
                                   id)
 
@@ -436,36 +469,70 @@ def edit_post(id):
         else:
             flash('Post not updated', category='danger')
 
-    return render_template('post-form.html', form=post_form, mode='update')
+    return render_template('post-form.html', post_form=post_form, mode='update')
 
 
-@app.route('/posts/<id>', methods=['GET'])
+# Returns a more in-depth look at a post
+@app.route('/posts/<id>', methods=['GET', 'POST'])
 def post_details(id):
     post = db.find_post_by_id(id)
     query = ProductSearchForm(request.form)
-    return render_template('post-details.html', form=query, post=post)
+
+    if request.method == 'POST':
+        query_list = query.search.data.lower().split(" ")
+        posts = db.search_products(query_list)
+        return render_template('posts.html', date=date, search_form=query, posts=posts, mode='results')
+
+    return render_template('post-details.html', date=date, search_form=query, post=post)
 
 
 # All the posts in the database - also handles searching
 @app.route('/posts', methods=['GET', 'POST'])
 def all_posts():
     query = ProductSearchForm(request.form)
+    selected = FilterForm(request.form)
 
-    if request.method == 'POST':
+    if selected.data['submit'] is True:
+        key_list = []
+        for key, value in selected.data.items():
+            if key != "submit" and key != "csrf_token":
+                if value:
+                    key_list.append(key)
+        filtered_posts = db.filter_products(key_list)
+
+        if not filtered_posts:
+            if not key_list:
+                return render_template('posts.html', date=date, filter_form=selected, search_form=query, posts=db.all_posts(), mode='results')
+            else:
+                return render_template('posts.html', date=date, filter_form=selected, search_form=query, posts=[], mode='results')
+        else:
+            return render_template('posts.html', date=date, filter_form=selected, search_form=query, posts=filtered_posts, mode='results')
+
+    if query.search.data is not None:
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
 
         if not posts:
             flash('No Results Found', category='danger')
-            return render_template('posts.html', form=query, posts=[], mode='results')
+            return render_template('posts.html', date=date, filter_form=selected, search_form=query, posts=[], mode='results')
         else:
-            return render_template('posts.html', form=query, posts=posts, mode='results')
-    return render_template('posts.html', form=query, posts=db.all_posts(), mode='feed')
+            return render_template('posts.html', date=date, filter_form=selected, search_form=query, posts=posts, mode='results')
+    return render_template('posts.html', date=date, filter_form=selected, search_form=query, posts=db.all_posts(), mode='feed')
 
 
 class ProductSearchForm(FlaskForm):
     search = StringField('Search', [DataRequired()])
     submit = SubmitField('Search')
+
+
+class FilterForm(FlaskForm):
+    vegetables = BooleanField('Vegetables')
+    fruits = BooleanField('Fruit')
+    meat = BooleanField('Meat')
+    dairy = BooleanField('Dairy')
+    grains = BooleanField('Grains')
+    other = BooleanField('Other')
+    submit = SubmitField('Filter')
 
 
 @app.route('/posts/delete/<id>')

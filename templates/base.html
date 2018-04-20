@@ -7,6 +7,9 @@
               integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
               crossorigin="anonymous">
 
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+
         <title>
             {% block title %}
             {% endblock %}
@@ -35,15 +38,20 @@
                         <a class="nav-link" href="{{ url_for('my_favorites') }}">Favorites</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('settings') }}">Settings</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+                        <a class="nav-link" href="{{ url_for('test') }}">Test</a>
                     </li>
                     <li>
                         <a class="nav-link" href="{{ url_for('sign_out') }}">Sign Out</a>
                     </li>
                 </ul>
+                {% if search_form %}
+                    <form method="POST" class="form-inline my-2 my-lg-0">
+                        <div class="form-group">
+                            {{ search_form.search(class_='form-control', placeholder='Search Products') }}
+                            <button class="btn btn-primary my-2 my-sm-0" style="margin-left: 8px" type=submit value="Search">Go</button>
+                        </div>
+                    </form>
+                {% endif %}
             </div>
         </nav>
 

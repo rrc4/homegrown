@@ -3,47 +3,71 @@
 {% block title %}{{ post.product }}{% endblock %}
 
 {% block content %}
+    <img src="https://cdn.iconscout.com/public/images/icon/free/png-512/back-arrow-35325b9dd72f970a-512x512.png"
+         style="height: 35px; width: 35px; cursor: pointer" onclick="goBack()">
+
+    <script>
+    function goBack() {
+        window.history.back();
+    }
+    </script>
+
     <div class="container">
         <div class="row">
-            <h1 class="col-lg-9">{{ post.product }}</h1>
-        </div>
-    </div>
+            <h1 class="col-md-6">{{ post.product }} - {{'${:,.2f}'.format(post.price) }}/{{ post.unit }}</h1>
 
-    <div class="container">
-        <div class="card">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="card-block">
-                        {% if post.file_path == "bogus_path" or post.file_path == none or post.file_path == "None" %}
-                            <img class="card-img-top" src="https://vignette.wikia.nocookie.net/pandorahearts/images/a/ad/Not_available.jpg/revision/latest?cb=20141028171337" alt="No Image Available">
-                        {% else %}
-                            <img class="card-img-top" src="/{{ post.file_path }}" alt="Product Image">
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="col-md-8">
-                    <div class="card-block">
-                        <br>
-                        <h3 class="card-title" style="padding-left: 20px">{{ post.product }}</h3>
-                        <p class="card-text" style="padding-left: 20px">{{ post.description }}</p>
-                        <br>
-
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item"><b>Price: </b>{{'${:,.2f}'.format(post.price) }}</li>
-                            <li class="list-group-item"><b>Quantity: </b>{{ post.quantity }}</li>
-                            <li class="list-group-item"><b>Category: </b>{{ post.category }}</li>
-                            <li class="list-group-item"><b>Pickup Location: </b>{{ post.loc }}</li>
-                        </ul>
-
-                        <div class="card-body">
-                            <a href="#" class="card-link"><b>Buy</b></a>
-                            <a href="#" class="card-link"><b>Trade</b></a>
-                            <a href="#" class="card-link"><b>Contact Seller</b></a>
-                        </div>
-                    </div>
-                </div>
+            <div class="col-md-6" style="text-align: center; display:flex; justify-content:center; align-items:center">
+                <a href="#" class="card-link"><b>Buy</b></a>
+                <a href="#" class="card-link">Trade</a>
+                <a href="#" class="card-link">Contact Seller</a>
             </div>
         </div>
     </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5">
+                 {% if post.file_path == "bogus_path" or post.file_path == none or post.file_path == "None" %}
+                     <img class="card-img-top" src="https://vignette.wikia.nocookie.net/pandorahearts/images/a/ad/Not_available.jpg/revision/latest?cb=20141028171337" alt="No Image Available">
+                 {% else %}
+                     <img class="card-img-top" src="/{{ post.file_path }}" alt="Product Image">
+                 {% endif %}
+            </div>
+
+            <div class="col-md-5" style="margin-left: auto">
+                <img class="card-img-top" style="height: 250px; width: 350px" src="https://www.notizie.it/wp-content/uploads/2016/04/article-new_ds-cdn-write_upload_9000_000_00_9_109009.jpg" alt="Product Location">
+            </div>
+
+            <div class="col-md-6">
+                <br>
+                <p style="padding-left: 20px">{{ post.description }}</p>
+                <br>
+            </div>
+            <div class="col-md-12">
+                <ul>
+                    {% if post.unit != 'oz' and post.quantity > 1 %}
+                        <li><b>Quantity: </b>{{ post.quantity }} {{ post.unit }}s</li>
+                    {% else %}
+                        <li><b>Quantity: </b>{{ post.quantity }} {{ post.unit }}</li>
+                    {% endif %}
+
+                    <li><b>Category: </b>{{ post.category }}</li>
+                    {% if (post.zip)|string|length == 4 %}
+                        <li><b>ZIP: </b>0{{ post.zip }}</li>
+                    {% else %}
+                        <li><b>ZIP: </b>{{ post.zip }}</li>
+                    {% endif %}
+                </ul>
+
+
+                {% if date - post.timestamp == 0 %}
+                    <div class="footer text-muted" style="text-align: center">Posted today</div>
+                {% else %}
+                    <div class="footer text-muted" style="text-align: center">Posted {{ date - post.timestamp }} ago</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
 
 {% endblock %}
