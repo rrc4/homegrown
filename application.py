@@ -258,9 +258,9 @@ def all_users():
 
 
 # Testing page
-@app.route('/test')
-def test():
-    return render_template("test.html")
+@app.route('/admin/dashboard')
+def admin_dashboard():
+    return render_template("admin-dashboard.html")
 
 
 # A user's profile
