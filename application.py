@@ -502,9 +502,9 @@ def all_posts():
 
         if not filtered_posts:
             if not key_list:
-                return render_template('posts.html', date=date, filter_form=selected, search_form=query, posts=db.all_posts(), mode='results')
+                return render_template('posts.html', now=now, filter_form=selected, search_form=query, posts=db.all_posts(), mode='results')
             else:
-                return render_template('posts.html', date=date, filter_form=selected, search_form=query, posts=[], mode='results')
+                return render_template('posts.html', now=now, filter_form=selected, search_form=query, posts=[], mode='results')
         else:
             return render_template('posts.html', now=now, filter_form=selected, search_form=query, posts=filtered_posts, mode='results')
 
