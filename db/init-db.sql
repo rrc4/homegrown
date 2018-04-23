@@ -4,11 +4,11 @@ INSERT INTO "user" (name, email, password, rating, active) VALUES ('Joe Schuette
 INSERT INTO "user" (name, email, password, rating, active) VALUES ('Ross Otto', 'ross@example.com', 'password1!', 2.0, TRUE);
 INSERT INTO "user" (name, email, password, rating, active) VALUES ('Harry VanDerNoord', 'harry@example.com', 'password1!', 1.0, TRUE);
 
-INSERT INTO post (user_id, price, quantity, unit, product, category, zip, description, timestamp) VALUES (1, 5.67, 10, 'lb', 'Carrots', 'Vegetables', 46989, 'Sample Description', '2018-04-18 21:40:09');
-INSERT INTO post (user_id, price, quantity, unit, product, category, zip, description, timestamp) VALUES (2, 6.00, 100, 'oz', 'Strawberries', 'Fruits', 56718, 'Sample Description', '2018-04-16 09:37:11');
-INSERT INTO post (user_id, price, quantity, unit, product, category, zip, description, timestamp) VALUES (3, 5.00, 75, 'item', 'Beef', 'Meat', 89345, 'Sample Description', '2018-04-15 14:22:43');
-INSERT INTO post (user_id, price, quantity, unit, product, category, zip, description, timestamp) VALUES (3, 3.00, 50, 'gal', 'Milk', 'Dairy', 71834, 'Sample Description', '2018-04-14 16:09:21');
-INSERT INTO post (user_id, price, quantity, unit, product, category, zip, description, timestamp) VALUES (4, 1.25, 1, 'kg', 'Bread', 'Grains', 55317, 'Sample Description', '2018-04-13 12:00:00');
+INSERT INTO post (user_id, price, quantity, unit, product, category, zip, description, date) VALUES (1, 5.67, 10, 'lb', 'Carrots', 'Vegetables', 46989, 'Sample Description', '2018-04-18');
+INSERT INTO post (user_id, price, quantity, unit, product, category, zip, description, date) VALUES (2, 6.00, 100, 'oz', 'Strawberries', 'Fruits', 56718, 'Sample Description', '2018-04-16');
+INSERT INTO post (user_id, price, quantity, unit, product, category, zip, description, date) VALUES (3, 5.00, 75, 'item', 'Beef', 'Meat', 89345, 'Sample Description', '2018-04-15');
+INSERT INTO post (user_id, price, quantity, unit, product, category, zip, description, date) VALUES (3, 3.00, 50, 'gal', 'Milk', 'Dairy', 71834, 'Sample Description', '2018-04-14');
+INSERT INTO post (user_id, price, quantity, unit, product, category, zip, description, date) VALUES (4, 1.25, 1, 'kg', 'Bread', 'Grains', 55317, 'Sample Description', '2018-04-13');
 
 INSERT INTO PHOTO (id, file_path) VALUES (1, 'static/photos/file0001.jpg');
 INSERT INTO PHOTO (id, file_path) VALUES (2, 'static/photos/file0002.jpg');

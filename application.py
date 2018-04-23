@@ -19,7 +19,7 @@ import db
 
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
-now = datetime.datetime.now()
+today = datetime.date.today()
 
 
 # Opens the database connection
@@ -273,9 +273,9 @@ def profile():
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
-        return render_template('posts.html', now=now, search_form=query, posts=posts, mode='results')
+        return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results')
 
-    return render_template('profile.html', now=now, search_form=query)
+    return render_template('profile.html', search_form=query)
 
 
 # A list of the current user's posts
@@ -293,9 +293,9 @@ def my_posts():
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
-        return render_template('posts.html', now=now, search_form=query, posts=posts, mode='results')
+        return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results')
 
-    return render_template('posts.html', now=now, search_form=query, posts=posts, mode='my-posts')
+    return render_template('posts.html', date=today, search_form=query, posts=posts, mode='my-posts')
 
 
 # A list of the a user's posts
@@ -313,9 +313,9 @@ def user_posts(user_id):
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
-        return render_template('posts.html', now=now, search_form=query, posts=posts, mode='results')
+        return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results')
 
-    return render_template('posts.html', now=now, search_form=query, user=user, posts=posts, mode='user')
+    return render_template('posts.html', date=today, search_form=query, user=user, posts=posts, mode='user')
 
 
 # A list of the user's favorites
@@ -330,9 +330,9 @@ def my_favorites():
         if request.method == 'POST':
             query_list = query.search.data.lower().split(" ")
             posts = db.search_products(query_list)
-            return render_template('posts.html', now=now, search_form=query, posts=posts, mode='results')
+            return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results')
 
-        return render_template('posts.html', now=now, user_id=user_id, search_form=query, posts=favorites, mode='favorites')
+        return render_template('posts.html', date=today, user_id=user_id, search_form=query, posts=favorites, mode='favorites')
 
 
 # Adds a post to favorites
@@ -358,13 +358,9 @@ def remove_from_favorites(post_id):
     if session:
         user_id = session['id']
         favorites = db.favorites_by_user(user_id)
-        post = db.find_post_by_id(post_id)
 
         if favorites:
             db.delete_from_favorites(user_id, post_id)
-            flash("{} removed from favorites".format(post['product']), category='success')
-        else:
-            flash("Unable to remove from favorites", category='danger')
     return redirect(url_for('my_favorites'))
   
 
@@ -481,9 +477,9 @@ def post_details(id):
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
-        return render_template('posts.html', now=now, search_form=query, posts=posts, mode='results')
+        return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results')
 
-    return render_template('post-details.html', now=now, search_form=query, post=post)
+    return render_template('post-details.html', date=today, search_form=query, post=post)
 
 
 # All the posts in the database - also handles searching
@@ -502,22 +498,21 @@ def all_posts():
 
         if not filtered_posts:
             if not key_list:
-                return render_template('posts.html', now=now, filter_form=selected, search_form=query, posts=db.all_posts(), mode='results')
+                return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=db.all_posts(), mode='results')
             else:
-                return render_template('posts.html', now=now, filter_form=selected, search_form=query, posts=[], mode='results')
+                return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=[], mode='results')
         else:
-            return render_template('posts.html', now=now, filter_form=selected, search_form=query, posts=filtered_posts, mode='results')
+            return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=filtered_posts, mode='results')
 
     if query.search.data is not None:
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
 
         if not posts:
-            flash('No Results Found', category='danger')
-            return render_template('posts.html', now=now, filter_form=selected, search_form=query, posts=[], mode='results')
+            return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=[], mode='results')
         else:
-            return render_template('posts.html', now=now, filter_form=selected, search_form=query, posts=posts, mode='results')
-    return render_template('posts.html', now=now, filter_form=selected, search_form=query, posts=db.all_posts(), mode='feed')
+            return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=posts, mode='results')
+    return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=db.all_posts(), mode='feed')
 
 
 class ProductSearchForm(FlaskForm):
@@ -538,11 +533,8 @@ class FilterForm(FlaskForm):
 @app.route('/posts/delete/<id>')
 def delete_post_by_id(id):
     post = db.find_post_by_id(id)
-    if post is None:
-        flash("Post doesn't exist", category='danger')
-    else:
+    if post is not None:
         db.delete_post_by_id(id)
-        flash("Post deleted", category='success')
         return redirect(url_for('my_posts'))
 
 
