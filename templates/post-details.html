@@ -58,16 +58,9 @@
                         <li><b>ZIP: </b>{{ post.zip }}</li>
                     {% endif %}
                 </ul>
-
-
-                {% if date - post.timestamp == 0 %}
-                    <div class="footer text-muted" style="text-align: center">Posted today</div>
-                {% else %}
-                    <div class="footer text-muted" style="text-align: center">Posted {{ date - post.timestamp }} ago</div>
-                {% endif %}
             </div>
 
-            <div class="card-footer text-muted" style="text-align: center">Posted {{ now - post.timestamp }} ago</div>
+            <div class="card-footer text-muted" style="text-align: center">Posted on {{ post.timestamp }}</div>
         </div>
     </div>
 

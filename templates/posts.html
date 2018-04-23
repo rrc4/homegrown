@@ -103,7 +103,7 @@
                                 <a href="{{ url_for('delete_post_by_id', id=post.post_id) }}" class="card-link">Delete</a>
                             {%  endif %}
                         </div>
-                        <div class="card-footer text-muted" style="text-align: center">Posted {{ now - post.timestamp }} ago</div>
+                        <div class="card-footer text-muted" style="text-align: center">Posted on {{ post.timestamp }}</div>
                     </div>
                 </div>
             {% endfor %}
