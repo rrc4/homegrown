@@ -1,3 +1,4 @@
+INSERT INTO "user" (name, email, password, rating, active, role) VALUES ('Admin', 'admin@example.com', 'password1!', 5.0, TRUE, 'admin');
 INSERT INTO "user" (name, email, password, rating, active) VALUES ('Joey Ferguson', 'joey@example.com', 'password1!', 5.0, TRUE);
 INSERT INTO "user" (name, email, password, rating, active) VALUES ('Jake Smarrella', 'jake@example.com', 'password1!', 4.0, TRUE);
 INSERT INTO "user" (name, email, password, rating, active) VALUES ('Joe Schuette', 'joe@example.com', 'password1!', 3.0, TRUE);

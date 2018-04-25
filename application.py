@@ -1,9 +1,11 @@
 import os
 import datetime
+
 from pathlib import PurePath
+from functools import wraps
 
 from flask import Flask, session, request, render_template, flash, redirect, url_for
-from flask_login import LoginManager, login_user
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_wtf import FlaskForm
 
 from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField, TextAreaField, BooleanField
@@ -32,6 +34,25 @@ def before_request():
 @app.teardown_request
 def teardown_request(exception):
     db.close_db_connection()
+
+
+# Allow/disallow users from accessing pages based on their roles
+def requires_roles(*roles):
+
+    def wrapper(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            if not hasattr(current_user, 'role'):
+                flash('User does not have sufficient privileges', category="danger")
+                return redirect(url_for('all_posts'))
+            elif current_user.role not in roles:
+                flash('User does not have sufficient privileges', category="danger")
+                return redirect(url_for('all_posts'))
+            return f(*args, **kwargs)
+
+        return wrapped
+
+    return wrapper
 
 
 # A form to sign in to an existing account
@@ -76,9 +97,9 @@ def sign_in():
             is_active = False
 
         if authenticate(sign_in_form.email.data, sign_in_form.password.data) and is_active:
-            current = User(sign_in_form.email.data)
+            current = User(user['id'])
             login_user(current)
-            session['username'] = current.email
+            session['email'] = current.email
             session['id'] = current.id
 
             flash('Sign in successful!', category='success')
@@ -137,28 +158,37 @@ def authenticate(email, password):
 # Necessary for the login manager to work
 @login_manager.user_loader
 def load_user(id):
+    print(User(id))
     return User(id)
 
 
 # A User class for creating User objects
 class User(object):
-    def __init__(self, email):
-        self.email = email
-        user = db.find_user_by_email(self.email)
+    def __init__(self, id):
+        self.id = id
+        user = db.find_user_by_id(self.id)
         if user is not None:
-            # self.name = db.find_member_info(self.email)['first_name']
             self.id = user['id']
+            self.name = user['name']
+            self.email = user['email']
+            self.role = user['role']
         else:
+            self.id = 'no id'
             self.name = 'no name'
+            self.email = 'no email'
+            self.role = 'no role'
 
         self.is_active = True
         self.is_authenticated = True
 
     def get_id(self):
-        return self.email
+        return self.id
+
+    def get_role(self):
+        return self.role
 
     def __repr__(self):
-        return "<User '{}' {} {}".format(self.email, self.is_authenticated, self.is_active)
+        return "<User {}   Email: {}   Role: {}   Is Authenticated: {}   Is Active: {}".format(self.id, self.email, self.role, self.is_authenticated, self.is_active)
 
 
 # Signs the user out
@@ -183,6 +213,7 @@ class UserForm(FlaskForm):
 
 # Allows an administrator to create a user
 @app.route('/users/new', methods=['GET', 'POST'])
+@requires_roles('admin')
 def create_user():
     user_form = UserForm()
 
@@ -237,6 +268,7 @@ def edit_user(id):
 
 # Disable a user by their ID (primary key)
 @app.route('/users/disable/<id>')
+@requires_roles('admin')
 def disable_user_by_id(id):
     user = db.find_user_by_id(id)
     db.disable_user_by_id(id)
@@ -246,6 +278,7 @@ def disable_user_by_id(id):
 
 # Enable a user by their ID (primary key)
 @app.route('/users/enable/<id>')
+@requires_roles('admin')
 def enable_user_by_id(id):
     user = db.find_user_by_id(id)
     db.enable_user_by_id(id)
@@ -255,17 +288,20 @@ def enable_user_by_id(id):
 
 # Gets a list of all the users in the database
 @app.route('/users')
+@requires_roles('admin')
 def all_users():
     return render_template('all-users.html', users=db.all_users())
 
 
 # Testing page
 @app.route('/admin/dashboard', methods=['GET', 'POST'])
+@requires_roles('admin')
 def admin_dashboard():
     return render_template('admin-dashboard.html')
 
 
 # A user's profile
+@login_required
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
     query = ProductSearchForm(request.form)
@@ -281,6 +317,7 @@ def profile():
 # A list of the current user's posts
 @app.route('/my-posts', methods=['GET', 'POST'])
 def my_posts():
+    id = current_user.id
     user_id = session['id']
     query = ProductSearchForm(request.form)
 
