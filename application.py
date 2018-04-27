@@ -43,10 +43,10 @@ def requires_roles(*roles):
         @wraps(f)
         def wrapped(*args, **kwargs):
             if not hasattr(current_user, 'role'):
-                flash('User does not have sufficient privileges', category="danger")
+                flash('You must be signed in to do this!', category="danger")
                 return redirect(url_for('all_posts'))
             elif current_user.role not in roles:
-                flash('User does not have sufficient privileges', category="danger")
+                flash('You must be signed in to do this!', category="danger")
                 return redirect(url_for('all_posts'))
             return f(*args, **kwargs)
 
@@ -214,7 +214,7 @@ class UserForm(FlaskForm):
     submit = SubmitField('Save User')
 
 
-# Allows an administrator to create a user
+# Allows an admin to create a user
 @app.route('/users/new', methods=['GET', 'POST'])
 @requires_roles('admin')
 def create_user():
@@ -241,8 +241,9 @@ def create_user():
     return render_template('user-form.html', form=user_form, mode='create')
 
 
-# Edit a post by a user's ID (primary key)
+# Allows an admin to edit a user
 @app.route('/users/edit/<id>', methods=['GET', 'POST'])
+@requires_roles('admin')
 def edit_user(id):
     row = db.find_user_by_id(id)
 
@@ -304,8 +305,9 @@ def admin_dashboard():
 
 
 # A user's profile
-@login_required
 @app.route('/profile', methods=['GET', 'POST'])
+@requires_roles('user')
+@login_required
 def profile():
     query = ProductSearchForm(request.form)
 
@@ -319,6 +321,7 @@ def profile():
 
 # A list of the current user's posts
 @app.route('/my-posts', methods=['GET', 'POST'])
+@requires_roles('user')
 @login_required
 def my_posts():
     id = current_user.id
@@ -341,6 +344,7 @@ def my_posts():
 
 # A list of the a user's posts
 @app.route('/posts/user/<user_id>', methods=['GET', 'POST'])
+@requires_roles('user')
 @login_required
 def user_posts(user_id):
     query = ProductSearchForm(request.form)
@@ -362,6 +366,7 @@ def user_posts(user_id):
 
 # A list of the user's favorites
 @app.route('/favorites', methods=['GET', 'POST'])
+@requires_roles('user')
 @login_required
 def my_favorites():
     query = ProductSearchForm(request.form)
@@ -380,6 +385,7 @@ def my_favorites():
 
 # Adds a post to favorites
 @app.route('/favorites/add/<post_id>')
+@requires_roles('user')
 @login_required
 def add_to_favorites(post_id):
     if session:
@@ -398,6 +404,7 @@ def add_to_favorites(post_id):
 
 
 @app.route('/favorites/remove/<post_id>')
+@requires_roles('user')
 @login_required
 def remove_from_favorites(post_id):
     if session:
@@ -434,6 +441,7 @@ class PostForm(FlaskForm):
 
 # Create a post
 @app.route('/posts/new', methods=['GET', 'POST'])
+@requires_roles('user')
 @login_required
 def create_post():
     post_form = PostForm()
@@ -483,6 +491,7 @@ def create_post():
 
 # Edit a post
 @app.route('/posts/edit/<id>', methods=['GET', 'POST'])
+@requires_roles('user')
 @login_required
 def edit_post(id):
     row = db.find_post_by_id(id)
@@ -584,6 +593,8 @@ class FilterForm(FlaskForm):
 
 
 @app.route('/posts/delete/<id>')
+@requires_roles('user')
+@login_required
 def delete_post_by_id(id):
     post = db.find_post_by_id(id)
     if post is not None:
