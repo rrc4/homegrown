@@ -472,6 +472,8 @@ def edit_post(id):
 @app.route('/posts/<id>', methods=['GET', 'POST'])
 def post_details(id):
     post = db.find_post_by_id(id)
+    user_id = post['user_id']
+    user = db.find_user_by_id(user_id)
     query = ProductSearchForm(request.form)
 
     if request.method == 'POST':
@@ -479,7 +481,7 @@ def post_details(id):
         posts = db.search_products(query_list)
         return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results')
 
-    return render_template('post-details.html', date=today, search_form=query, post=post)
+    return render_template('post-details.html', date=today, search_form=query, post=post, user=user)
 
 
 # All the posts in the database - also handles searching

@@ -43,6 +43,9 @@
                 <p style="padding-left: 20px">{{ post.description }}</p>
             </div>
             <div class="col-md-12">
+                <p style="padding-left: 20px">Posted By: {{ user.name }}</p>
+            </div>
+            <div class="col-md-12">
                 <ul>
                     {% if post.unit != 'oz' and post.quantity > 1 %}
                         <li><b>Quantity: </b>{{ post.quantity }} {{ post.unit }}s</li>
