@@ -167,19 +167,21 @@ class User(object):
     def __init__(self, id):
         self.id = id
         user = db.find_user_by_id(self.id)
+
         if user is not None:
             self.id = user['id']
             self.name = user['name']
             self.email = user['email']
             self.role = user['role']
+            self.is_authenticated = True
         else:
             self.id = 'no id'
             self.name = 'no name'
             self.email = 'no email'
             self.role = 'no role'
+            self.is_authenticated = False
 
         self.is_active = True
-        self.is_authenticated = True
 
     def get_id(self):
         return self.id
@@ -194,6 +196,7 @@ class User(object):
 # Signs the user out
 @app.route('/signout')
 def sign_out():
+    logout_user()
     session.pop('user', None)
     return redirect(url_for('index'))
 
@@ -316,6 +319,7 @@ def profile():
 
 # A list of the current user's posts
 @app.route('/my-posts', methods=['GET', 'POST'])
+@login_required
 def my_posts():
     id = current_user.id
     user_id = session['id']
@@ -337,6 +341,7 @@ def my_posts():
 
 # A list of the a user's posts
 @app.route('/posts/user/<user_id>', methods=['GET', 'POST'])
+@login_required
 def user_posts(user_id):
     query = ProductSearchForm(request.form)
     user = db.find_user_by_id(user_id)
@@ -357,6 +362,7 @@ def user_posts(user_id):
 
 # A list of the user's favorites
 @app.route('/favorites', methods=['GET', 'POST'])
+@login_required
 def my_favorites():
     query = ProductSearchForm(request.form)
 
@@ -374,6 +380,7 @@ def my_favorites():
 
 # Adds a post to favorites
 @app.route('/favorites/add/<post_id>')
+@login_required
 def add_to_favorites(post_id):
     if session:
         user_id = session['id']
@@ -391,6 +398,7 @@ def add_to_favorites(post_id):
 
 
 @app.route('/favorites/remove/<post_id>')
+@login_required
 def remove_from_favorites(post_id):
     if session:
         user_id = session['id']
@@ -426,6 +434,7 @@ class PostForm(FlaskForm):
 
 # Create a post
 @app.route('/posts/new', methods=['GET', 'POST'])
+@login_required
 def create_post():
     post_form = PostForm()
     
@@ -456,6 +465,7 @@ def create_post():
 
                 save_path = os.path.join(app.static_folder, file_path2)
                 uploaded_photo.save(save_path)
+                uploaded_photo.save(save_path)
 
                 db.set_photo(photo_row['id'], file_path)
 
@@ -473,6 +483,7 @@ def create_post():
 
 # Edit a post
 @app.route('/posts/edit/<id>', methods=['GET', 'POST'])
+@login_required
 def edit_post(id):
     row = db.find_post_by_id(id)
 
@@ -518,7 +529,10 @@ def post_details(id):
         posts = db.search_products(query_list)
         return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results')
 
-    return render_template('post-details.html', date=today, search_form=query, post=post, user=user)
+    if post['user_id'] == current_user.get_id():
+        return render_template('post-details.html', date=today, search_form=query, post=post)
+    else:
+        return render_template('post-details.html', date=today, search_form=query, post=post, user=user)
 
 
 # All the posts in the database - also handles searching
