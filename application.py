@@ -1,9 +1,11 @@
 import os
 import datetime
+
 from pathlib import PurePath
+from functools import wraps
 
 from flask import Flask, session, request, render_template, flash, redirect, url_for
-from flask_login import LoginManager, login_user
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_wtf import FlaskForm
 
 from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField, TextAreaField, BooleanField
@@ -34,6 +36,25 @@ def teardown_request(exception):
     db.close_db_connection()
 
 
+# Allow/disallow users from accessing pages based on their roles
+def requires_roles(*roles):
+
+    def wrapper(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            if not hasattr(current_user, 'role'):
+                flash('You must be signed in to do this!', category="danger")
+                return redirect(url_for('all_posts'))
+            elif current_user.role not in roles:
+                flash('You must be an admin to access this page!', category="danger")
+                return redirect(url_for('all_posts'))
+            return f(*args, **kwargs)
+
+        return wrapped
+
+    return wrapper
+
+
 # A form to sign in to an existing account
 class SignInForm(FlaskForm):
     email = StringField('Email', validators=[InputRequired(), Email()])
@@ -57,7 +78,7 @@ class SignUpForm(FlaskForm):
     submit = SubmitField('Sign Up')
 
 
-@app.route('/')
+@app.route('/home')
 def index():
     return render_template('index.html')
 
@@ -76,9 +97,9 @@ def sign_in():
             is_active = False
 
         if authenticate(sign_in_form.email.data, sign_in_form.password.data) and is_active:
-            current = User(sign_in_form.email.data)
+            current = User(user['id'])
             login_user(current)
-            session['username'] = current.email
+            session['email'] = current.email
             session['id'] = current.id
 
             flash('Sign in successful!', category='success')
@@ -109,11 +130,13 @@ def sign_up():
             else:
                 is_active = False
 
+            user = db.find_user_by_email(sign_up_form.email.data)
+
             if authenticate(sign_up_form.email.data, sign_up_form.password.data) and is_active:
-                current = User(sign_up_form.email.data)
+                current = User(user['id'])
                 login_user(current)
-                session.pop('user', None)
-                session['username'] = current.email
+                session['email'] = current.email
+                session['id'] = current.id
 
                 flash('Sign up successful!', category='success')
                 return redirect(url_for('all_posts'))
@@ -137,33 +160,45 @@ def authenticate(email, password):
 # Necessary for the login manager to work
 @login_manager.user_loader
 def load_user(id):
+    print(User(id))
     return User(id)
 
 
 # A User class for creating User objects
 class User(object):
-    def __init__(self, email):
-        self.email = email
-        user = db.find_user_by_email(self.email)
+    def __init__(self, id):
+        self.id = id
+        user = db.find_user_by_id(self.id)
+
         if user is not None:
-            # self.name = db.find_member_info(self.email)['first_name']
             self.id = user['id']
+            self.name = user['name']
+            self.email = user['email']
+            self.role = user['role']
+            self.is_authenticated = True
         else:
+            self.id = 'no id'
             self.name = 'no name'
+            self.email = 'no email'
+            self.role = 'no role'
+            self.is_authenticated = False
 
         self.is_active = True
-        self.is_authenticated = True
 
     def get_id(self):
-        return self.email
+        return self.id
+
+    def get_role(self):
+        return self.role
 
     def __repr__(self):
-        return "<User '{}' {} {}".format(self.email, self.is_authenticated, self.is_active)
+        return "<User {}   Email: {}   Role: {}   Is Authenticated: {}   Is Active: {}".format(self.id, self.email, self.role, self.is_authenticated, self.is_active)
 
 
 # Signs the user out
 @app.route('/signout')
 def sign_out():
+    logout_user()
     session.pop('user', None)
     return redirect(url_for('index'))
 
@@ -181,10 +216,16 @@ class UserForm(FlaskForm):
     submit = SubmitField('Save User')
 
 
-# Allows an administrator to create a user
+# Allows an admin to create a user
 @app.route('/users/new', methods=['GET', 'POST'])
+@requires_roles('admin')
 def create_user():
     user_form = UserForm()
+
+    if hasattr(current_user, 'role'):
+        role = current_user.get_role()
+    else:
+        role = ""
 
     if user_form.validate_on_submit():
         user = db.find_user_by_email(user_form.email.data)
@@ -204,13 +245,19 @@ def create_user():
             else:
                 flash("New user not created", category='danger')
 
-    return render_template('user-form.html', form=user_form, mode='create')
+    return render_template('user-form.html', form=user_form, mode='create', role=role)
 
 
-# Edit a post by a user's ID (primary key)
+# Allows an admin to edit a user
 @app.route('/users/edit/<id>', methods=['GET', 'POST'])
+@requires_roles('admin')
 def edit_user(id):
     row = db.find_user_by_id(id)
+
+    if hasattr(current_user, 'role'):
+        role = current_user.get_role()
+    else:
+        role = ""
 
     if row is None:
         flash("User doesn't exist", category='danger')
@@ -232,11 +279,12 @@ def edit_user(id):
         else:
             flash('User not updated', category='danger')
 
-    return render_template('user-form.html', form=user_form, mode='update')
+    return render_template('user-form.html', form=user_form, mode='update', role=role)
 
 
 # Disable a user by their ID (primary key)
 @app.route('/users/disable/<id>')
+@requires_roles('admin')
 def disable_user_by_id(id):
     user = db.find_user_by_id(id)
     db.disable_user_by_id(id)
@@ -246,6 +294,7 @@ def disable_user_by_id(id):
 
 # Enable a user by their ID (primary key)
 @app.route('/users/enable/<id>')
+@requires_roles('admin')
 def enable_user_by_id(id):
     user = db.find_user_by_id(id)
     db.enable_user_by_id(id)
@@ -255,34 +304,60 @@ def enable_user_by_id(id):
 
 # Gets a list of all the users in the database
 @app.route('/users')
+@requires_roles('admin')
 def all_users():
-    return render_template('all-users.html', users=db.all_users())
+    if hasattr(current_user, 'role'):
+        role = current_user.get_role()
+    else:
+        role = ""
+
+    return render_template('all-users.html', users=db.all_users(), role=role)
 
 
-# Testing page
+# Admin dashboard to update users or posts
 @app.route('/admin/dashboard', methods=['GET', 'POST'])
+@requires_roles('admin')
 def admin_dashboard():
-    return render_template('admin-dashboard.html')
+    if hasattr(current_user, 'role'):
+        role = current_user.get_role()
+    else:
+        role = ""
+
+    return render_template('admin-dashboard.html', role=role)
 
 
 # A user's profile
 @app.route('/profile', methods=['GET', 'POST'])
+@requires_roles('user')
+@login_required
 def profile():
+    if hasattr(current_user, 'role'):
+        role = current_user.get_role()
+    else:
+        role = ""
+
     query = ProductSearchForm(request.form)
 
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
-        return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results')
+        return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results', role=role)
 
-    return render_template('profile.html', search_form=query)
+    return render_template('profile.html', search_form=query, role=role)
 
 
 # A list of the current user's posts
 @app.route('/my-posts', methods=['GET', 'POST'])
+@requires_roles('user')
+@login_required
 def my_posts():
     user_id = session['id']
     query = ProductSearchForm(request.form)
+
+    if hasattr(current_user, 'role'):
+        role = current_user.get_role()
+    else:
+        role = ""
 
     if user_id is None:
         flash('User is not logged in!', category='danger')
@@ -293,16 +368,23 @@ def my_posts():
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
-        return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results')
+        return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results', role=role)
 
-    return render_template('posts.html', date=today, search_form=query, posts=posts, mode='my-posts')
+    return render_template('posts.html', date=today, search_form=query, posts=posts, mode='my-posts', role=role)
 
 
 # A list of the a user's posts
 @app.route('/posts/user/<user_id>', methods=['GET', 'POST'])
+@requires_roles('user')
+@login_required
 def user_posts(user_id):
     query = ProductSearchForm(request.form)
     user = db.find_user_by_id(user_id)
+
+    if hasattr(current_user, 'role'):
+        role = current_user.get_role()
+    else:
+        role = ""
 
     if user_id is None:
         flash('No user with id {}'.format(user_id), category='danger')
@@ -313,15 +395,22 @@ def user_posts(user_id):
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
-        return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results')
+        return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results', role=role)
 
-    return render_template('posts.html', date=today, search_form=query, user=user, posts=posts, mode='user')
+    return render_template('posts.html', date=today, search_form=query, user=user, posts=posts, mode='user', role=role)
 
 
 # A list of the user's favorites
 @app.route('/favorites', methods=['GET', 'POST'])
+@requires_roles('user')
+@login_required
 def my_favorites():
     query = ProductSearchForm(request.form)
+
+    if hasattr(current_user, 'role'):
+        role = current_user.get_role()
+    else:
+        role = ""
 
     if session:
         user_id = session['id']
@@ -330,13 +419,15 @@ def my_favorites():
         if request.method == 'POST':
             query_list = query.search.data.lower().split(" ")
             posts = db.search_products(query_list)
-            return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results')
+            return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results', role=role)
 
-        return render_template('posts.html', date=today, user_id=user_id, search_form=query, posts=favorites, mode='favorites')
+        return render_template('posts.html', date=today, user_id=user_id, search_form=query, posts=favorites, mode='favorites', role=role)
 
 
 # Adds a post to favorites
 @app.route('/favorites/add/<post_id>')
+@requires_roles('user')
+@login_required
 def add_to_favorites(post_id):
     if session:
         user_id = session['id']
@@ -354,6 +445,8 @@ def add_to_favorites(post_id):
 
 
 @app.route('/favorites/remove/<post_id>')
+@requires_roles('user')
+@login_required
 def remove_from_favorites(post_id):
     if session:
         user_id = session['id']
@@ -389,8 +482,15 @@ class PostForm(FlaskForm):
 
 # Create a post
 @app.route('/posts/new', methods=['GET', 'POST'])
+@requires_roles('user')
+@login_required
 def create_post():
     post_form = PostForm()
+
+    if hasattr(current_user, 'role'):
+        role = current_user.get_role()
+    else:
+        role = ""
     
     if session:
         user_id = session['id']
@@ -419,6 +519,7 @@ def create_post():
 
                 save_path = os.path.join(app.static_folder, file_path2)
                 uploaded_photo.save(save_path)
+                uploaded_photo.save(save_path)
 
                 db.set_photo(photo_row['id'], file_path)
 
@@ -431,17 +532,24 @@ def create_post():
         for error in post_form.errors:
             for field_error in post_form.errors[error]:
                 flash(field_error, category='danger')
-        return render_template('post-form.html', post_form=post_form, mode='create')
+        return render_template('post-form.html', post_form=post_form, mode='create', role=role)
 
 
 # Edit a post
 @app.route('/posts/edit/<id>', methods=['GET', 'POST'])
+@requires_roles('user')
+@login_required
 def edit_post(id):
     row = db.find_post_by_id(id)
 
+    if hasattr(current_user, 'role'):
+        role = current_user.get_role()
+    else:
+        role = ""
+
     if row is None:
         flash("Post doesn't exist", category='danger')
-        return redirect(url_for('index'))
+        return redirect(url_for('all_posts'))
 
     post_form = PostForm(price=row['price'],
                          quantity=row['quantity'],
@@ -465,7 +573,7 @@ def edit_post(id):
         else:
             flash('Post not updated', category='danger')
 
-    return render_template('post-form.html', post_form=post_form, mode='update')
+    return render_template('post-form.html', post_form=post_form, mode='update', role=role)
 
 
 # Returns a more in-depth look at a post
@@ -476,19 +584,32 @@ def post_details(id):
     user = db.find_user_by_id(user_id)
     query = ProductSearchForm(request.form)
 
+    if hasattr(current_user, 'role'):
+        role = current_user.get_role()
+    else:
+        role = ""
+
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
-        return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results')
+        return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results', role=role)
 
-    return render_template('post-details.html', date=today, search_form=query, post=post, user=user)
+    if post['user_id'] == current_user.get_id():
+        return render_template('post-details.html', date=today, search_form=query, post=post, role=role)
+    else:
+        return render_template('post-details.html', date=today, search_form=query, post=post, user=user, role=role)
 
 
 # All the posts in the database - also handles searching
-@app.route('/posts', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def all_posts():
     query = ProductSearchForm(request.form)
     selected = FilterForm(request.form)
+
+    if hasattr(current_user, 'role'):
+        role = current_user.get_role()
+    else:
+        role = ""
 
     if selected.data['submit'] is True:
         key_list = []
@@ -500,21 +621,21 @@ def all_posts():
 
         if not filtered_posts:
             if not key_list:
-                return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=db.all_posts(), mode='results')
+                return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=db.all_posts(), mode='results', role=role)
             else:
-                return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=[], mode='results')
+                return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=[], mode='results', role=role)
         else:
-            return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=filtered_posts, mode='results')
+            return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=filtered_posts, mode='results', role=role)
 
     if query.search.data is not None:
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
 
         if not posts:
-            return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=[], mode='results')
+            return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=[], mode='results', role=role)
         else:
-            return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=posts, mode='results')
-    return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=db.all_posts(), mode='feed')
+            return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=posts, mode='results', role=role)
+    return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=db.all_posts(), mode='feed', role=role)
 
 
 class ProductSearchForm(FlaskForm):
@@ -533,6 +654,8 @@ class FilterForm(FlaskForm):
 
 
 @app.route('/posts/delete/<id>')
+@requires_roles('user')
+@login_required
 def delete_post_by_id(id):
     post = db.find_post_by_id(id)
     if post is not None:

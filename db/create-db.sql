@@ -10,7 +10,9 @@ CREATE TABLE "user"
     email VARCHAR(40) NOT NULL,
     password VARCHAR(40) NOT NULL,
     rating FLOAT NOT NULL,
-    active BOOLEAN NOT NULL
+    active BOOLEAN NOT NULL,
+    role VARCHAR(5) DEFAULT 'user',
+    is_active BOOLEAN DEFAULT FALSE
 );
 CREATE UNIQUE INDEX user_id_index ON "user" (id);
 COMMENT ON TABLE "user" IS 'User';
