@@ -160,7 +160,7 @@ def authenticate(email, password):
 # Necessary for the login manager to work
 @login_manager.user_loader
 def load_user(id):
-    print(User(id))
+    # print(User(id))
     return User(id)
 
 

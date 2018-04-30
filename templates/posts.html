@@ -15,6 +15,16 @@
 {% endblock %}
 
 {% block content %}
+    {% if mode == 'favorites' or mode == 'my-posts' or mode == 'user' %}
+        <img src="https://cdn.iconscout.com/public/images/icon/free/png-512/back-arrow-35325b9dd72f970a-512x512.png" style="height: 35px; width: 35px; cursor: pointer" onclick="goBack()">
+
+        <script>
+        function goBack() {
+            window.history.back();
+        }
+        </script>
+    {% endif %}
+
     <div class="container">
         <div class="row">
             {% if mode == 'feed' %}
@@ -76,12 +86,12 @@
                 <div class="col-lg-4">
                     <div class="card" style="width: 350px; margin: 10px 10px 10px 10px;">
                         {% if post.file_path == "bogus_path" or post.file_path == none or post.file_path == "None" %}
-                            <img class="card-img-top" style="width: 348px; height: 240px;" src="https://vignette.wikia.nocookie.net/pandorahearts/images/a/ad/Not_available.jpg/revision/latest?cb=20141028171337" alt="No Image Available">
+                            <a href="{{ url_for('post_details', id=post.post_id) }}"><img class="card-img-top" style="width: 348px; height: 240px;" src="https://vignette.wikia.nocookie.net/pandorahearts/images/a/ad/Not_available.jpg/revision/latest?cb=20141028171337" alt="No Image Available"></a>
                         {% else %}
-                            <img class="card-img-top" style="width: 348px; height: 240px;" src="/{{ post.file_path }}" alt="Product Image">
+                            <a href="{{ url_for('post_details', id=post.post_id) }}"><img class="card-img-top" style="width: 348px; height: 240px;" src="/{{ post.file_path }}" alt="Product Image"></a>
                         {% endif %}
                         <div class="card-body">
-                            <h5 class="card-title">{{ post.product }}</h5>
+                            <a href="{{ url_for('post_details', id=post.post_id) }}" style="color: #212529"><h5 class="card-title">{{ post.product }}</h5></a>
 
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item"><b>Price: </b>{{'${:,.2f}'.format(post.price) }} per {{ post.unit }}</li>

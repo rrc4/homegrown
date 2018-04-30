@@ -3,6 +3,14 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
+    <img src="https://cdn.iconscout.com/public/images/icon/free/png-512/back-arrow-35325b9dd72f970a-512x512.png" style="height: 35px; width: 35px; cursor: pointer" onclick="goBack()">
+
+    <script>
+    function goBack() {
+        window.history.back();
+    }
+    </script>
+
     <div class="container">
         <div class="row">
             <h1 class="col-lg-9">Profile</h1>
