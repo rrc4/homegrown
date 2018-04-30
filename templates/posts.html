@@ -29,7 +29,8 @@
             {% elif mode == 'results' %}
                 <h1 class="col-lg-3">Results</h1>
             {% elif mode == 'my-posts' %}
-                <h1 class="col-lg-6">My Posts</h1>
+                <h1 class="col-lg-10">My Posts</h1>
+                <a href="{{ url_for('create_post') }}" class="btn btn-success col-lg-2" style="width: 120px; height: 40px">Create a Post</a>
             {% elif mode == 'favorites' %}
                 <h1 class="col-lg-6">My Favorites</h1>
             {% elif mode == 'user' %}
@@ -97,7 +98,7 @@
                                 <a href="#" class="btn btn-success">Buy</a>
                             {%  endif %}
 
-                            <a href="{{ url_for('post_details', id=post.post_id) }}" class="btn btn-primary">Post Details</a>
+                            <a href="{{ url_for('post_details', id=post.post_id) }}" class="btn btn-primary">Details</a>
 
                             {% if mode == 'feed' or mode == 'results' or mode == 'user' %}
                                 <a href="{{ url_for('add_to_favorites', post_id=post.post_id) }}" class="btn btn-dark">Favorite</a>
