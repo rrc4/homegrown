@@ -594,9 +594,6 @@ def create_post():
                 else:
                     flash("Post not created", category='danger')
 
-        for error in post_form.errors:
-            for field_error in post_form.errors[error]:
-                flash(field_error, category='danger')
         return render_template('post-form.html', post_form=post_form, mode='create', role=role)
 
 

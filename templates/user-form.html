@@ -30,23 +30,59 @@
                 <div class="form-group">
                     {{ form.name.label }}{{ form.name(class_="form-control") }}
                 </div>
+                {% if form.name.errors %}
+                    <div class="alert alert-danger">
+                        Name is required
+                    </div>
+                {% endif %}
                 <div class="form-group">
                     {{ form.email.label }}{{ form.email(class_="form-control") }}
                 </div>
+                {% if form.name.errors %}
+                    <div class="alert alert-danger">
+                        Email is invalid
+                    </div>
+                {% endif %}
                 <div class="form-group">
                     {{ form.password.label }}{{ form.password(class_="form-control") }}
                 </div>
+                {% if form.password.errors %}
+                    <div class="alert alert-danger">
+                        Invalid password
+                        <ul>
+                            <li>Minimum 8 characters</li>
+                            <li>Minimum 1 letter</li>
+                            <li>Minimum 1 number</li>
+                            <li>Minimum 1 special character (!@#$%^&*_+=)</li>
+                        </ul>
+                    </div>
+                {% endif %}
                 <div class="form-group">
                     {{ form.confirm.label }}{{ form.confirm(class_="form-control") }}
                 </div>
+                {% if form.confirm.errors %}
+                    <div class="alert alert-danger">
+                        Passwords do not match
+                    </div>
+                {% endif %}
                 {% if mode == 'create' or mode == 'update' %}
                     <div class="form-group">
                         {{ form.rating.label }}{{ form.rating(class_="form-control") }}
                     </div>
+                    {% if form.rating.errors %}
+                        <div class="alert alert-danger">
+                            Rating must be between 0 and 5
+                        </div>
+                    {% endif %}
                 {% endif %}
                 <div class="form-group">
                     {{ form.bio.label }}{{ form.bio(class_="form-control") }}
                 </div>
+                {% if form.bio.errors %}
+                    <div class="alert alert-danger">
+                        Bio is required
+                    </div>
+                {% endif %}
                 {{ form.submit(class_="btn btn-primary") }}
             </form>
         </div>
