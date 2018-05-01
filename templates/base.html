@@ -10,6 +10,30 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 
+        <style>
+            html, body {
+                height: 100%;
+            }
+
+            #wrap {
+                min-height: 100%;
+            }
+
+            #main {
+                overflow:auto;
+                padding-bottom: 50px;
+            }
+
+            footer {
+                position: relative;
+                margin-top: -50px;
+                height: 50px;
+                clear: both;
+                padding-top: 10px;
+                background-color: #f5f5f5;
+            }
+        </style>
+
         <title>
             {% block title %}
             {% endblock %}
@@ -68,19 +92,35 @@
             </div>
         </nav>
 
-        <div style="padding: 75px 50px 50px 50px">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }} fade show" role="alert">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+        <div id="wrap">
+            <div style="padding: 75px 50px 50px 50px">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} fade show" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
 
-            {% block content %}
-            {% endblock %}
+                <div id="main">
+                    {% block content %}
+                    {% endblock %}
+                </div>
+            </div>
         </div>
+
+        <footer>
+            <div class="container text-center">
+                <div class="row">
+                    <div class="col-md-3"></div>
+                    <div class="col-md-6 footer-copyright text-center text-muted">
+                        © 2018 Team Bryson
+                    </div>
+                    <div class="col-md-3"></div>
+                </div>
+            </div>
+        </footer>
     </body>
 </html>
