@@ -20,12 +20,12 @@ def close_db_connection():
 
 
 # Create a user
-def create_user(name, email, password, rating, active):
+def create_user(name, email, password, bio, rating, active):
     query = '''
-        INSERT INTO "user" (name, email, password, rating, active)
-        VALUES (%(name)s, %(email)s, %(password)s, %(rating)s, %(active)s)
+        INSERT INTO "user" (name, email, password, bio, rating, active)
+        VALUES (%(name)s, %(email)s, %(password)s, %(bio)s, %(rating)s, %(active)s)
     '''
-    g.cursor.execute(query, {'name': name, 'email': email, 'password': password, 'rating': rating, 'active': active})
+    g.cursor.execute(query, {'name': name, 'email': email, 'password': password, 'bio': bio, 'rating': rating, 'active': active})
     g.connection.commit()
     return g.cursor.rowcount
 
@@ -48,14 +48,26 @@ def all_users():
     return g.cursor.fetchall()
 
 
-# Update a user
-def update_user(name, email, password, user_id):
+# Allows a user to update their profile
+def update_user(name, email, password, bio, user_id):
     query = '''
         UPDATE "user"
-        SET name = %(name)s, email = %(email)s, password = %(password)s
+        SET name = %(name)s, email = %(email)s, password = %(password)s, bio = %(bio)s
         WHERE id = %(id)s
     '''
-    g.cursor.execute(query, {'id': user_id, 'name': name, 'email': email, 'password': password})
+    g.cursor.execute(query, {'id': user_id, 'name': name, 'email': email, 'password': password, 'bio': bio})
+    g.connection.commit()
+    return g.cursor.rowcount
+
+
+# Allows the admin to update a user
+def admin_update_user(name, email, password, bio, rating, user_id):
+    query = '''
+        UPDATE "user"
+        SET name = %(name)s, email = %(email)s, password = %(password)s, bio = %(bio)s, rating = %(rating)s
+        WHERE id = %(id)s
+    '''
+    g.cursor.execute(query, {'id': user_id, 'name': name, 'email': email, 'password': password, 'bio': bio, 'rating': rating})
     g.connection.commit()
     return g.cursor.rowcount
 

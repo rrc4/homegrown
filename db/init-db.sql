@@ -1,9 +1,9 @@
-INSERT INTO "user" (name, email, password, rating, active, role) VALUES ('Admin', 'admin@example.com', 'password1!', 5.0, TRUE, 'admin');
-INSERT INTO "user" (name, email, password, rating, active) VALUES ('Joey Ferguson', 'joey@example.com', 'password1!', 5.0, TRUE);
-INSERT INTO "user" (name, email, password, rating, active) VALUES ('Jake Smarrella', 'jake@example.com', 'password1!', 4.0, TRUE);
-INSERT INTO "user" (name, email, password, rating, active) VALUES ('Joe Schuette', 'joe@example.com', 'password1!', 3.0, TRUE);
-INSERT INTO "user" (name, email, password, rating, active) VALUES ('Ross Otto', 'ross@example.com', 'password1!', 2.0, TRUE);
-INSERT INTO "user" (name, email, password, rating, active) VALUES ('Harry VanDerNoord', 'harry@example.com', 'password1!', 1.0, TRUE);
+INSERT INTO "user" (name, email, password, bio, rating, active, role) VALUES ('Admin', 'admin@example.com', 'password1!', 'Administrator sample bio', 5.0, TRUE, 'admin');
+INSERT INTO "user" (name, email, password, bio, rating, active) VALUES ('Joey Ferguson', 'joey@example.com', 'password1!', 'Joey Ferguson sample bio', 5.0, TRUE);
+INSERT INTO "user" (name, email, password, bio, rating, active) VALUES ('Jake Smarrella', 'jake@example.com', 'password1!', 'Jake Smarrella sample bio', 4.0, TRUE);
+INSERT INTO "user" (name, email, password, bio, rating, active) VALUES ('Joe Schuette', 'joe@example.com', 'password1!', 'Joe Schuette sample bio', 3.0, TRUE);
+INSERT INTO "user" (name, email, password, bio, rating, active) VALUES ('Ross Otto', 'ross@example.com', 'password1!', 'Ross Otto sample bio', 2.0, TRUE);
+INSERT INTO "user" (name, email, password, bio, rating, active) VALUES ('Harry VanDerNoord', 'harry@example.com', 'password1!', 'Harry VanDerNoord sample bio', 1.0, TRUE);
 
 INSERT INTO post (user_id, price, quantity, unit, product, category, zip, description, date) VALUES (1, 5.67, 10, 'lb', 'Carrots', 'Vegetables', 46989, 'Sample Description', '2018-04-18');
 INSERT INTO post (user_id, price, quantity, unit, product, category, zip, description, date) VALUES (2, 6.00, 100, 'oz', 'Strawberries', 'Fruits', 56718, 'Sample Description', '2018-04-16');

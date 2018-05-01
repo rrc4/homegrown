@@ -8,6 +8,7 @@ CREATE TABLE "user"
     id SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     email VARCHAR(40) NOT NULL,
+    bio TEXT NOT NULL,
     password VARCHAR(40) NOT NULL,
     rating FLOAT NOT NULL,
     active BOOLEAN NOT NULL,
@@ -38,7 +39,7 @@ CREATE TABLE post
            category = 'Grains' OR
            category = 'Other'),
     zip INTEGER NOT NULL,
-    description VARCHAR(150) NOT NULL,
+    description TEXT NOT NULL,
     date DATE DEFAULT current_date
 );
 CREATE UNIQUE INDEX post_id_index ON post (id);
