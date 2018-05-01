@@ -94,13 +94,29 @@
                             <a href="{{ url_for('post_details', id=post.post_id) }}" style="color: #212529"><h5 class="card-title">{{ post.product }}</h5></a>
 
                             <ul class="list-group list-group-flush">
-                                <li class="list-group-item"><b>Price: </b>{{'${:,.2f}'.format(post.price) }} per {{ post.unit }}</li>
-                                {% if post.unit != 'oz' and post.quantity > 1 %}
-                                    <li class="list-group-item"><b>Quantity: </b>{{ post.quantity }} {{ post.unit }}s</li>
+                                <li class="list-group-item">{{'${:,.2f}'.format(post.price) }} per {{ post.unit }}</li>
+
+                                {% if post.unit != 'oz' and post.quantity > 0.1 %}
+                                    <li class="list-group-item">{{ post.quantity }} {{ post.unit }}s remaining</li>
                                 {% else %}
-                                    <li class="list-group-item"><b>Quantity: </b>{{ post.quantity }} {{ post.unit }}</li>
+                                    <li class="list-group-item">{{ post.quantity }} {{ post.unit }} remaining</li>
                                 {% endif %}
-                                <li class="list-group-item"><b>Category: </b>{{ post.category }}</li>
+
+                                <li class="list-group-item">
+                                    {% if post.category == 'Grains' %}
+                                        <h5><span class="badge badge-pill badge-warning">{{ post.category }}</span></h5>
+                                    {% elif post.category == 'Dairy' %}
+                                        <h5><span class="badge badge-pill badge-secondary">{{ post.category }}</span></h5>
+                                    {% elif post.category == 'Vegetables' %}
+                                        <h5><span class="badge badge-pill badge-success">{{ post.category }}</span></h5>
+                                    {% elif post.category == 'Fruits' %}
+                                        <h5><span class="badge badge-pill badge-primary">{{ post.category }}</span></h5>
+                                    {% elif post.category == 'Meat' %}
+                                        <h5><span class="badge badge-pill badge-danger">{{ post.category }}</span></h5>
+                                    {% elif post.category == 'Other' %}
+                                        <h5><span class="badge badge-pill badge-dark">{{ post.category }}</span></h5>
+                                    {% endif %}
+                                </li>
                             </ul>
                         </div>
                         <div class="card-body" style="text-align: center">

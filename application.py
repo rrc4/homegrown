@@ -409,7 +409,9 @@ def profile():
         posts = db.search_products(query_list)
         return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results', role=role)
 
-    return render_template('profile.html', date=today, search_form=query, posts=posts, user=user, role=role)
+    stars = int(user['rating'])
+
+    return render_template('profile.html', date=today, search_form=query, posts=posts, user=user, role=role, stars=stars)
 
 
 # A list of the current user's posts
