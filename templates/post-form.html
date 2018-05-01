@@ -30,16 +30,31 @@
                 <div class="input-group mb-3">
                     {{ post_form.product(class_="form-control", placeholder="Product") }}
                 </div>
+                {% if post_form.product.errors %}
+                    <div class="alert alert-danger">
+                        Product must be between 1 and 100 characters
+                    </div>
+                {% endif %}
 
                 {{ post_form.category.label }}
                 <div class="input-group mb-3">
                     {{ post_form.category(class_="form-control") }}
                 </div>
+                {% if post_form.category.errors %}
+                    <div class="alert alert-danger">
+                        You must select a category!
+                    </div>
+                {% endif %}
 
                 {{ post_form.description.label }}
                 <div class="input-group mb-3">
                     {{ post_form.description(class_="form-control", placeholder="Description") }}
                 </div>
+                {% if post_form.description.errors %}
+                    <div class="alert alert-danger">
+                        Description required
+                    </div>
+                {% endif %}
 
                 {{ post_form.quantity.label }} and {{ post_form.price.label }}
                 <div class="input-group mb-3">
@@ -59,16 +74,42 @@
                         {{ post_form.unit(class_="form-control", style="border-radius: 0px 5px 5px 0px") }}
                     </div>
                 </div>
+                {% if post_form.quantity.errors %}
+                    <div class="alert alert-danger">
+                        Quantity must be between 1 and 1,000,000
+                    </div>
+                {% endif %}
+                {% if post_form.price.errors %}
+                    <div class="alert alert-danger">
+                        Price must be at least $0.01
+                    </div>
+                {% endif %}
+                {% if post_form.unit.errors %}
+                    <div class="alert alert-danger">
+                        You must select a unit!
+                    </div>
+                {% endif %}
+
 
                 {{ post_form.zip.label }}
                 <div class="input-group mb-3">
                     {{ post_form.zip(class_="form-control", placeholder="ZIP Code") }}
                 </div>
+                {% if post_form.zip.errors %}
+                    <div class="alert alert-danger">
+                        ZIP code must be 5 digits
+                    </div>
+                {% endif %}
 
                 {{ post_form.image.label }}
                 <div class="input-group mb-3">
                     {{ post_form.image(class_="form-control") }}
                 </div>
+                {% if post_form.image.errors %}
+                    <div class="alert alert-danger">
+                        An image is required
+                    </div>
+                {% endif %}
 
                 {{ post_form.submit(class_="btn btn-primary") }}
             </form>

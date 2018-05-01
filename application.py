@@ -213,6 +213,21 @@ class UserForm(FlaskForm):
                                                          Regexp(r'.*[0-9]', message="Password must have at least one digit"),
                                                          Regexp(r'.*[!@#$%^&*_+=]', message="Password must have at least one special character")])
     confirm = PasswordField('Repeat Password', validators=[InputRequired()])
+    bio = TextAreaField('Tell us about yourself!', validators=[InputRequired(), Length(min=1, max=500)])
+    submit = SubmitField('Update Profile')
+
+
+class AdminUserForm(FlaskForm):
+    name = StringField('Name', validators=[InputRequired(), Length(min=1, max=80)])
+    email = StringField('Email', validators=[InputRequired(), Email()])
+    password = PasswordField('New Password', validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
+                                                         Length(min=8),
+                                                         Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
+                                                         Regexp(r'.*[0-9]', message="Password must have at least one digit"),
+                                                         Regexp(r'.*[!@#$%^&*_+=]', message="Password must have at least one special character")])
+    confirm = PasswordField('Repeat Password', validators=[InputRequired()])
+    bio = TextAreaField('Bio', validators=[InputRequired(), Length(min=1, max=500)])
+    rating = FloatField('Rating', validators=[InputRequired(), NumberRange(min=0, max=5, message='Rating must be between 0.0 and 5.0')])
     submit = SubmitField('Save User')
 
 
@@ -220,7 +235,7 @@ class UserForm(FlaskForm):
 @app.route('/users/new', methods=['GET', 'POST'])
 @requires_roles('admin')
 def create_user():
-    user_form = UserForm()
+    user_form = AdminUserForm()
 
     if hasattr(current_user, 'role'):
         role = current_user.get_role()
@@ -236,8 +251,9 @@ def create_user():
             rowcount = db.create_user(user_form.name.data,
                                       user_form.email.data,
                                       user_form.password.data,
-                                      5.0,
-                                      True)
+                                      user_form.bio.data,
+                                      user_form.rating.data,
+                                      user_form.active.data)
 
             if rowcount == 1:
                 flash("User {} created".format(user_form.name.data), category='success')
@@ -248,34 +264,75 @@ def create_user():
     return render_template('user-form.html', form=user_form, mode='create', role=role)
 
 
-# Allows an admin to edit a user
-@app.route('/users/edit/<id>', methods=['GET', 'POST'])
-@requires_roles('admin')
-def edit_user(id):
-    row = db.find_user_by_id(id)
+# Allows a user to edit their profile
+@app.route('/profile/edit', methods=['GET', 'POST'])
+@requires_roles('user')
+@login_required
+def edit_profile():
+    id = current_user.get_id()
+    user = db.find_user_by_id(id)
 
     if hasattr(current_user, 'role'):
         role = current_user.get_role()
     else:
         role = ""
 
-    if row is None:
+    if user is None:
         flash("User doesn't exist", category='danger')
         return redirect(url_for('all_users'))
 
-    user_form = UserForm(name=row['name'],
-                         email=row['email'],
-                         password=row['password'])
+    user_form = UserForm(name=user['name'],
+                         email=user['email'],
+                         password=user['password'],
+                         bio=user['bio'])
 
     if user_form.validate_on_submit():
         rowcount = db.update_user(user_form.name.data,
                                   user_form.email.data,
                                   user_form.password.data,
+                                  user_form.bio.data,
                                   id)
 
         if rowcount == 1:
-            flash("User '{}' updated".format(user_form.name.data), category='success')
-            return redirect(url_for('all_users'))
+            flash("Profile updated!", category='success')
+            return redirect(url_for('profile'))
+        else:
+            flash('User not updated', category='danger')
+
+    return render_template('user-form.html', form=user_form, mode='edit-profile', role=role)
+
+
+@app.route('/users/edit/<id>', methods=['GET', 'POST'])
+@requires_roles('admin')
+def edit_user(id):
+    user = db.find_user_by_id(id)
+
+    if hasattr(current_user, 'role'):
+        role = current_user.get_role()
+    else:
+        role = ""
+
+    if user is None:
+        flash("User doesn't exist", category='danger')
+        return redirect(url_for('all_users'))
+
+    user_form = AdminUserForm(name=user['name'],
+                              email=user['email'],
+                              password=user['password'],
+                              rating=user['rating'],
+                              bio=user['bio'])
+
+    if user_form.validate_on_submit():
+        rowcount = db.admin_update_user(user_form.name.data,
+                                        user_form.email.data,
+                                        user_form.password.data,
+                                        user_form.bio.data,
+                                        user_form.rating.data,
+                                        id)
+
+        if rowcount == 1:
+            flash("User '{}' updated!".format(user_form.name.data), category='success')
+            return redirect(url_for('admin_dashboard'))
         else:
             flash('User not updated', category='danger')
 
@@ -331,19 +388,28 @@ def admin_dashboard():
 @requires_roles('user')
 @login_required
 def profile():
+    user_id = session['id']
+    query = ProductSearchForm(request.form)
+
     if hasattr(current_user, 'role'):
         role = current_user.get_role()
     else:
         role = ""
 
-    query = ProductSearchForm(request.form)
+    user = db.find_user_by_id(user_id)
+
+    if user_id is None:
+        flash('User is not logged in!', category='danger')
+        posts = []
+    else:
+        posts = db.posts_by_user(user_id)
 
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
         return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results', role=role)
 
-    return render_template('profile.html', search_form=query, role=role)
+    return render_template('profile.html', date=today, search_form=query, posts=posts, user=user, role=role)
 
 
 # A list of the current user's posts
@@ -375,7 +441,6 @@ def my_posts():
 
 # A list of the a user's posts
 @app.route('/posts/user/<user_id>', methods=['GET', 'POST'])
-@requires_roles('user')
 @login_required
 def user_posts(user_id):
     query = ProductSearchForm(request.form)
@@ -460,7 +525,7 @@ def remove_from_favorites(post_id):
 # The form to create or edit a post
 class PostForm(FlaskForm):
     product = StringField('Product (ex. Strawberries)', validators=[InputRequired(), Length(min=1, max=100, message='Product must be between 1 and 100 characters')])
-    description = TextAreaField('Description (<150 characters)', validators=[InputRequired(), Length(min=1, max=150, message='Description must be between 1 and 150 characters')])
+    description = TextAreaField('Description (quality, harvest date, etc.)', validators=[InputRequired()])
     price = FloatField('Price (ex. 5.99)', validators=[InputRequired(), NumberRange(min=0.01, message='Price must be at least $0.01')])
     quantity = IntegerField('Quantity', validators=[InputRequired(), NumberRange(min=1, max=1000000, message='Quantity must be between 1 and 1,000,000')])
     unit = SelectField('Unit', choices=[('item', 'item'),
@@ -529,9 +594,6 @@ def create_post():
                 else:
                     flash("Post not created", category='danger')
 
-        for error in post_form.errors:
-            for field_error in post_form.errors[error]:
-                flash(field_error, category='danger')
         return render_template('post-form.html', post_form=post_form, mode='create', role=role)
 
 
@@ -540,23 +602,23 @@ def create_post():
 @requires_roles('user')
 @login_required
 def edit_post(id):
-    row = db.find_post_by_id(id)
+    post = db.find_post_by_id(id)
 
     if hasattr(current_user, 'role'):
         role = current_user.get_role()
     else:
         role = ""
 
-    if row is None:
+    if post is None:
         flash("Post doesn't exist", category='danger')
         return redirect(url_for('all_posts'))
 
-    post_form = PostForm(price=row['price'],
-                         quantity=row['quantity'],
-                         unit=row['unit'],
-                         product=row['product'],
-                         zip=row['zip'],
-                         description=row['description'])
+    post_form = PostForm(price=post['price'],
+                         quantity=post['quantity'],
+                         unit=post['unit'],
+                         product=post['product'],
+                         zip=post['zip'],
+                         description=post['description'])
 
     if post_form.validate_on_submit():
         rowcount = db.update_post(post_form.price.data,
