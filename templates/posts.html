@@ -100,7 +100,22 @@
                                 {% else %}
                                     <li class="list-group-item"><b>Quantity: </b>{{ post.quantity }} {{ post.unit }}</li>
                                 {% endif %}
-                                <li class="list-group-item"><b>Category: </b>{{ post.category }}</li>
+
+                                <li class="list-group-item">
+                                    {% if post.category == 'Grains' %}
+                                        <h4><span class="badge badge-pill badge-warning">{{ post.category }}</span></h4>
+                                    {% elif post.category == 'Dairy' %}
+                                        <h4><span class="badge badge-pill badge-secondary">{{ post.category }}</span></h4>
+                                    {% elif post.category == 'Vegetables' %}
+                                        <h4><span class="badge badge-pill badge-success">{{ post.category }}</span></h4>
+                                    {% elif post.category == 'Fruits' %}
+                                        <h4><span class="badge badge-pill badge-primary">{{ post.category }}</span></h4>
+                                    {% elif post.category == 'Meat' %}
+                                        <h4><span class="badge badge-pill badge-danger">{{ post.category }}</span></h4>
+                                    {% elif post.category == 'Other' %}
+                                        <h4><span class="badge badge-pill badge-dark">{{ post.category }}</span></h4>
+                                    {% endif %}
+                                </li>
                             </ul>
                         </div>
                         <div class="card-body" style="text-align: center">

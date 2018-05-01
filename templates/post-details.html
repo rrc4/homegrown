@@ -15,11 +15,13 @@
         <div class="row">
             <h1 class="col-md-6">{{ post.product }} - {{'${:,.2f}'.format(post.price) }}/{{ post.unit }}</h1>
 
+
             <div class="col-md-6" style="text-align: center; display:flex; justify-content:center; align-items:center">
                 <a href="#" class="btn btn-success" style="margin-left: 10px; width: 65px">Buy</a>
                 <a href="#" class="btn btn-primary" style="margin-left: 10px; width: 65px">Trade</a>
-                <a href="#" class="btn btn-dark" style="margin-left: 10px">Contact Seller</a>
-                {% if not user %}
+                {% if user %}
+                    <a href="#" class="btn btn-dark" style="margin-left: 10px">Message Seller</a>
+                {% else %}
                     <a href="{{ url_for('edit_post', id=post.post_id) }}" style="margin-left: 10px" class="btn btn-secondary">Edit Post</a>
                 {% endif %}
             </div>
@@ -38,32 +40,44 @@
 
             <div class="col-md-5" style="margin-left: auto">
                 <img class="card-img-top" style="height: 250px; width: 350px" src="https://www.notizie.it/wp-content/uploads/2016/04/article-new_ds-cdn-write_upload_9000_000_00_9_109009.jpg" alt="Product Location">
+
+                {% if (post.zip)|string|length == 4 %}
+                    <p><b>ZIP: </b>0{{ post.zip }}</p>
+                {% else %}
+                    <p><b>ZIP: </b>{{ post.zip }}</p>
+                {% endif %}
             </div>
 
-            <div class="col-md-6">
-                <br>
-                <p style="padding-left: 20px">{{ post.description }}</p>
-            </div>
             <div class="col-md-12">
-                {% if user %}
-                    <p style="padding-left: 20px">Posted by {{ user.name }}</p>
+                <br>
+                {% if post.category == 'Grains' %}
+                    <h4><span class="badge badge-pill badge-warning">{{ post.category }}</span></h4>
+                {% elif post.category == 'Dairy' %}
+                    <h4><span class="badge badge-pill badge-secondary">{{ post.category }}</span></h4>
+                {% elif post.category == 'Vegetables' %}
+                    <h4><span class="badge badge-pill badge-success">{{ post.category }}</span></h4>
+                {% elif post.category == 'Fruits' %}
+                    <h4><span class="badge badge-pill badge-primary">{{ post.category }}</span></h4>
+                {% elif post.category == 'Meat' %}
+                    <h4><span class="badge badge-pill badge-danger">{{ post.category }}</span></h4>
+                {% elif post.category == 'Other' %}
+                    <h4><span class="badge badge-pill badge-dark">{{ post.category }}</span></h4>
                 {% endif %}
 
-                <ul>
-                    {% if post.unit != 'oz' and post.quantity > 1 %}
-                        <li><b>Quantity: </b>{{ post.quantity }} {{ post.unit }}s</li>
-                    {% else %}
-                        <li><b>Quantity: </b>{{ post.quantity }} {{ post.unit }}</li>
-                    {% endif %}
+                {% if user %}
+                    <p>Posted by {{ user.name }}</p>
+                {% else %}
+                    <p>Posted by <a href="{{ url_for('profile') }}">You</a></p>
+                {% endif %}
 
-                    <li><b>Category: </b>{{ post.category }}</li>
+                {% if post.unit != 'oz' and post.quantity > 1 %}
+                    <p><b>{{ post.quantity }} {{ post.unit }}s</b> remaining</p>
+                {% else %}
+                    <p><b>{{ post.quantity }} {{ post.unit }}</b> remaining</p>
+                {% endif %}
 
-                    {% if (post.zip)|string|length == 4 %}
-                        <li><b>ZIP: </b>0{{ post.zip }}</li>
-                    {% else %}
-                        <li><b>ZIP: </b>{{ post.zip }}</li>
-                    {% endif %}
-                </ul>
+                <p>{{ post.description }}</p>
+
                 <div class="text-muted" style="text-align: center">Posted on {{ post.date }}</div>
             </div>
         </div>
