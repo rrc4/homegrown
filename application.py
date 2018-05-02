@@ -21,7 +21,6 @@ import db
 
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
-today = datetime.date.today()
 
 
 # Opens the database connection
@@ -420,11 +419,11 @@ def profile():
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
-        return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results', role=role)
+        return render_template('posts.html', search_form=query, posts=posts, mode='results', role=role)
 
     stars = int(user['rating'])
 
-    return render_template('profile.html', date=today, search_form=query, posts=posts, user=user, role=role, stars=stars)
+    return render_template('profile.html', search_form=query, posts=posts, user=user, role=role, stars=stars)
 
 
 # A list of the current user's posts
@@ -449,9 +448,9 @@ def my_posts():
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
-        return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results', role=role)
+        return render_template('posts.html', search_form=query, posts=posts, mode='results', role=role)
 
-    return render_template('posts.html', date=today, search_form=query, posts=posts, mode='my-posts', role=role)
+    return render_template('posts.html', search_form=query, posts=posts, mode='my-posts', role=role)
 
 
 # A list of the a user's posts
@@ -475,9 +474,9 @@ def user_posts(user_id):
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
-        return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results', role=role)
+        return render_template('posts.html', search_form=query, posts=posts, mode='results', role=role)
 
-    return render_template('posts.html', date=today, search_form=query, user=user, posts=posts, mode='user', role=role)
+    return render_template('posts.html', search_form=query, user=user, posts=posts, mode='user', role=role)
 
 
 # A list of the user's favorites
@@ -499,9 +498,9 @@ def my_favorites():
         if request.method == 'POST':
             query_list = query.search.data.lower().split(" ")
             posts = db.search_products(query_list)
-            return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results', role=role)
+            return render_template('posts.html', search_form=query, posts=posts, mode='results', role=role)
 
-        return render_template('posts.html', date=today, user_id=user_id, search_form=query, posts=favorites, mode='favorites', role=role)
+        return render_template('posts.html', user_id=user_id, search_form=query, posts=favorites, mode='favorites', role=role)
 
 
 # Adds a post to favorites
@@ -665,12 +664,12 @@ def post_details(id):
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
-        return render_template('posts.html', date=today, search_form=query, posts=posts, mode='results', role=role)
+        return render_template('posts.html', search_form=query, posts=posts, mode='results', role=role)
 
     if post['user_id'] == current_user.get_id():
-        return render_template('post-details.html', date=today, search_form=query, post=post, role=role)
+        return render_template('post-details.html', search_form=query, post=post, role=role)
     else:
-        return render_template('post-details.html', date=today, search_form=query, post=post, user=user, role=role)
+        return render_template('post-details.html', search_form=query, post=post, user=user, role=role)
 
 
 # All the posts in the database - also handles searching
@@ -694,21 +693,21 @@ def all_posts():
 
         if not filtered_posts:
             if not key_list:
-                return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=db.all_posts(), mode='results', role=role)
+                return render_template('posts.html', filter_form=selected, search_form=query, posts=db.all_posts(), mode='results', role=role)
             else:
-                return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=[], mode='results', role=role)
+                return render_template('posts.html', filter_form=selected, search_form=query, posts=[], mode='results', role=role)
         else:
-            return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=filtered_posts, mode='results', role=role)
+            return render_template('posts.html', filter_form=selected, search_form=query, posts=filtered_posts, mode='results', role=role)
 
     if query.search.data is not None:
         query_list = query.search.data.lower().split(" ")
         posts = db.search_products(query_list)
 
         if not posts:
-            return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=[], mode='results', role=role)
+            return render_template('posts.html', filter_form=selected, search_form=query, posts=[], mode='results', role=role)
         else:
-            return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=posts, mode='results', role=role)
-    return render_template('posts.html', date=today, filter_form=selected, search_form=query, posts=db.all_posts(), mode='feed', role=role)
+            return render_template('posts.html', filter_form=selected, search_form=query, posts=posts, mode='results', role=role)
+    return render_template('posts.html', filter_form=selected, search_form=query, posts=db.all_posts(), mode='feed', role=role)
 
 
 class ProductSearchForm(FlaskForm):
