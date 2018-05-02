@@ -90,17 +90,6 @@
                     </div>
                 {% endif %}
 
-
-                {{ post_form.zip.label }}
-                <div class="input-group mb-3">
-                    {{ post_form.zip(class_="form-control", placeholder="ZIP Code") }}
-                </div>
-                {% if post_form.zip.errors %}
-                    <div class="alert alert-danger">
-                        ZIP code must be 5 digits
-                    </div>
-                {% endif %}
-
                 {{ post_form.image.label }}
                 <div class="input-group mb-3">
                     {{ post_form.image(class_="form-control") }}

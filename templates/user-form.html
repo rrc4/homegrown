@@ -35,14 +35,25 @@
                         Name is required
                     </div>
                 {% endif %}
+
                 <div class="form-group">
                     {{ form.email.label }}{{ form.email(class_="form-control") }}
                 </div>
-                {% if form.name.errors %}
+                {% if form.email.errors %}
                     <div class="alert alert-danger">
                         Email is invalid
                     </div>
                 {% endif %}
+
+                <div class="form-group">
+                    {{ form.zip.label }}{{ form.zip(class_="form-control") }}
+                </div>
+                {% if form.zip.errors %}
+                    <div class="alert alert-danger">
+                        ZIP code must be 5 digits
+                    </div>
+                {% endif %}
+
                 <div class="form-group">
                     {{ form.password.label }}{{ form.password(class_="form-control") }}
                 </div>
@@ -57,6 +68,7 @@
                         </ul>
                     </div>
                 {% endif %}
+
                 <div class="form-group">
                     {{ form.confirm.label }}{{ form.confirm(class_="form-control") }}
                 </div>
@@ -65,6 +77,7 @@
                         Passwords do not match
                     </div>
                 {% endif %}
+
                 {% if mode == 'create' or mode == 'update' %}
                     <div class="form-group">
                         {{ form.rating.label }}{{ form.rating(class_="form-control") }}
@@ -75,6 +88,7 @@
                         </div>
                     {% endif %}
                 {% endif %}
+
                 <div class="form-group">
                     {{ form.bio.label }}{{ form.bio(class_="form-control") }}
                 </div>
@@ -83,6 +97,7 @@
                         Bio is required
                     </div>
                 {% endif %}
+
                 {{ form.submit(class_="btn btn-primary") }}
             </form>
         </div>

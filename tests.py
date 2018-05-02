@@ -46,16 +46,19 @@ class DatabaseTestCase(FlaskTestCase):
         super(DatabaseTestCase, self).tearDown()
 
     def test_add_post(self):
-        row_count = db.create_post(6.99, 100, 'Bananas', '46989')
+        row_count = db.create_post(5.67, 10, 'lb', 'Carrots', 'Vegetables', 'Sample Description', '2018-04-18')
         self.assertEqual(row_count, 1)
 
         test_post = db.find_post_by_id(1)
         self.assertIsNotNone(test_post)
 
-        self.assertEqual(test_post['price'], 6.99)
-        self.assertEqual(test_post['quantity'], 100)
-        self.assertEqual(test_post['product'], 'Bananas')
-        self.assertEqual(test_post['zip'], '46989')
+        self.assertEqual(test_post['price'], 5.67)
+        self.assertEqual(test_post['quantity'], 10)
+        self.assertEqual(test_post['unit'], 'lb')
+        self.assertEqual(test_post['product'], 'Carrots')
+        self.assertEqual(test_post['category'], 'Vegetables')
+        self.assertEqual(test_post['description'], 'Sample Description')
+        self.assertEqual(test_post['date'], '2018-04-18')
 
 
 if __name__ == '__main__':

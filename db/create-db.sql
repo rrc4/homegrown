@@ -8,6 +8,7 @@ CREATE TABLE "user"
     id SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     email VARCHAR(40) NOT NULL,
+    zip INTEGER NOT NULL,
     bio TEXT NOT NULL,
     password VARCHAR(40) NOT NULL,
     rating FLOAT NOT NULL,
@@ -38,7 +39,6 @@ CREATE TABLE post
            category = 'Dairy' OR
            category = 'Grains' OR
            category = 'Other'),
-    zip INTEGER NOT NULL,
     description TEXT NOT NULL,
     date DATE DEFAULT current_date
 );
