@@ -69,6 +69,7 @@ class SignInForm(FlaskForm):
 class SignUpForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired(), Length(min=1, max=80)])
     email = StringField('Email', validators=[InputRequired(), Email()])
+    zip = IntegerField('ZIP Code', validators=[InputRequired(), NumberRange(min=3000, max=99999, message='ZIP code not valid - must be 5 characters')])
     password = PasswordField('New Password', validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
                                                          Length(min=8),
                                                          Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
@@ -123,7 +124,13 @@ def sign_up():
         return redirect(url_for('sign_up'))
     else:
         if sign_up_form.validate_on_submit() and sign_up_form.validate():
-            user = db.create_user(sign_up_form.name.data, sign_up_form.email.data, sign_up_form.password.data, 5.0, True)
+            user = db.create_user(sign_up_form.name.data,
+                                  sign_up_form.email.data,
+                                  sign_up_form.zip.data,
+                                  sign_up_form.password.data,
+                                  'Tell us about yourself!',
+                                  5.0,
+                                  True)
 
             if user:
                 is_active = True
@@ -207,6 +214,7 @@ def sign_out():
 class UserForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired(), Length(min=1, max=80)])
     email = StringField('Email', validators=[InputRequired(), Email()])
+    zip = IntegerField('ZIP Code (ex. 46969)', validators=[InputRequired(), NumberRange(min=3000, max=99999, message='ZIP code not valid - must be 5 characters')])
     password = PasswordField('New Password', validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
                                                          Length(min=8),
                                                          Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
@@ -220,6 +228,7 @@ class UserForm(FlaskForm):
 class AdminUserForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired(), Length(min=1, max=80)])
     email = StringField('Email', validators=[InputRequired(), Email()])
+    zip = IntegerField('ZIP Code (ex. 46969)', validators=[InputRequired(), NumberRange(min=3000, max=99999, message='ZIP code not valid - must be 5 characters')])
     password = PasswordField('New Password', validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
                                                          Length(min=8),
                                                          Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
@@ -250,6 +259,7 @@ def create_user():
         else:
             rowcount = db.create_user(user_form.name.data,
                                       user_form.email.data,
+                                      user_form.zip.data,
                                       user_form.password.data,
                                       user_form.bio.data,
                                       user_form.rating.data,
@@ -283,12 +293,14 @@ def edit_profile():
 
     user_form = UserForm(name=user['name'],
                          email=user['email'],
+                         zip=user['zip'],
                          password=user['password'],
                          bio=user['bio'])
 
     if user_form.validate_on_submit():
         rowcount = db.update_user(user_form.name.data,
                                   user_form.email.data,
+                                  user_form.zip.data,
                                   user_form.password.data,
                                   user_form.bio.data,
                                   id)
@@ -318,6 +330,7 @@ def edit_user(id):
 
     user_form = AdminUserForm(name=user['name'],
                               email=user['email'],
+                              zip=user['zip'],
                               password=user['password'],
                               rating=user['rating'],
                               bio=user['bio'])
@@ -529,7 +542,7 @@ class PostForm(FlaskForm):
     product = StringField('Product (ex. Strawberries)', validators=[InputRequired(), Length(min=1, max=100, message='Product must be between 1 and 100 characters')])
     description = TextAreaField('Description (quality, harvest date, etc.)', validators=[InputRequired()])
     price = FloatField('Price (ex. 5.99)', validators=[InputRequired(), NumberRange(min=0.01, message='Price must be at least $0.01')])
-    quantity = IntegerField('Quantity', validators=[InputRequired(), NumberRange(min=1, max=1000000, message='Quantity must be between 1 and 1,000,000')])
+    quantity = FloatField('Quantity', validators=[InputRequired(), NumberRange(min=1, max=1000000, message='Quantity must be between 1 and 1,000,000')])
     unit = SelectField('Unit', choices=[('item', 'item'),
                                         ('oz', 'oz'),
                                         ('lb', 'lb'),
@@ -541,7 +554,6 @@ class PostForm(FlaskForm):
                                                 ('Dairy', 'Dairy'),
                                                 ('Grains', 'Grains'),
                                                 ('Other', 'Other')])
-    zip = IntegerField('ZIP Code (ex. 46969)', validators=[InputRequired(), NumberRange(min=3000, max=99999, message='ZIP code not valid - must be 5 characters')])
     image = FileField('Image', validators=[FileRequired(message="Image required")])
 
     submit = SubmitField('Save Post')
@@ -569,7 +581,6 @@ def create_post():
                                            post_form.unit.data,
                                            post_form.product.data,
                                            post_form.category.data,
-                                           post_form.zip.data,
                                            post_form.description.data)
                 uploaded_photo = post_form.image.data
 
@@ -619,7 +630,6 @@ def edit_post(id):
                          quantity=post['quantity'],
                          unit=post['unit'],
                          product=post['product'],
-                         zip=post['zip'],
                          description=post['description'])
 
     if post_form.validate_on_submit():
@@ -627,7 +637,6 @@ def edit_post(id):
                                   post_form.quantity.data,
                                   post_form.unit.data,
                                   post_form.product.data,
-                                  post_form.zip.data,
                                   post_form.description.data,
                                   id)
 

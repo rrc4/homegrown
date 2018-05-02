@@ -31,6 +31,8 @@
                     {% endfor %}
                 </div>
                 <br>
+                <p>ZIP: {{ user.zip }}</p>
+                <br>
                 <p>{{ user.bio }}</p>
                 <br>
                 <a href="{{ url_for('edit_profile') }}" class="btn btn-secondary">Edit Profile</a>

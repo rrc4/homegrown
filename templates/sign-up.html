@@ -63,6 +63,7 @@
                                                 Invalid name
                                             </div>
                                         {% endif %}
+
                                         <p class="form-label">
                                             {{ sign_up_form.email.label }}
                                             {{ sign_up_form.email(class='form-control', placeholder='Email') }}
@@ -72,6 +73,17 @@
                                                 Invalid email
                                             </div>
                                         {% endif %}
+
+                                        <p class="form-label">
+                                            {{ sign_up_form.zip.label }}
+                                            {{ sign_up_form.zip(class='form-control', placeholder='ZIP Code') }}
+                                        </p>
+                                        {% if sign_up_form.zip.errors %}
+                                            <div class="alert alert-danger">
+                                                ZIP code must be 5 digits
+                                            </div>
+                                        {% endif %}
+
                                         <p class="form-label">
                                             {{ sign_up_form.password.label }}
                                             {{ sign_up_form.password(class='form-control', placeholder='Password') }}
@@ -87,6 +99,7 @@
                                                 </ul>
                                             </div>
                                         {% endif %}
+
                                         <p class="form-label">
                                             {{ sign_up_form.confirm.label }}
                                             {{ sign_up_form.confirm(class='form-control', placeholder='Confirm Password') }}

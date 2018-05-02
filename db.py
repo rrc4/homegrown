@@ -20,12 +20,12 @@ def close_db_connection():
 
 
 # Create a user
-def create_user(name, email, password, bio, rating, active):
+def create_user(name, email, zip, password, bio, rating, active):
     query = '''
-        INSERT INTO "user" (name, email, password, bio, rating, active)
-        VALUES (%(name)s, %(email)s, %(password)s, %(bio)s, %(rating)s, %(active)s)
+        INSERT INTO "user" (name, email, zip, password, bio, rating, active)
+        VALUES (%(name)s, %(email)s, %(zip)s, %(password)s, %(bio)s, %(rating)s, %(active)s)
     '''
-    g.cursor.execute(query, {'name': name, 'email': email, 'password': password, 'bio': bio, 'rating': rating, 'active': active})
+    g.cursor.execute(query, {'name': name, 'email': email, 'zip': zip, 'password': password, 'bio': bio, 'rating': rating, 'active': active})
     g.connection.commit()
     return g.cursor.rowcount
 
@@ -49,13 +49,13 @@ def all_users():
 
 
 # Allows a user to update their profile
-def update_user(name, email, password, bio, user_id):
+def update_user(name, email, zip, password, bio, user_id):
     query = '''
         UPDATE "user"
-        SET name = %(name)s, email = %(email)s, password = %(password)s, bio = %(bio)s
+        SET name = %(name)s, email = %(email)s, zip = %(zip)s, password = %(password)s, bio = %(bio)s
         WHERE id = %(id)s
     '''
-    g.cursor.execute(query, {'id': user_id, 'name': name, 'email': email, 'password': password, 'bio': bio})
+    g.cursor.execute(query, {'id': user_id, 'name': name, 'email': email, 'zip': zip, 'password': password, 'bio': bio})
     g.connection.commit()
     return g.cursor.rowcount
 
@@ -159,13 +159,13 @@ def delete_from_favorites(user_id, post_id):
 
 
 # Creates a post
-def create_post(user_id, price, quantity, unit, product, category, zip, description):
+def create_post(user_id, price, quantity, unit, product, category, description):
     query = '''
-        INSERT INTO post (user_id, price, quantity, unit, product, "category", zip, description)
-        VALUES (%(user_id)s, %(price)s, %(quantity)s, %(unit)s, %(product)s, %(category)s, %(zip)s, %(description)s)
+        INSERT INTO post (user_id, price, quantity, unit, product, "category", description)
+        VALUES (%(user_id)s, %(price)s, %(quantity)s, %(unit)s, %(product)s, %(category)s, %(description)s)
         RETURNING id
     '''
-    g.cursor.execute(query, {'user_id': user_id, 'price': price, 'quantity': quantity, 'unit': unit, 'product': product, 'category': category, 'zip': zip, 'description': description})
+    g.cursor.execute(query, {'user_id': user_id, 'price': price, 'quantity': quantity, 'unit': unit, 'product': product, 'category': category, 'description': description})
     g.connection.commit()
     return {'id': g.cursor.fetchone()['id'], 'rowcount': g.cursor.rowcount}
 
@@ -203,13 +203,13 @@ def all_posts():
 
 
 # Updates/edits a post
-def update_post(price, quantity, unit, product, zip, description, post_id):
+def update_post(price, quantity, unit, product, description, post_id):
     query = '''
         UPDATE post 
-        SET price = %(price)s, product = %(product)s, unit = %(unit)s, quantity = %(quantity)s, zip = %(zip)s, description = %(description)s
+        SET price = %(price)s, product = %(product)s, unit = %(unit)s, quantity = %(quantity)s, description = %(description)s
         WHERE id = %(id)s
     '''
-    g.cursor.execute(query, {'id': post_id, 'price': price, 'quantity': quantity, 'unit': unit, 'product': product, 'zip': zip, 'description': description})
+    g.cursor.execute(query, {'id': post_id, 'price': price, 'quantity': quantity, 'unit': unit, 'product': product, 'description': description})
     g.connection.commit()
     return g.cursor.rowcount
 
