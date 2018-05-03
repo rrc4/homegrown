@@ -240,16 +240,15 @@ def update_quantity(post_id, quantity, amount):
 
 
 # Finds products that match the search query
-def search_products(query_list):
-    pattern = '|'.join(query_list)
+def search_products(item):
     query = '''
         SELECT *, p.id AS "post_id" FROM post p
         INNER JOIN "user" u ON u.id = p.user_id
         LEFT JOIN "photo" ON p.id = photo.id
-        WHERE u.active = TRUE AND product ~* %(pattern)s OR category ~* %(pattern)s
+        WHERE u.active = TRUE AND product ~* %(item)s AND p.quantity > 0
         ORDER BY p.id;
     '''
-    g.cursor.execute(query, {'pattern': pattern})
+    g.cursor.execute(query, {'item': item})
     return g.cursor.fetchall()
 
 
@@ -260,7 +259,7 @@ def filter_products(key_list):
         SELECT *, p.id AS "post_id" FROM post p
         INNER JOIN "user" u ON u.id = p.user_id
         LEFT JOIN "photo" ON p.id = photo.id
-        WHERE u.active = TRUE AND %(pattern)s ~* category
+        WHERE u.active = TRUE AND %(pattern)s ~* category AND p.quantity > 0
     '''
     g.cursor.execute(query, {'pattern': pattern})
     return g.cursor.fetchall()
