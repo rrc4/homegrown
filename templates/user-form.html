@@ -98,6 +98,19 @@
                     </div>
                 {% endif %}
 
+{#                {% if mode == 'edit-profile' %}#}
+{#                    {{ form.image.label }}#}
+{#                    <div class="input-group mb-3">#}
+{#                        {{ form.image(class_="form-control") }}#}
+{#                    </div>#}
+{#                    {% if form.image.errors %}#}
+{#                        <div class="alert alert-danger">#}
+{#                            An image is required#}
+{#                        </div>#}
+{#                    {% endif %}#}
+{#                {% endif %}#}
+
+
                 {{ form.submit(class_="btn btn-primary") }}
             </form>
         </div>

@@ -38,7 +38,12 @@ def find_user_by_email(email):
 
 # Find a user by name
 def find_user_by_id(id):
-    g.cursor.execute('SELECT * FROM "user" WHERE id = %(id)s', {'id': id})
+    query = '''
+        SELECT * FROM "user" u
+        LEFT JOIN user_photo ON u.id = user_photo.id
+        WHERE u.id = %(id)s
+    '''
+    g.cursor.execute(query, {'id': id})
     return g.cursor.fetchone()
 
 
@@ -57,7 +62,7 @@ def update_user(name, email, zip, password, bio, user_id):
     '''
     g.cursor.execute(query, {'id': user_id, 'name': name, 'email': email, 'zip': zip, 'password': password, 'bio': bio})
     g.connection.commit()
-    return g.cursor.rowcount
+    return {'id': user_id, 'rowcount': g.cursor.rowcount}
 
 
 # Allows the admin to update a user
@@ -91,7 +96,7 @@ def find_post_by_id(id):
     query = '''
         SELECT *, p.id AS "post_id" FROM post p
         INNER JOIN "user" u ON u.id = p.user_id
-        LEFT JOIN "photo" ON p.id = photo.id
+        LEFT JOIN "post_photo" ON p.id = post_photo.id
         WHERE p.id = %(id)s AND p.quantity > 0
     '''
     g.cursor.execute(query, {'id': id})
@@ -103,7 +108,7 @@ def posts_by_user(user_id):
     query = '''
         SELECT *, p.id AS "post_id" FROM post p
         INNER JOIN "user" u ON u.id = p.user_id
-        LEFT JOIN "photo" ON p.id = photo.id
+        LEFT JOIN "post_photo" ON p.id = post_photo.id
         WHERE u.active = TRUE AND user_id = %(user_id)s AND p.quantity > 0
         ORDER BY p.id;
      '''
@@ -116,11 +121,11 @@ def posts_by_user(user_id):
 # Finds all favorites by a user
 def favorites_by_user(user_id):
     query = '''
-      SELECT * FROM favorite f
-      INNER JOIN post p ON p.id = f.post_id
-      INNER JOIN "user" u ON u.id = f.user_id 
-        LEFT JOIN "photo" ON p.id = photo.id
-      WHERE u.id = %(user_id)s AND u.active = TRUE AND p.quantity > 0
+        SELECT * FROM favorite f
+        INNER JOIN post p ON p.id = f.post_id
+        INNER JOIN "user" u ON u.id = f.user_id 
+        LEFT JOIN "post_photo" ON p.id = post_photo.id
+        WHERE u.id = %(user_id)s AND u.active = TRUE AND p.quantity > 0
     '''
     g.cursor.execute(query, {'user_id': user_id})
     g.connection.commit()
@@ -170,17 +175,17 @@ def create_post(user_id, price, quantity, unit, product, category, description):
     return {'id': g.cursor.fetchone()['id'], 'rowcount': g.cursor.rowcount}
 
 
-def init_photo(id):
-    g.cursor.execute('INSERT INTO photo (id) VALUES (%(id)s)', {'id': id})
+def init_post_photo(id):
+    g.cursor.execute('INSERT INTO post_photo (id) VALUES (%(id)s)', {'id': id})
     g.connection.commit()
 
-    g.cursor.execute('SELECT * FROM photo WHERE id = (%(id)s)', {'id': id})
+    g.cursor.execute('SELECT * FROM post_photo WHERE id = (%(id)s)', {'id': id})
     return g.cursor.fetchone()
 
 
-def set_photo(photo_id, file_path):
+def set_post_photo(photo_id, file_path):
     query = '''
-        UPDATE photo 
+        UPDATE post_photo 
         SET file_path = %(file_path)s
         WHERE id = %(id)s
     '''
@@ -189,12 +194,40 @@ def set_photo(photo_id, file_path):
     return g.cursor.rowcount
 
 
+def init_user_photo(id):
+    g.cursor.execute('INSERT INTO user_photo (id) VALUES (%(id)s)', {'id': id})
+    g.connection.commit()
+
+    g.cursor.execute('SELECT * FROM user_photo WHERE id = (%(id)s)', {'id': id})
+    return g.cursor.fetchone()
+
+
+def set_user_photo(photo_id, file_path):
+    query = '''
+        UPDATE user_photo 
+        SET file_path = %(file_path)s
+        WHERE id = %(id)s
+    '''
+    g.cursor.execute(query, {'file_path': file_path, 'id': photo_id})
+    g.connection.commit()
+    return g.cursor.rowcount
+
+#
+# def delete_user_photo(photo_id):
+#     query = '''
+#         DELETE FROM user_photo WHERE id = %(photo_id)s;
+#     '''
+#     g.cursor.execute(query, {'photo_id': photo_id})
+#     g.connection.commit()
+#     return g.cursor.rowcount
+
+
 # Returns the entire post table
 def all_posts():
     query = '''
         SELECT *, p.id AS "post_id" FROM post p
         INNER JOIN "user" u ON u.id = p.user_id
-        LEFT JOIN "photo" ON p.id = photo.id
+        LEFT JOIN "post_photo" ON p.id = post_photo.id
         WHERE u.active = TRUE AND p.quantity > 0
         ORDER BY p.id;
     '''
@@ -244,7 +277,7 @@ def search_products(item):
     query = '''
         SELECT *, p.id AS "post_id" FROM post p
         INNER JOIN "user" u ON u.id = p.user_id
-        LEFT JOIN "photo" ON p.id = photo.id
+        LEFT JOIN "post_photo" ON p.id = post_photo.id
         WHERE u.active = TRUE AND product ~* %(item)s AND p.quantity > 0
         ORDER BY p.id;
     '''
@@ -258,7 +291,7 @@ def filter_products(key_list):
     query = '''
         SELECT *, p.id AS "post_id" FROM post p
         INNER JOIN "user" u ON u.id = p.user_id
-        LEFT JOIN "photo" ON p.id = photo.id
+        LEFT JOIN "post_photo" ON p.id = post_photo.id
         WHERE u.active = TRUE AND %(pattern)s ~* category AND p.quantity > 0
     '''
     g.cursor.execute(query, {'pattern': pattern})
@@ -268,7 +301,7 @@ def filter_products(key_list):
 # Deletes a single post by post ID
 def delete_post_by_id(post_id):
     query = '''
-        DELETE FROM photo WHERE id = %(post_id)s;
+        DELETE FROM post_photo WHERE id = %(post_id)s;
         DELETE FROM favorite WHERE post_id = %(post_id)s;
         DELETE FROM post WHERE id = %(post_id)s;
     '''

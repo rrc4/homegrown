@@ -16,16 +16,22 @@ INSERT INTO post (user_id, price, quantity, unit, product, category, description
 INSERT INTO post (user_id, price, quantity, unit, product, category, description, date) VALUES (5, 1.00, 10, 'oz', 'Broccoli', 'Vegetables', 'Sample Description', '2018-04-18');
 INSERT INTO post (user_id, price, quantity, unit, product, category, description, date) VALUES (5, 2.50, 100, 'item', 'Cinnamon Rolls', 'Grains', 'Sample Description', '2018-04-18');
 
-INSERT INTO PHOTO (id, file_path) VALUES (1, 'static/photos/file0001.jpg');
-INSERT INTO PHOTO (id, file_path) VALUES (2, 'static/photos/file0002.jpg');
-INSERT INTO PHOTO (id, file_path) VALUES (3, 'static/photos/file0003.jpg');
-INSERT INTO PHOTO (id, file_path) VALUES (4, 'static/photos/file0004.jpg');
-INSERT INTO PHOTO (id, file_path) VALUES (5, 'static/photos/file0005.jpg');
-INSERT INTO PHOTO (id, file_path) VALUES (6, 'static/photos/file0006.jpg');
-INSERT INTO PHOTO (id, file_path) VALUES (7, 'static/photos/file0007.jpg');
-INSERT INTO PHOTO (id, file_path) VALUES (8, 'static/photos/file0008.jpg');
-INSERT INTO PHOTO (id, file_path) VALUES (9, 'static/photos/file0009.jpg');
-INSERT INTO PHOTO (id, file_path) VALUES (10, 'static/photos/file0010.jpg');
+INSERT INTO post_photo (id, file_path) VALUES (1, 'static/photos/file0001.jpg');
+INSERT INTO post_photo (id, file_path) VALUES (2, 'static/photos/file0002.jpg');
+INSERT INTO post_photo (id, file_path) VALUES (3, 'static/photos/file0003.jpg');
+INSERT INTO post_photo (id, file_path) VALUES (4, 'static/photos/file0004.jpg');
+INSERT INTO post_photo (id, file_path) VALUES (5, 'static/photos/file0005.jpg');
+INSERT INTO post_photo (id, file_path) VALUES (6, 'static/photos/file0006.jpg');
+INSERT INTO post_photo (id, file_path) VALUES (7, 'static/photos/file0007.jpg');
+INSERT INTO post_photo (id, file_path) VALUES (8, 'static/photos/file0008.jpg');
+INSERT INTO post_photo (id, file_path) VALUES (9, 'static/photos/file0009.jpg');
+INSERT INTO post_photo (id, file_path) VALUES (10, 'static/photos/file0010.jpg');
+
+INSERT INTO user_photo (id, file_path) VALUES (1, 'static/user-photos/file0001.jpg');
+INSERT INTO user_photo (id, file_path) VALUES (2, 'static/user-photos/file0002.jpg');
+INSERT INTO user_photo (id, file_path) VALUES (3, 'static/user-photos/file0003.jpg');
+INSERT INTO user_photo (id, file_path) VALUES (4, 'static/user-photos/file0004.jpg');
+INSERT INTO user_photo (id, file_path) VALUES (5, 'static/user-photos/file0005.jpg');
 
 INSERT INTO favorite (user_id, post_id) VALUES (1, 6);
 INSERT INTO favorite (user_id, post_id) VALUES (2, 7);

@@ -18,7 +18,13 @@
     </div>
     <div class="container">
         <div class="row">
-            <img class="col-lg-4" style="width: 400px; height: 400px;" src="https://vignette.wikia.nocookie.net/pandorahearts/images/a/ad/Not_available.jpg/revision/latest?cb=20141028171337" alt="No Image Available">
+            <div class="col-lg-4">
+                {% if user.file_path == "bogus_path" or user.file_path == none or user.file_path == "None" %}
+                    <img class="card-img-top" src="https://vignette.wikia.nocookie.net/pandorahearts/images/a/ad/Not_available.jpg/revision/latest?cb=20141028171337" alt="No Image Available">
+                {% else %}
+                    <img class="card-img-top" src="/{{ user.file_path }}" alt="Product Image">
+                {% endif %}
+            </div>
 
             <div class="col-lg-8">
                 <h4>{{ user.name }}</h4>
