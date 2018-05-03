@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Buy {{ post.product }}{% endblock %}
+
+{% block content %}
+    <img src="https://cdn.iconscout.com/public/images/icon/free/png-512/back-arrow-35325b9dd72f970a-512x512.png" style="height: 35px; width: 35px; cursor: pointer" onclick="goBack()">
+
+    <script>
+    function goBack() {
+        window.history.back();
+    }
+    </script>
+
+    <div class="container">
+        <div class="row">
+            <h1 class="col-md-6">{{ post.product }} - {{'${:,.2f}'.format(post.price) }}/{{ post.unit }}</h1>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5">
+                 {% if post.file_path == "bogus_path" or post.file_path == none or post.file_path == "None" %}
+                     <img class="card-img-top" src="https://vignette.wikia.nocookie.net/pandorahearts/images/a/ad/Not_available.jpg/revision/latest?cb=20141028171337" alt="No Image Available">
+                 {% else %}
+                     <img class="card-img-top" src="/{{ post.file_path }}" alt="Product Image">
+                 {% endif %}
+            </div>
+
+            <div class="col-md-7">
+                <br>
+                {% if user %}
+                    <p>Posted by {{ user.name }}</p>
+                {% endif %}
+
+                <p>{{ post.description }}</p>
+
+                {% if post.unit != 'oz' and post.quantity > 1 %}
+                    <p><b>{{ post.quantity }} {{ post.unit }}s</b> remaining</p>
+                {% else %}
+                    <p><b>{{ post.quantity }} {{ post.unit }}</b> remaining</p>
+                {% endif %}
+
+                <form method="POST" class="form-inline my-2 my-lg-0">
+                    <div class="input-group">
+                        {{ form.amount(class_='form-control', placeholder='Quantity') }}
+                        <div class="input-group-append">
+                            <span class="input-group-text" style="border-radius: 0 5px 5px 0">{{ post.unit }}</span>
+                        </div>
+                        <button class="btn btn-primary my-2 my-sm-0" style="margin-left: 8px" type=submit value="Submit">Buy Product</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

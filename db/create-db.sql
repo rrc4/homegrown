@@ -24,7 +24,7 @@ CREATE TABLE post
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES "user",
     price FLOAT NOT NULL,
-    quantity FLOAT NOT NULL,
+    quantity INTEGER NOT NULL,
     unit VARCHAR(5) NOT NULL,
     CHECK (unit = 'item' OR
            unit = 'oz' OR
