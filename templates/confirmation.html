@@ -10,7 +10,7 @@
                 <h1>Thank you for your order!</h1>
                 <br>
                 {% if amount and total %}
-                    {% if amount == '1' or post.unit == 'oz' %}
+                    {% if amount == '1' or post.unit == 'oz' or post.unit == 'dozen' %}
                         <p>You bought <b>{{ amount }} {{ post.unit }}</b> of {{ post.product }} for a total of <b>${{ total }}0</b>.</p>
                     {% else %}
                         <p>You bought <b>{{ amount }} {{ post.unit }}s</b> of {{ post.product }} for a total of <b>${{ total }}0</b>.</p>
