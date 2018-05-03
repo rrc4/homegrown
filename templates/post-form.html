@@ -90,14 +90,16 @@
                     </div>
                 {% endif %}
 
-                {{ post_form.image.label }}
-                <div class="input-group mb-3">
-                    {{ post_form.image(class_="form-control") }}
-                </div>
-                {% if post_form.image.errors %}
-                    <div class="alert alert-danger">
-                        An image is required
+                {% if mode == 'create' %}
+                    {{ post_form.image.label }}
+                    <div class="input-group mb-3">
+                        {{ post_form.image(class_="form-control") }}
                     </div>
+                    {% if post_form.image.errors %}
+                        <div class="alert alert-danger">
+                            An image is required
+                        </div>
+                    {% endif %}
                 {% endif %}
 
                 {{ post_form.submit(class_="btn btn-primary") }}

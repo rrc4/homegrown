@@ -535,7 +535,7 @@ def remove_from_favorites(post_id):
     return redirect(url_for('my_favorites'))
   
 
-# The form to create or edit a post
+# The form to create a post
 class PostForm(FlaskForm):
     product = StringField('Product (ex. Strawberries)', validators=[InputRequired(), Length(min=1, max=100, message='Product must be between 1 and 100 characters')])
     description = TextAreaField('Description (quality, harvest date, etc.)', validators=[InputRequired()])
@@ -554,6 +554,26 @@ class PostForm(FlaskForm):
                                                 ('Other', 'Other')])
     image = FileField('Image', validators=[FileRequired(message="Image required")])
 
+    submit = SubmitField('Save Post')
+
+
+# The form to edit a post
+class EditPostForm(FlaskForm):
+    product = StringField('Product (ex. Strawberries)', validators=[InputRequired(), Length(min=1, max=100, message='Product must be between 1 and 100 characters')])
+    description = TextAreaField('Description (quality, harvest date, etc.)', validators=[InputRequired()])
+    price = FloatField('Price (ex. 5.99)', validators=[InputRequired(), NumberRange(min=0.01, message='Price must be at least $0.01')])
+    quantity = FloatField('Quantity', validators=[InputRequired(), NumberRange(min=1, max=1000000, message='Quantity must be between 1 and 1,000,000')])
+    unit = SelectField('Unit', choices=[('item', 'item'),
+                                        ('oz', 'oz'),
+                                        ('lb', 'lb'),
+                                        ('gal', 'gal'),
+                                        ('kg', 'kg')])
+    category = SelectField('Category', choices=[('Vegetables', 'Vegetables'),
+                                                ('Fruits', 'Fruits'),
+                                                ('Meat', 'Meat'),
+                                                ('Dairy', 'Dairy'),
+                                                ('Grains', 'Grains'),
+                                                ('Other', 'Other')])
     submit = SubmitField('Save Post')
 
 
@@ -595,7 +615,6 @@ def create_post():
 
                 save_path = os.path.join(app.static_folder, file_path2)
                 uploaded_photo.save(save_path)
-                uploaded_photo.save(save_path)
 
                 db.set_photo(photo_row['id'], file_path)
 
@@ -624,11 +643,11 @@ def edit_post(id):
         flash("Post doesn't exist", category='danger')
         return redirect(url_for('all_posts'))
 
-    post_form = PostForm(price=post['price'],
-                         quantity=post['quantity'],
-                         unit=post['unit'],
-                         product=post['product'],
-                         description=post['description'])
+    post_form = EditPostForm(price=post['price'],
+                             quantity=post['quantity'],
+                             unit=post['unit'],
+                             product=post['product'],
+                             description=post['description'])
 
     if post_form.validate_on_submit():
         rowcount = db.update_post(post_form.price.data,
