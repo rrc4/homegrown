@@ -64,7 +64,7 @@
                     <p>Posted by <a href="{{ url_for('profile') }}">You</a></p>
                 {% endif %}
 
-                {% if post.unit != 'oz' and post.quantity > 1 %}
+                {% if post.unit != 'oz'and post.unit != 'dozen' and post.quantity > 1 %}
                     <p><b>{{ post.quantity }} {{ post.unit }}s</b> remaining</p>
                 {% else %}
                     <p><b>{{ post.quantity }} {{ post.unit }}</b> remaining</p>
