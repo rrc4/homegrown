@@ -296,14 +296,32 @@ def edit_profile():
                          bio=user['bio'])
 
     if user_form.validate_on_submit():
-        rowcount = db.update_user(user_form.name.data,
-                                  user_form.email.data,
-                                  user_form.zip.data,
-                                  user_form.password.data,
-                                  user_form.bio.data,
-                                  id)
+        user_dict = db.update_user(user_form.name.data,
+                                   user_form.email.data,
+                                   user_form.zip.data,
+                                   user_form.password.data,
+                                   user_form.bio.data,
+                                   id)
 
-        if rowcount == 1:
+        # uploaded_photo = user_form.image.data
+        #
+        # photo_row = db.init_user_photo(user_dict['id'])
+        #
+        # file_name = "file{:04d}".format(photo_row['id'])
+        #
+        # extension = PurePath(uploaded_photo.filename).suffix
+        # file_name += extension
+        #
+        # file_path = os.path.join('static/user-photos', file_name)
+        #
+        # file_path2 = os.path.join('user-photos', file_name)
+        #
+        # save_path = os.path.join(app.static_folder, file_path2)
+        # uploaded_photo.save(save_path)
+        #
+        # db.set_user_photo(photo_row['id'], file_path)
+
+        if user_dict['rowcount'] == 1:
             flash("Profile updated!", category='success')
             return redirect(url_for('profile'))
         else:
@@ -612,7 +630,7 @@ def create_post():
                                            post_form.description.data)
                 uploaded_photo = post_form.image.data
 
-                photo_row = db.init_photo(post_dict['id'])
+                photo_row = db.init_post_photo(post_dict['id'])
 
                 file_name = "file{:04d}".format(photo_row['id'])
 
@@ -626,7 +644,7 @@ def create_post():
                 save_path = os.path.join(app.static_folder, file_path2)
                 uploaded_photo.save(save_path)
 
-                db.set_photo(photo_row['id'], file_path)
+                db.set_post_photo(photo_row['id'], file_path)
 
                 if post_dict['rowcount'] == 1:
                     flash("{} added successfully".format(post_form.product.data), category='success')
