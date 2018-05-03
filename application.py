@@ -44,7 +44,7 @@ def requires_roles(*roles):
                 flash('You must be signed in to do this!', category="danger")
                 return redirect(url_for('all_posts'))
             elif current_user.role not in roles:
-                flash('You must be an admin to access this page!', category="danger")
+                flash('You do not have the right credentials to access this page!', category="danger")
                 return redirect(url_for('all_posts'))
             return f(*args, **kwargs)
 
@@ -540,7 +540,7 @@ class PostForm(FlaskForm):
     product = StringField('Product (ex. Strawberries)', validators=[InputRequired(), Length(min=1, max=100, message='Product must be between 1 and 100 characters')])
     description = TextAreaField('Description (quality, harvest date, etc.)', validators=[InputRequired()])
     price = FloatField('Price (ex. 5.99)', validators=[InputRequired(), NumberRange(min=0.01, message='Price must be at least $0.01')])
-    quantity = FloatField('Quantity', validators=[InputRequired(), NumberRange(min=1, max=1000000, message='Quantity must be between 1 and 1,000,000')])
+    quantity = IntegerField('Quantity', validators=[InputRequired(), NumberRange(min=1, max=1000000, message='Quantity must be between 1 and 1,000,000')])
     unit = SelectField('Unit', choices=[('item', 'item'),
                                         ('oz', 'oz'),
                                         ('lb', 'lb'),
@@ -562,7 +562,7 @@ class EditPostForm(FlaskForm):
     product = StringField('Product (ex. Strawberries)', validators=[InputRequired(), Length(min=1, max=100, message='Product must be between 1 and 100 characters')])
     description = TextAreaField('Description (quality, harvest date, etc.)', validators=[InputRequired()])
     price = FloatField('Price (ex. 5.99)', validators=[InputRequired(), NumberRange(min=0.01, message='Price must be at least $0.01')])
-    quantity = FloatField('Quantity', validators=[InputRequired(), NumberRange(min=1, max=1000000, message='Quantity must be between 1 and 1,000,000')])
+    quantity = IntegerField('Quantity', validators=[InputRequired(), NumberRange(min=1, max=1000000, message='Quantity must be between 1 and 1,000,000')])
     unit = SelectField('Unit', choices=[('item', 'item'),
                                         ('oz', 'oz'),
                                         ('lb', 'lb'),
@@ -688,6 +688,41 @@ def post_details(id):
         return render_template('post-details.html', search_form=query, post=post, role=role)
     else:
         return render_template('post-details.html', search_form=query, post=post, user=user, role=role)
+
+
+class BuyProductForm(FlaskForm):
+    amount = IntegerField('Quantity', [DataRequired()])
+    submit = SubmitField('Submit')
+
+
+@app.route('/posts/buy/<id>', methods=['GET', 'POST'])
+@requires_roles('user')
+@login_required
+def buy_product(id):
+    user_id = current_user.get_id()
+    user = db.find_user_by_id(user_id)
+
+    post = db.find_post_by_id(id)
+
+    if hasattr(current_user, 'role'):
+        role = current_user.get_role()
+    else:
+        role = ""
+
+    buy_product_form = BuyProductForm()
+
+    if request.method == 'POST':
+        quantity = db.get_quantity(id)
+        val = db.update_quantity(id, quantity[0], buy_product_form.amount.data)
+
+        if val == 0:
+            flash('You cannot buy that many!', category="danger")
+            return redirect(url_for('buy_product', id=id))
+        else:
+            flash('Buy successful!', category="success")
+            return redirect(url_for('all_posts', id=id))
+
+    return render_template('buy-product.html', form=buy_product_form, user=user, post=post, role=role)
 
 
 # All the posts in the database - also handles searching

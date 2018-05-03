@@ -92,7 +92,7 @@ def find_post_by_id(id):
         SELECT *, p.id AS "post_id" FROM post p
         INNER JOIN "user" u ON u.id = p.user_id
         LEFT JOIN "photo" ON p.id = photo.id
-        WHERE p.id = %(id)s
+        WHERE p.id = %(id)s AND p.quantity > 0
     '''
     g.cursor.execute(query, {'id': id})
     return g.cursor.fetchone()
@@ -104,7 +104,7 @@ def posts_by_user(user_id):
         SELECT *, p.id AS "post_id" FROM post p
         INNER JOIN "user" u ON u.id = p.user_id
         LEFT JOIN "photo" ON p.id = photo.id
-        WHERE u.active = TRUE AND user_id = %(user_id)s
+        WHERE u.active = TRUE AND user_id = %(user_id)s AND p.quantity > 0
         ORDER BY p.id;
      '''
 
@@ -120,7 +120,7 @@ def favorites_by_user(user_id):
       INNER JOIN post p ON p.id = f.post_id
       INNER JOIN "user" u ON u.id = f.user_id 
         LEFT JOIN "photo" ON p.id = photo.id
-      WHERE u.id = %(user_id)s AND u.active = TRUE
+      WHERE u.id = %(user_id)s AND u.active = TRUE AND p.quantity > 0
     '''
     g.cursor.execute(query, {'user_id': user_id})
     g.connection.commit()
@@ -195,7 +195,7 @@ def all_posts():
         SELECT *, p.id AS "post_id" FROM post p
         INNER JOIN "user" u ON u.id = p.user_id
         LEFT JOIN "photo" ON p.id = photo.id
-        WHERE u.active = TRUE
+        WHERE u.active = TRUE AND p.quantity > 0
         ORDER BY p.id;
     '''
     g.cursor.execute(query)
@@ -210,6 +210,31 @@ def update_post(price, quantity, unit, product, description, post_id):
         WHERE id = %(id)s
     '''
     g.cursor.execute(query, {'id': post_id, 'price': price, 'quantity': quantity, 'unit': unit, 'product': product, 'description': description})
+    g.connection.commit()
+    return g.cursor.rowcount
+
+
+# Gets the quantity of a post
+def get_quantity(post_id):
+    query = '''
+        SELECT quantity FROM post
+        WHERE id = %(id)s
+    '''
+    g.cursor.execute(query, {'id': post_id})
+    return g.cursor.fetchone()
+
+
+# Updates a post with the new quantity
+def update_quantity(post_id, quantity, amount):
+    if quantity < amount:
+        return 0
+
+    query = '''
+        UPDATE post 
+        SET quantity = %(quantity)s - %(amount)s
+        WHERE id = %(id)s
+    '''
+    g.cursor.execute(query, {'id': post_id, 'quantity': quantity, 'amount': amount})
     g.connection.commit()
     return g.cursor.rowcount
 

@@ -121,7 +121,7 @@
                         </div>
                         <div class="card-body" style="text-align: center">
                             {% if mode == 'feed' or mode == 'results' or mode == 'user' %}
-                                <a href="#" class="btn btn-success">Buy</a>
+                                <a href="{{ url_for('buy_product', id=post.post_id) }}" class="btn btn-success">Buy</a>
                             {%  endif %}
 
                             <a href="{{ url_for('post_details', id=post.post_id) }}" class="btn btn-primary">Details</a>

@@ -17,7 +17,7 @@
 
 
             <div class="col-md-6" style="text-align: center; display:flex; justify-content:center; align-items:center">
-                <a href="#" class="btn btn-success" style="margin-left: 10px; width: 65px">Buy</a>
+                <a href="{{ url_for('buy_product', id=post.post_id) }}" class="btn btn-success" style="margin-left: 10px; width: 65px">Buy</a>
                 <a href="#" class="btn btn-primary" style="margin-left: 10px; width: 65px">Trade</a>
                 {% if user %}
                     <a href="#" class="btn btn-dark" style="margin-left: 10px">Message Seller</a>
@@ -40,12 +40,6 @@
 
             <div class="col-md-5" style="margin-left: auto">
                 <img class="card-img-top" style="height: 250px; width: 350px" src="https://www.notizie.it/wp-content/uploads/2016/04/article-new_ds-cdn-write_upload_9000_000_00_9_109009.jpg" alt="Product Location">
-
-{#                {% if (post.zip)|string|length == 4 %}#}
-{#                    <p><b>ZIP: </b>0{{ post.zip }}</p>#}
-{#                {% else %}#}
-{#                    <p><b>ZIP: </b>{{ post.zip }}</p>#}
-{#                {% endif %}#}
             </div>
 
             <div class="col-md-12">
