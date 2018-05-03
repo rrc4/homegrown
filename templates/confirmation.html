@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirmation{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Thank you for your order!</h1>
+                <br>
+                {% if amount and total %}
+                    {% if amount == '1' or post.unit == 'oz' %}
+                        <p>You bought <b>{{ amount }} {{ post.unit }}</b> of {{ post.product }} for a total of <b>${{ total }}0</b>.</p>
+                    {% else %}
+                        <p>You bought <b>{{ amount }} {{ post.unit }}s</b> of {{ post.product }} for a total of <b>${{ total }}0</b>.</p>
+                    {% endif %}
+                {% endif %}
+                <p>The seller has been notified.</p>
+                <p>You can message the seller for pickup location and any further questions you have.</p>
+                <br>
+                <a href="#" class="btn btn-dark">Message Seller</a>
+                <a href="#" class="btn btn-success" style="margin-left: 20px">My Purchases</a>
+                <a href="{{ url_for('all_posts') }}" class="btn btn-primary" style="margin-left: 20px">Back to Feed</a>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

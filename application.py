@@ -67,7 +67,7 @@ class SignInForm(FlaskForm):
 class SignUpForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired(), Length(min=1, max=80)])
     email = StringField('Email', validators=[InputRequired(), Email()])
-    zip = IntegerField('ZIP Code', validators=[InputRequired(), NumberRange(min=3000, max=99999, message='ZIP code not valid - must be 5 characters')])
+    zip = IntegerField('ZIP Code (for approximating location)', validators=[InputRequired(), NumberRange(min=3000, max=99999, message='ZIP code not valid - must be 5 characters')])
     password = PasswordField('New Password', validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
                                                          Length(min=8),
                                                          Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
@@ -212,7 +212,7 @@ def sign_out():
 class UserForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired(), Length(min=1, max=80)])
     email = StringField('Email', validators=[InputRequired(), Email()])
-    zip = IntegerField('ZIP Code (ex. 46969)', validators=[InputRequired(), NumberRange(min=3000, max=99999, message='ZIP code not valid - must be 5 characters')])
+    zip = IntegerField('ZIP Code (ex. 46989)', validators=[InputRequired(), NumberRange(min=3000, max=99999, message='ZIP code not valid - must be 5 characters')])
     password = PasswordField('New Password', validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
                                                          Length(min=8),
                                                          Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
@@ -226,7 +226,7 @@ class UserForm(FlaskForm):
 class AdminUserForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired(), Length(min=1, max=80)])
     email = StringField('Email', validators=[InputRequired(), Email()])
-    zip = IntegerField('ZIP Code (ex. 46969)', validators=[InputRequired(), NumberRange(min=3000, max=99999, message='ZIP code not valid - must be 5 characters')])
+    zip = IntegerField('ZIP Code (ex. 46989)', validators=[InputRequired(), NumberRange(min=3000, max=99999, message='ZIP code not valid - must be 5 characters')])
     password = PasswordField('New Password', validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
                                                          Length(min=8),
                                                          Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
@@ -417,7 +417,9 @@ def profile():
 
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
-        posts = db.search_products(query_list)
+        posts = []
+        for item in query_list:
+            posts += db.search_products(item)
         return render_template('posts.html', search_form=query, posts=posts, mode='results', role=role)
 
     stars = int(user['rating'])
@@ -446,7 +448,9 @@ def my_posts():
 
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
-        posts = db.search_products(query_list)
+        posts = []
+        for item in query_list:
+            posts += db.search_products(item)
         return render_template('posts.html', search_form=query, posts=posts, mode='results', role=role)
 
     return render_template('posts.html', search_form=query, posts=posts, mode='my-posts', role=role)
@@ -472,7 +476,9 @@ def user_posts(user_id):
 
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
-        posts = db.search_products(query_list)
+        posts = []
+        for item in query_list:
+            posts += db.search_products(item)
         return render_template('posts.html', search_form=query, posts=posts, mode='results', role=role)
 
     return render_template('posts.html', search_form=query, user=user, posts=posts, mode='user', role=role)
@@ -496,7 +502,9 @@ def my_favorites():
 
         if request.method == 'POST':
             query_list = query.search.data.lower().split(" ")
-            posts = db.search_products(query_list)
+            posts = []
+            for item in query_list:
+                posts += db.search_products(item)
             return render_template('posts.html', search_form=query, posts=posts, mode='results', role=role)
 
         return render_template('posts.html', user_id=user_id, search_form=query, posts=favorites, mode='favorites', role=role)
@@ -542,6 +550,7 @@ class PostForm(FlaskForm):
     price = FloatField('Price (ex. 5.99)', validators=[InputRequired(), NumberRange(min=0.01, message='Price must be at least $0.01')])
     quantity = IntegerField('Quantity', validators=[InputRequired(), NumberRange(min=1, max=1000000, message='Quantity must be between 1 and 1,000,000')])
     unit = SelectField('Unit', choices=[('item', 'item'),
+                                        ('dozen', 'dozen'),
                                         ('oz', 'oz'),
                                         ('lb', 'lb'),
                                         ('gal', 'gal'),
@@ -564,6 +573,7 @@ class EditPostForm(FlaskForm):
     price = FloatField('Price (ex. 5.99)', validators=[InputRequired(), NumberRange(min=0.01, message='Price must be at least $0.01')])
     quantity = IntegerField('Quantity', validators=[InputRequired(), NumberRange(min=1, max=1000000, message='Quantity must be between 1 and 1,000,000')])
     unit = SelectField('Unit', choices=[('item', 'item'),
+                                        ('dozen', 'dozen'),
                                         ('oz', 'oz'),
                                         ('lb', 'lb'),
                                         ('gal', 'gal'),
@@ -681,7 +691,9 @@ def post_details(id):
 
     if request.method == 'POST':
         query_list = query.search.data.lower().split(" ")
-        posts = db.search_products(query_list)
+        posts = []
+        for item in query_list:
+            posts += db.search_products(item)
         return render_template('posts.html', search_form=query, posts=posts, mode='results', role=role)
 
     if post['user_id'] == current_user.get_id():
@@ -713,16 +725,37 @@ def buy_product(id):
 
     if request.method == 'POST':
         quantity = db.get_quantity(id)
-        val = db.update_quantity(id, quantity[0], buy_product_form.amount.data)
+
+        amount = int(buy_product_form.amount.data)
+        total = amount * post['price']
+
+        val = db.update_quantity(id, quantity[0], amount)
 
         if val == 0:
             flash('You cannot buy that many!', category="danger")
             return redirect(url_for('buy_product', id=id))
         else:
-            flash('Buy successful!', category="success")
-            return redirect(url_for('all_posts', id=id))
+            return redirect(url_for('confirmation', id=id, amount=amount, total=total))
 
     return render_template('buy-product.html', form=buy_product_form, user=user, post=post, role=role)
+
+
+# Order confirmation page
+@app.route('/posts/confirmation/<id>/<amount>/<total>', methods=['GET'])
+@requires_roles('user')
+@login_required
+def confirmation(id, amount, total):
+    user_id = current_user.get_id()
+    user = db.find_user_by_id(user_id)
+
+    post = db.find_post_by_id(id)
+
+    if hasattr(current_user, 'role'):
+        role = current_user.get_role()
+    else:
+        role = ""
+
+    return render_template('confirmation.html', id=id, amount=amount, total=total, user=user, post=post, role=role)
 
 
 # All the posts in the database - also handles searching
@@ -754,7 +787,9 @@ def all_posts():
 
     if query.search.data is not None:
         query_list = query.search.data.lower().split(" ")
-        posts = db.search_products(query_list)
+        posts = []
+        for item in query_list:
+            posts += db.search_products(item)
 
         if not posts:
             return render_template('posts.html', filter_form=selected, search_form=query, posts=[], mode='results', role=role)

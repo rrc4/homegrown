@@ -27,6 +27,7 @@ CREATE TABLE post
     quantity INTEGER NOT NULL,
     unit VARCHAR(5) NOT NULL,
     CHECK (unit = 'item' OR
+           unit = 'dozen' OR
            unit = 'oz' OR
            unit = 'lb' OR
            unit = 'gal' OR

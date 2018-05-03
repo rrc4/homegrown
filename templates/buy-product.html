@@ -27,7 +27,7 @@
                  {% endif %}
             </div>
 
-            <div class="col-md-7">
+            <div class="col-md-3">
                 <br>
                 {% if user %}
                     <p>Posted by {{ user.name }}</p>
@@ -41,13 +41,17 @@
                     <p><b>{{ post.quantity }} {{ post.unit }}</b> remaining</p>
                 {% endif %}
 
-                <form method="POST" class="form-inline my-2 my-lg-0">
+                <form method="POST" class="form my-2 my-lg-0">
                     <div class="input-group">
                         {{ form.amount(class_='form-control', placeholder='Quantity') }}
                         <div class="input-group-append">
-                            <span class="input-group-text" style="border-radius: 0 5px 5px 0">{{ post.unit }}</span>
+                            {% if post.unit == 'oz' %}
+                                <span class="input-group-text" style="border-radius: 0 5px 5px 0">{{ post.unit }}</span>
+                            {% else %}
+                                <span class="input-group-text" style="border-radius: 0 5px 5px 0">{{ post.unit }}s</span>
+                            {% endif %}
                         </div>
-                        <button class="btn btn-primary my-2 my-sm-0" style="margin-left: 8px" type=submit value="Submit">Buy Product</button>
+                        <button class="btn btn-success my-2 my-sm-0" style="margin-left: 8px" type=submit value="Submit">Buy</button>
                     </div>
                 </form>
 
