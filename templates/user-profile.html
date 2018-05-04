@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ user.name }}'s Profile{% endblock %}
+
+{% block content %}
+    <img src="https://cdn.iconscout.com/public/images/icon/free/png-512/back-arrow-35325b9dd72f970a-512x512.png" style="height: 35px; width: 35px; cursor: pointer" onclick="goBack()">
+
+    <script>
+    function goBack() {
+        window.history.back();
+    }
+    </script>
+
+    <div class="container">
+        <div class="row">
+            <h1 class="col-lg-9">{{ user.name }}'s Profile</h1>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4">
+                {% if user.file_path == "bogus_path" or user.file_path == none or user.file_path == "None" %}
+                    <img class="card-img-top" src="https://vignette.wikia.nocookie.net/pandorahearts/images/a/ad/Not_available.jpg/revision/latest?cb=20141028171337" alt="No Image Available">
+                {% else %}
+                    <img class="card-img-top" src="/{{ user.file_path }}" alt="Product Image">
+                {% endif %}
+            </div>
+
+            <div class="col-lg-8">
+                <h4>{{ user.name }}</h4>
+                <br>
+                <h5>{{ user.email }}</h5>
+                <br>
+                <div>
+                    {% for star in range(stars) %}
+                        <img style="width: 20px; height: 20px" src="/static/icons/star.png">
+                    {% endfor %}
+                    {% for star in range(5 - stars) %}
+                        <img style="width: 20px; height: 20px" src="/static/icons/star-empty.png">
+                    {% endfor %}
+                </div>
+                <br>
+                <p>ZIP: {{ user.zip }}</p>
+                <br>
+                <p>{{ user.bio }}</p>
+                <br>
+                <a href="#" class="btn btn-dark">Message User</a>
+            </div>
+        </div>
+    </div>
+    <br><br><br><br>
+    <div class="container">
+        <div class="row">
+            <h2 class="col-lg-9">{{ user.name }}'s Posts</h2>
+            {% for post in posts %}
+                <div class="col-lg-4">
+                    <div class="card" style="width: 350px; margin: 10px 10px 10px 10px;">
+                        {% if post.file_path == "bogus_path" or post.file_path == none or post.file_path == "None" %}
+                            <a href="{{ url_for('post_details', id=post.post_id) }}"><img class="card-img-top" style="width: 348px; height: 240px;" src="https://vignette.wikia.nocookie.net/pandorahearts/images/a/ad/Not_available.jpg/revision/latest?cb=20141028171337" alt="No Image Available"></a>
+                        {% else %}
+                            <a href="{{ url_for('post_details', id=post.post_id) }}"><img class="card-img-top" style="width: 348px; height: 240px;" src="/{{ post.file_path }}" alt="Product Image"></a>
+                        {% endif %}
+                        <div class="card-body">
+                            <a href="{{ url_for('post_details', id=post.post_id) }}" style="color: #212529"><h5 class="card-title">{{ post.product }}</h5></a>
+
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">{{'${:,.2f}'.format(post.price) }} per {{ post.unit }}</li>
+
+                                {% if post.unit != 'oz' and post.unit != 'dozen' and post.quantity > 0 %}
+                                    <li class="list-group-item">{{ post.quantity }} {{ post.unit }}s remaining</li>
+                                {% else %}
+                                    <li class="list-group-item">{{ post.quantity }} {{ post.unit }} remaining</li>
+                                {% endif %}
+
+                                <li class="list-group-item">
+                                    {% if post.category == 'Grains' %}
+                                        <h5><span class="badge badge-pill badge-warning">{{ post.category }}</span></h5>
+                                    {% elif post.category == 'Dairy' %}
+                                        <h5><span class="badge badge-pill badge-secondary">{{ post.category }}</span></h5>
+                                    {% elif post.category == 'Vegetables' %}
+                                        <h5><span class="badge badge-pill badge-success">{{ post.category }}</span></h5>
+                                    {% elif post.category == 'Fruits' %}
+                                        <h5><span class="badge badge-pill badge-primary">{{ post.category }}</span></h5>
+                                    {% elif post.category == 'Meat' %}
+                                        <h5><span class="badge badge-pill badge-danger">{{ post.category }}</span></h5>
+                                    {% elif post.category == 'Other' %}
+                                        <h5><span class="badge badge-pill badge-dark">{{ post.category }}</span></h5>
+                                    {% endif %}
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-body" style="text-align: center">
+                            <a href="{{ url_for('post_details', id=post.post_id) }}" class="btn btn-primary">Details</a>
+                            <a href="{{ url_for('edit_post', id=post.post_id) }}" class="btn btn-secondary">Edit</a>
+                            <a href="{{ url_for('delete_post_by_id', id=post.post_id) }}" class="btn btn-danger">Delete</a>
+                        </div>
+                        <div class="card-footer text-muted" style="text-align: center">Posted on {{ post.date }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% if not posts %}
+        <div class="container">
+            <div class="row">
+                <h3 class="col-lg-9">
+                    You have no posts!
+                </h3>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

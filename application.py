@@ -165,7 +165,7 @@ def authenticate(email, password):
 # Necessary for the login manager to work
 @login_manager.user_loader
 def load_user(id):
-    # print(User(id))
+    print(User(id))
     return User(id)
 
 
@@ -412,7 +412,7 @@ def admin_dashboard():
     return render_template('admin-dashboard.html', role=role)
 
 
-# A user's profile
+# The current user's profile
 @app.route('/profile', methods=['GET', 'POST'])
 @requires_roles('user')
 @login_required
@@ -443,6 +443,38 @@ def profile():
     stars = int(user['rating'])
 
     return render_template('profile.html', search_form=query, posts=posts, user=user, role=role, stars=stars)
+
+
+# A user's profile
+@app.route('/profile/<id>', methods=['GET'])
+@requires_roles('user')
+@login_required
+def user_profile(id):
+    query = ProductSearchForm(request.form)
+
+    if hasattr(current_user, 'role'):
+        role = current_user.get_role()
+    else:
+        role = ""
+
+    user = db.find_user_by_id(id)
+
+    if id is None:
+        flash('User does not exist!', category='danger')
+        posts = []
+    else:
+        posts = db.posts_by_user(id)
+
+    if request.method == 'POST':
+        query_list = query.search.data.lower().split(" ")
+        posts = []
+        for item in query_list:
+            posts += db.search_products(item)
+        return render_template('posts.html', search_form=query, posts=posts, mode='results', role=role)
+
+    stars = int(user['rating'])
+
+    return render_template('user-profile.html', search_form=query, posts=posts, user=user, role=role, stars=stars)
 
 
 # A list of the current user's posts
@@ -730,9 +762,11 @@ class BuyProductForm(FlaskForm):
 @login_required
 def buy_product(id):
     user_id = current_user.get_id()
-    user = db.find_user_by_id(user_id)
+    buying_user = db.find_user_by_id(user_id)
 
     post = db.find_post_by_id(id)
+    user_id = post['user_id']
+    selling_user = db.find_user_by_id(user_id)
 
     if hasattr(current_user, 'role'):
         role = current_user.get_role()
@@ -755,7 +789,7 @@ def buy_product(id):
         else:
             return redirect(url_for('confirmation', id=id, amount=amount, total=total))
 
-    return render_template('buy-product.html', form=buy_product_form, user=user, post=post, role=role)
+    return render_template('buy-product.html', form=buy_product_form, selling_user=selling_user, buying_user=buying_user, post=post, role=role)
 
 
 # Order confirmation page
