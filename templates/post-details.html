@@ -59,7 +59,7 @@
                 {% endif %}
 
                 {% if user %}
-                    <p>Posted by {{ user.name }}</p>
+                    <p>Posted by <a href="{{ url_for('user_profile', id=user.id) }}">{{ user.name }}</a></p>
                 {% else %}
                     <p>Posted by <a href="{{ url_for('profile') }}">You</a></p>
                 {% endif %}
