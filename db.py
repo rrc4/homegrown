@@ -97,7 +97,7 @@ def find_post_by_id(id):
         SELECT *, p.id AS "post_id" FROM post p
         INNER JOIN "user" u ON u.id = p.user_id
         LEFT JOIN "post_photo" ON p.id = post_photo.id
-        WHERE p.id = %(id)s AND p.quantity > 0
+        WHERE p.id = %(id)s
     '''
     g.cursor.execute(query, {'id': id})
     return g.cursor.fetchone()
@@ -109,7 +109,7 @@ def posts_by_user(user_id):
         SELECT *, p.id AS "post_id" FROM post p
         INNER JOIN "user" u ON u.id = p.user_id
         LEFT JOIN "post_photo" ON p.id = post_photo.id
-        WHERE u.active = TRUE AND user_id = %(user_id)s AND p.quantity > 0
+        WHERE u.active = TRUE AND user_id = %(user_id)s
         ORDER BY p.id;
      '''
 
