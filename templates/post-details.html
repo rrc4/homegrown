@@ -22,7 +22,11 @@
                 {% if user %}
                     <a href="#" class="btn btn-dark" style="margin-left: 10px">Message Seller</a>
                 {% else %}
-                    <a href="{{ url_for('edit_post', id=post.post_id) }}" style="margin-left: 10px" class="btn btn-secondary">Edit Post</a>
+                    {% if post.quantity == 0 %}
+                        <a href="{{ url_for('edit_post', id=post.post_id) }}" class="btn btn-secondary" style="margin-left: 10px">Post Again</a>
+                    {% else %}
+                        <a href="{{ url_for('edit_post', id=post.post_id) }}" class="btn btn-secondary" style="margin-left: 10px">Edit</a>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>

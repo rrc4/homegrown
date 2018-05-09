@@ -66,7 +66,7 @@ class SignInForm(FlaskForm):
 # A form to sign up for a new account
 class SignUpForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired(), Length(min=1, max=80)])
-    email = StringField('Email', validators=[InputRequired(), Email()])
+    email = StringField('Email (will not be publicized)', validators=[InputRequired(), Email()])
     zip = IntegerField('ZIP Code (for approximating location)', validators=[InputRequired(), NumberRange(min=3000, max=99999, message='ZIP code not valid - must be 5 characters')])
     password = PasswordField('New Password', validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
                                                          Length(min=8),
@@ -165,7 +165,7 @@ def authenticate(email, password):
 # Necessary for the login manager to work
 @login_manager.user_loader
 def load_user(id):
-    print(User(id))
+    # print(User(id))
     return User(id)
 
 
