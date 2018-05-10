@@ -13,7 +13,7 @@
 
     <div class="container">
         <div class="row">
-            <h1 class="col-md-6">{{ post.product }} - {{'${:,.2f}'.format(post.price) }}/{{ post.unit }}</h1>
+            <h1 class="col-md-6">{{ post.product }}</h1>
         </div>
     </div>
 
@@ -25,22 +25,18 @@
                  {% else %}
                      <img class="card-img-top" src="/{{ post.file_path }}" alt="Product Image">
                  {% endif %}
-            </div>
 
-            <div class="col-md-3">
-                <br>
+            <br>
+            <br>
                 {% if selling_user %}
                     <p>Posted by <a href="{{ url_for('user_profile', id=selling_user.id) }}">{{ selling_user.name }}</a></p>
                 {% endif %}
 
                 <p>{{ post.description }}</p>
+            </div>
 
-                {% if post.unit != 'oz'and post.unit != 'dozen' and post.quantity > 1 %}
-                    <p><b>{{ post.quantity }} {{ post.unit }}s</b> remaining</p>
-                {% else %}
-                    <p><b>{{ post.quantity }} {{ post.unit }}</b> remaining</p>
-                {% endif %}
-
+            <div class="col-md-3">
+                <br>
                 <form method="POST" class="form my-2 my-lg-0">
                     <div class="input-group">
                         {{ form.csrf_token }}
@@ -61,6 +57,14 @@
                         </div>
                     {% endif %}
                 </form>
+
+                {% if post.unit != 'oz'and post.unit != 'dozen' and post.quantity > 1 %}
+                    <p><b>Quantity Remaining: </b>{{ post.quantity }} {{ post.unit }}s</p>
+                {% else %}
+                    <p><b>Quantity Remaining: </b>{{ post.quantity }} {{ post.unit }}</p>
+                {% endif %}
+
+                <p><b>Price: </b>{{'${:,.2f}'.format(post.price) }} / {{ post.unit }}</p>
 
             </div>
         </div>
