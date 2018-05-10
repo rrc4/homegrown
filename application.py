@@ -753,7 +753,7 @@ def post_details(id):
 
 
 class BuyProductForm(FlaskForm):
-    amount = IntegerField('Quantity', [DataRequired()])
+    amount = IntegerField('Quantity', validators=[InputRequired()])
     submit = SubmitField('Submit')
 
 
@@ -775,7 +775,7 @@ def buy_product(id):
 
     buy_product_form = BuyProductForm()
 
-    if request.method == 'POST':
+    if buy_product_form.validate_on_submit():
         quantity = db.get_quantity(id)
 
         amount = int(buy_product_form.amount.data)

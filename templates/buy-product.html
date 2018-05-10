@@ -43,6 +43,7 @@
 
                 <form method="POST" class="form my-2 my-lg-0">
                     <div class="input-group">
+                        {{ form.csrf_token }}
                         {{ form.amount(class_='form-control', placeholder='Quantity') }}
                         <div class="input-group-append">
                             {% if post.unit == 'oz' or post.unit == 'dozen' %}
@@ -53,6 +54,12 @@
                         </div>
                         <button class="btn btn-success my-2 my-sm-0" style="margin-left: 8px" type=submit value="Submit">Buy</button>
                     </div>
+                    <br>
+                    {% if form.amount.errors %}
+                        <div class="alert alert-danger">
+                            Must be an integer!
+                        </div>
+                    {% endif %}
                 </form>
 
             </div>
