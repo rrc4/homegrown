@@ -138,10 +138,16 @@ def sign_up():
             user = db.find_user_by_email(sign_up_form.email.data)
 
             if authenticate(sign_up_form.email.data, sign_up_form.password.data) and is_active:
+                print(user['id'])
+
                 current = User(user['id'])
                 login_user(current)
                 session['email'] = current.email
-                session['id'] = current.id
+                session['id'] = user['id']
+
+                print(current)
+                print(session['id'])
+                print(session['email'])
 
                 flash('Sign up successful!', category='success')
                 return redirect(url_for('all_posts'))
@@ -165,7 +171,7 @@ def authenticate(email, password):
 # Necessary for the login manager to work
 @login_manager.user_loader
 def load_user(id):
-    # print(User(id))
+    print(User(id))
     return User(id)
 
 
