@@ -801,13 +801,15 @@ def confirmation(id, amount, total):
     user = db.find_user_by_id(user_id)
 
     post = db.find_post_by_id(id)
+    user_id = post['user_id']
+    selling_user = db.find_user_by_id(user_id)
 
     if hasattr(current_user, 'role'):
         role = current_user.get_role()
     else:
         role = ""
 
-    return render_template('confirmation.html', id=id, amount=amount, total=total, user=user, post=post, role=role)
+    return render_template('confirmation.html', id=id, amount=amount, total=total, user=user, post=post, role=role, selling_user=selling_user)
 
 
 # All the posts in the database - also handles searching
