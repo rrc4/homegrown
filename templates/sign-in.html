@@ -79,6 +79,13 @@
                                                 </ul>
                                             </div>
                                         {% endif %}
+
+                                        {% if error %}
+                                            <div class="alert alert-danger">
+                                                Invalid username or password!
+                                            </div>
+                                        {% endif %}
+                                    
                                         <p> {{ sign_in_form.submit(class_='btn btn-success btn-block') }} </p>
                                     </form>
                                 </div>

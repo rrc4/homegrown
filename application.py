@@ -93,6 +93,7 @@ def index():
 @app.route('/signin', methods=['GET', 'POST'])
 def sign_in():
     sign_in_form = SignInForm()
+    error = False
 
     if sign_in_form.validate_on_submit() and sign_in_form.validate():
         user = db.find_user_by_email(sign_in_form.email.data)
@@ -111,10 +112,10 @@ def sign_in():
             flash('Sign in successful!', category='success')
             return redirect(url_for('all_posts'))
         else:
-            flash('Invalid email address or password', category='danger')
-            return redirect(url_for('sign_in'))
+            error = True
+            return render_template('sign-in.html', error=error, sign_in_form=sign_in_form)
 
-    return render_template('sign-in.html', sign_in_form=sign_in_form)
+    return render_template('sign-in.html', error=error, sign_in_form=sign_in_form)
 
 
 # Allows users to sign up
@@ -145,16 +146,12 @@ def sign_up():
             user = db.find_user_by_email(sign_up_form.email.data)
 
             if authenticate(sign_up_form.email.data, sign_up_form.password.data) and is_active:
-                print(user['id'])
-
                 current = User(user['id'])
                 login_user(current)
                 session['email'] = current.email
                 session['id'] = user['id']
 
-                print(current)
                 print(session['id'])
-                print(session['email'])
 
                 flash('Sign up successful!', category='success')
                 return redirect(url_for('all_posts'))
@@ -210,8 +207,7 @@ class User(object):
         return self.role
 
     def __str__(self):
-        return "<User {} Email {} Role {} Authenticated {} Active {}>".format(self.id, self.email, self.role,
-                                                                              self.is_authenticated, self.is_active)
+        return "<User {} Email {} Role {} Authenticated {} Active {}>".format(self.id, self.email, self.role, self.is_authenticated, self.is_active)
 
 
 # Signs the user out
@@ -226,15 +222,12 @@ def sign_out():
 class UserForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired(), Length(min=1, max=80)])
     email = StringField('Email', validators=[InputRequired(), Email()])
-    zip = IntegerField('ZIP Code (ex. 46989)', validators=[InputRequired(), NumberRange(min=3000, max=99999,
-                                                                                        message='ZIP code not valid - must be 5 characters')])
-    password = PasswordField('New Password',
-                             validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
-                                         Length(min=8),
-                                         Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
-                                         Regexp(r'.*[0-9]', message="Password must have at least one digit"),
-                                         Regexp(r'.*[!@#$%^&*_+=]',
-                                                message="Password must have at least one special character")])
+    zip = IntegerField('ZIP Code (ex. 46989)', validators=[InputRequired(), NumberRange(min=3000, max=99999, message='ZIP code not valid - must be 5 characters')])
+    password = PasswordField('New Password', validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
+                                                         Length(min=8),
+                                                         Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
+                                                         Regexp(r'.*[0-9]', message="Password must have at least one digit"),
+                                                         Regexp(r'.*[!@#$%^&*_+=]', message="Password must have at least one special character")])
     confirm = PasswordField('Repeat Password', validators=[InputRequired()])
     bio = TextAreaField('Tell us about yourself!', validators=[InputRequired(), Length(min=1, max=500)])
     submit = SubmitField('Update Profile')
@@ -243,19 +236,15 @@ class UserForm(FlaskForm):
 class AdminUserForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired(), Length(min=1, max=80)])
     email = StringField('Email', validators=[InputRequired(), Email()])
-    zip = IntegerField('ZIP Code (ex. 46989)', validators=[InputRequired(), NumberRange(min=3000, max=99999,
-                                                                                        message='ZIP code not valid - must be 5 characters')])
-    password = PasswordField('New Password',
-                             validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
-                                         Length(min=8),
-                                         Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
-                                         Regexp(r'.*[0-9]', message="Password must have at least one digit"),
-                                         Regexp(r'.*[!@#$%^&*_+=]',
-                                                message="Password must have at least one special character")])
+    zip = IntegerField('ZIP Code (ex. 46989)', validators=[InputRequired(), NumberRange(min=3000, max=99999, message='ZIP code not valid - must be 5 characters')])
+    password = PasswordField('New Password', validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
+                                                         Length(min=8),
+                                                         Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
+                                                         Regexp(r'.*[0-9]', message="Password must have at least one digit"),
+                                                         Regexp(r'.*[!@#$%^&*_+=]', message="Password must have at least one special character")])
     confirm = PasswordField('Repeat Password', validators=[InputRequired()])
     bio = TextAreaField('Bio', validators=[InputRequired(), Length(min=1, max=500)])
-    rating = FloatField('Rating', validators=[InputRequired(),
-                                              NumberRange(min=0, max=5, message='Rating must be between 0.0 and 5.0')])
+    rating = FloatField('Rating', validators=[InputRequired(), NumberRange(min=0, max=5, message='Rating must be between 0.0 and 5.0')])
     submit = SubmitField('Save User')
 
 
@@ -439,6 +428,7 @@ def admin_dashboard():
 @login_required
 def profile():
     user_id = session['id']
+    print(user_id)
     query = ProductSearchForm(request.form)
 
     if hasattr(current_user, 'role'):
@@ -447,6 +437,8 @@ def profile():
         role = ""
 
     user = db.find_user_by_id(user_id)
+
+    print(user)
 
     if user_id is None:
         flash('User is not logged in!', category='danger')
