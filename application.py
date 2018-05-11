@@ -7,7 +7,8 @@ from flask import Flask, session, request, render_template, flash, redirect, url
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_wtf import FlaskForm
 
-from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField, TextAreaField, BooleanField
+from wtforms import StringField, SubmitField, FloatField, IntegerField, PasswordField, SelectField, TextAreaField, \
+    BooleanField
 from wtforms.validators import Length, NumberRange, Email, InputRequired, EqualTo, DataRequired, Regexp
 from flask_wtf.file import FileField, FileRequired
 
@@ -36,7 +37,6 @@ def teardown_request(exception):
 
 # Allow/disallow users from accessing pages based on their roles
 def requires_roles(*roles):
-
     def wrapper(f):
         @wraps(f)
         def wrapped(*args, **kwargs):
@@ -57,9 +57,12 @@ def requires_roles(*roles):
 class SignInForm(FlaskForm):
     email = StringField('Email', validators=[InputRequired(), Email()])
     password = PasswordField('Password', validators=[Length(min=8),
-                                                     Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
-                                                     Regexp(r'.*[0-9]', message="Password must have at least one digit"),
-                                                     Regexp(r'.*[!@#$%^&*_+=]', message="Password must have at least one special character")])
+                                                     Regexp(r'.*[A-Za-z]',
+                                                            message="Password must have at least one letter"),
+                                                     Regexp(r'.*[0-9]',
+                                                            message="Password must have at least one digit"),
+                                                     Regexp(r'.*[!@#$%^&*_+=]',
+                                                            message="Password must have at least one special character")])
     submit = SubmitField('Sign In')
 
 
@@ -67,12 +70,16 @@ class SignInForm(FlaskForm):
 class SignUpForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired(), Length(min=1, max=80)])
     email = StringField('Email (will not be publicized)', validators=[InputRequired(), Email()])
-    zip = IntegerField('ZIP Code (for approximating location)', validators=[InputRequired(), NumberRange(min=3000, max=99999, message='ZIP code not valid - must be 5 characters')])
-    password = PasswordField('New Password', validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
-                                                         Length(min=8),
-                                                         Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
-                                                         Regexp(r'.*[0-9]', message="Password must have at least one digit"),
-                                                         Regexp(r'.*[!@#$%^&*_+=]', message="Password must have at least one special character")])
+    zip = IntegerField('ZIP Code (for approximating location)', validators=[InputRequired(),
+                                                                            NumberRange(min=3000, max=99999,
+                                                                                        message='ZIP code not valid - must be 5 characters')])
+    password = PasswordField('New Password',
+                             validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
+                                         Length(min=8),
+                                         Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
+                                         Regexp(r'.*[0-9]', message="Password must have at least one digit"),
+                                         Regexp(r'.*[!@#$%^&*_+=]',
+                                                message="Password must have at least one special character")])
     confirm = PasswordField('Confirm Password', validators=[InputRequired()])
     submit = SubmitField('Sign Up')
 
@@ -138,10 +145,16 @@ def sign_up():
             user = db.find_user_by_email(sign_up_form.email.data)
 
             if authenticate(sign_up_form.email.data, sign_up_form.password.data) and is_active:
+                print(user['id'])
+
                 current = User(user['id'])
                 login_user(current)
                 session['email'] = current.email
-                session['id'] = current.id
+                session['id'] = user['id']
+
+                print(current)
+                print(session['id'])
+                print(session['email'])
 
                 flash('Sign up successful!', category='success')
                 return redirect(url_for('all_posts'))
@@ -165,8 +178,8 @@ def authenticate(email, password):
 # Necessary for the login manager to work
 @login_manager.user_loader
 def load_user(id):
-    # print(User(id))
-    return User(id)
+    user = User(id)
+    return user
 
 
 # A User class for creating User objects
@@ -196,8 +209,9 @@ class User(object):
     def get_role(self):
         return self.role
 
-    def __repr__(self):
-        return "<User {}   Email: {}   Role: {}   Is Authenticated: {}   Is Active: {}".format(self.id, self.email, self.role, self.is_authenticated, self.is_active)
+    def __str__(self):
+        return "<User {} Email {} Role {} Authenticated {} Active {}>".format(self.id, self.email, self.role,
+                                                                              self.is_authenticated, self.is_active)
 
 
 # Signs the user out
@@ -212,12 +226,15 @@ def sign_out():
 class UserForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired(), Length(min=1, max=80)])
     email = StringField('Email', validators=[InputRequired(), Email()])
-    zip = IntegerField('ZIP Code (ex. 46989)', validators=[InputRequired(), NumberRange(min=3000, max=99999, message='ZIP code not valid - must be 5 characters')])
-    password = PasswordField('New Password', validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
-                                                         Length(min=8),
-                                                         Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
-                                                         Regexp(r'.*[0-9]', message="Password must have at least one digit"),
-                                                         Regexp(r'.*[!@#$%^&*_+=]', message="Password must have at least one special character")])
+    zip = IntegerField('ZIP Code (ex. 46989)', validators=[InputRequired(), NumberRange(min=3000, max=99999,
+                                                                                        message='ZIP code not valid - must be 5 characters')])
+    password = PasswordField('New Password',
+                             validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
+                                         Length(min=8),
+                                         Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
+                                         Regexp(r'.*[0-9]', message="Password must have at least one digit"),
+                                         Regexp(r'.*[!@#$%^&*_+=]',
+                                                message="Password must have at least one special character")])
     confirm = PasswordField('Repeat Password', validators=[InputRequired()])
     bio = TextAreaField('Tell us about yourself!', validators=[InputRequired(), Length(min=1, max=500)])
     submit = SubmitField('Update Profile')
@@ -226,15 +243,19 @@ class UserForm(FlaskForm):
 class AdminUserForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired(), Length(min=1, max=80)])
     email = StringField('Email', validators=[InputRequired(), Email()])
-    zip = IntegerField('ZIP Code (ex. 46989)', validators=[InputRequired(), NumberRange(min=3000, max=99999, message='ZIP code not valid - must be 5 characters')])
-    password = PasswordField('New Password', validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
-                                                         Length(min=8),
-                                                         Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
-                                                         Regexp(r'.*[0-9]', message="Password must have at least one digit"),
-                                                         Regexp(r'.*[!@#$%^&*_+=]', message="Password must have at least one special character")])
+    zip = IntegerField('ZIP Code (ex. 46989)', validators=[InputRequired(), NumberRange(min=3000, max=99999,
+                                                                                        message='ZIP code not valid - must be 5 characters')])
+    password = PasswordField('New Password',
+                             validators=[InputRequired(), EqualTo('confirm', message='Passwords must match'),
+                                         Length(min=8),
+                                         Regexp(r'.*[A-Za-z]', message="Password must have at least one letter"),
+                                         Regexp(r'.*[0-9]', message="Password must have at least one digit"),
+                                         Regexp(r'.*[!@#$%^&*_+=]',
+                                                message="Password must have at least one special character")])
     confirm = PasswordField('Repeat Password', validators=[InputRequired()])
     bio = TextAreaField('Bio', validators=[InputRequired(), Length(min=1, max=500)])
-    rating = FloatField('Rating', validators=[InputRequired(), NumberRange(min=0, max=5, message='Rating must be between 0.0 and 5.0')])
+    rating = FloatField('Rating', validators=[InputRequired(),
+                                              NumberRange(min=0, max=5, message='Rating must be between 0.0 and 5.0')])
     submit = SubmitField('Save User')
 
 
@@ -557,7 +578,8 @@ def my_favorites():
                 posts += db.search_products(item)
             return render_template('posts.html', search_form=query, posts=posts, mode='results', role=role)
 
-        return render_template('posts.html', user_id=user_id, search_form=query, posts=favorites, mode='favorites', role=role)
+        return render_template('posts.html', user_id=user_id, search_form=query, posts=favorites, mode='favorites',
+                               role=role)
 
 
 # Adds a post to favorites
@@ -591,14 +613,17 @@ def remove_from_favorites(post_id):
         if favorites:
             db.delete_from_favorites(user_id, post_id)
     return redirect(url_for('my_favorites'))
-  
+
 
 # The form to create a post
 class PostForm(FlaskForm):
-    product = StringField('Product (ex. Strawberries)', validators=[InputRequired(), Length(min=1, max=100, message='Product must be between 1 and 100 characters')])
+    product = StringField('Product (ex. Strawberries)', validators=[InputRequired(), Length(min=1, max=100,
+                                                                                            message='Product must be between 1 and 100 characters')])
     description = TextAreaField('Description (quality, harvest date, etc.)', validators=[InputRequired()])
-    price = FloatField('Price (ex. 5.99)', validators=[InputRequired(), NumberRange(min=0.01, message='Price must be at least $0.01')])
-    quantity = IntegerField('Quantity', validators=[InputRequired(), NumberRange(min=1, max=1000000, message='Quantity must be between 1 and 1,000,000')])
+    price = FloatField('Price (ex. 5.99)',
+                       validators=[InputRequired(), NumberRange(min=0.01, message='Price must be at least $0.01')])
+    quantity = IntegerField('Quantity', validators=[InputRequired(), NumberRange(min=1, max=1000000,
+                                                                                 message='Quantity must be between 1 and 1,000,000')])
     unit = SelectField('Unit', choices=[('item', 'item'),
                                         ('dozen', 'dozen'),
                                         ('oz', 'oz'),
@@ -618,10 +643,13 @@ class PostForm(FlaskForm):
 
 # The form to edit a post
 class EditPostForm(FlaskForm):
-    product = StringField('Product (ex. Strawberries)', validators=[InputRequired(), Length(min=1, max=100, message='Product must be between 1 and 100 characters')])
+    product = StringField('Product (ex. Strawberries)', validators=[InputRequired(), Length(min=1, max=100,
+                                                                                            message='Product must be between 1 and 100 characters')])
     description = TextAreaField('Description (quality, harvest date, etc.)', validators=[InputRequired()])
-    price = FloatField('Price (ex. 5.99)', validators=[InputRequired(), NumberRange(min=0.01, message='Price must be at least $0.01')])
-    quantity = IntegerField('Quantity', validators=[InputRequired(), NumberRange(min=1, max=1000000, message='Quantity must be between 1 and 1,000,000')])
+    price = FloatField('Price (ex. 5.99)',
+                       validators=[InputRequired(), NumberRange(min=0.01, message='Price must be at least $0.01')])
+    quantity = IntegerField('Quantity', validators=[InputRequired(), NumberRange(min=1, max=1000000,
+                                                                                 message='Quantity must be between 1 and 1,000,000')])
     unit = SelectField('Unit', choices=[('item', 'item'),
                                         ('dozen', 'dozen'),
                                         ('oz', 'oz'),
@@ -648,41 +676,41 @@ def create_post():
         role = current_user.get_role()
     else:
         role = ""
-    
+
     if session:
         user_id = session['id']
 
         if post_form.validate_on_submit():
-                post_dict = db.create_post(user_id,
-                                           post_form.price.data,
-                                           post_form.quantity.data,
-                                           post_form.unit.data,
-                                           post_form.product.data,
-                                           post_form.category.data,
-                                           post_form.description.data)
-                uploaded_photo = post_form.image.data
+            post_dict = db.create_post(user_id,
+                                       post_form.price.data,
+                                       post_form.quantity.data,
+                                       post_form.unit.data,
+                                       post_form.product.data,
+                                       post_form.category.data,
+                                       post_form.description.data)
+            uploaded_photo = post_form.image.data
 
-                photo_row = db.init_post_photo(post_dict['id'])
+            photo_row = db.init_post_photo(post_dict['id'])
 
-                file_name = "file{:04d}".format(photo_row['id'])
+            file_name = "file{:04d}".format(photo_row['id'])
 
-                extension = PurePath(uploaded_photo.filename).suffix
-                file_name += extension
+            extension = PurePath(uploaded_photo.filename).suffix
+            file_name += extension
 
-                file_path = os.path.join('static/photos', file_name)
+            file_path = os.path.join('static/photos', file_name)
 
-                file_path2 = os.path.join('photos', file_name)
+            file_path2 = os.path.join('photos', file_name)
 
-                save_path = os.path.join(app.static_folder, file_path2)
-                uploaded_photo.save(save_path)
+            save_path = os.path.join(app.static_folder, file_path2)
+            uploaded_photo.save(save_path)
 
-                db.set_post_photo(photo_row['id'], file_path)
+            db.set_post_photo(photo_row['id'], file_path)
 
-                if post_dict['rowcount'] == 1:
-                    flash("{} added successfully".format(post_form.product.data), category='success')
-                    return redirect(url_for('all_posts'))
-                else:
-                    flash("Post not created", category='danger')
+            if post_dict['rowcount'] == 1:
+                flash("{} added successfully".format(post_form.product.data), category='success')
+                return redirect(url_for('all_posts'))
+            else:
+                flash("Post not created", category='danger')
 
         return render_template('post-form.html', post_form=post_form, mode='create', role=role)
 
@@ -789,7 +817,8 @@ def buy_product(id):
         else:
             return redirect(url_for('confirmation', id=id, amount=amount, total=total))
 
-    return render_template('buy-product.html', form=buy_product_form, selling_user=selling_user, buying_user=buying_user, post=post, role=role)
+    return render_template('buy-product.html', form=buy_product_form, selling_user=selling_user,
+                           buying_user=buying_user, post=post, role=role)
 
 
 # Order confirmation page
@@ -833,11 +862,14 @@ def all_posts():
 
         if not filtered_posts:
             if not key_list:
-                return render_template('posts.html', filter_form=selected, search_form=query, posts=db.all_posts(), mode='results', role=role)
+                return render_template('posts.html', filter_form=selected, search_form=query, posts=db.all_posts(),
+                                       mode='results', role=role)
             else:
-                return render_template('posts.html', filter_form=selected, search_form=query, posts=[], mode='results', role=role)
+                return render_template('posts.html', filter_form=selected, search_form=query, posts=[], mode='results',
+                                       role=role)
         else:
-            return render_template('posts.html', filter_form=selected, search_form=query, posts=filtered_posts, mode='results', role=role)
+            return render_template('posts.html', filter_form=selected, search_form=query, posts=filtered_posts,
+                                   mode='results', role=role)
 
     if query.search.data is not None:
         query_list = query.search.data.lower().split(" ")
@@ -846,10 +878,13 @@ def all_posts():
             posts += db.search_products(item)
 
         if not posts:
-            return render_template('posts.html', filter_form=selected, search_form=query, posts=[], mode='results', role=role)
+            return render_template('posts.html', filter_form=selected, search_form=query, posts=[], mode='results',
+                                   role=role)
         else:
-            return render_template('posts.html', filter_form=selected, search_form=query, posts=posts, mode='results', role=role)
-    return render_template('posts.html', filter_form=selected, search_form=query, posts=db.all_posts(), mode='feed', role=role)
+            return render_template('posts.html', filter_form=selected, search_form=query, posts=posts, mode='results',
+                                   role=role)
+    return render_template('posts.html', filter_form=selected, search_form=query, posts=db.all_posts(), mode='feed',
+                           role=role)
 
 
 class ProductSearchForm(FlaskForm):
