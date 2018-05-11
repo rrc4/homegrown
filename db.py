@@ -39,9 +39,12 @@ def find_user_by_email(email):
 # Find a user by name
 def find_user_by_id(id):
     query = '''
-        SELECT * FROM "user" u
-        LEFT JOIN user_photo ON u.id = user_photo.id
-        WHERE u.id = %(id)s
+        SELECT
+          u.*,
+          file_path
+        FROM "user" u
+          LEFT JOIN user_photo ON u.id = user_photo.id
+        WHERE u.id = 4;
     '''
     g.cursor.execute(query, {'id': id})
     return g.cursor.fetchone()
