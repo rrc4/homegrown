@@ -460,7 +460,6 @@ def profile():
 
 # A user's profile
 @app.route('/profile/<id>', methods=['GET'])
-@requires_roles('user')
 @login_required
 def user_profile(id):
     query = ProductSearchForm(request.form)
@@ -659,7 +658,6 @@ class EditPostForm(FlaskForm):
 
 # Create a post
 @app.route('/posts/new', methods=['GET', 'POST'])
-@requires_roles('user')
 @login_required
 def create_post():
     post_form = PostForm()
